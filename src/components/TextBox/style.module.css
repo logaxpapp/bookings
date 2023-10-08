@@ -1,0 +1,60 @@
+.input_label {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+.input_label_text {
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.input_label_text_rider {
+  font-weight: normal;
+  font-size: 0.65rem;
+}
+
+.input_wrap {
+  position: relative;
+  background-color: #fefeff;
+  padding: 10px 16px;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  background-color: inherit;
+}
+
+.input_error {
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: #c51306;
+  visibility: hidden;
+  height: 12px;
+}
+
+.input_error.show {
+  visibility: visible;
+}
+
+.field_row {
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px;
+  background-color: #eef3f3;
+  align-items: center;
+}
+
+.field_value {
+  flex: 1;
+}
+
+span.field_value {
+  padding: 6px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

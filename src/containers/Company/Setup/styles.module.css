@@ -1,0 +1,632 @@
+.main {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+  padding: 12px 24px;
+}
+
+.content.subscription {
+  overflow: auto;
+}
+
+.page_header {
+  position: relative;
+  padding: 0.8em 0.8rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.page_heading {
+  flex: 1 1;
+  font-size: 1.2rem;
+  align-self: flex-start;
+}
+
+.sub_heading {
+  font-size: 0.9rem;
+}
+
+.setup_container {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+.section_wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 8px 2px;
+}
+
+.card {
+  box-shadow: rgba(0, 0, 0, 0.25) 0 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0 0 0 1px inset;
+}
+
+.section {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.section_body {
+  flex: 1;
+}
+
+.section_header_wrap {
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+}
+
+.section_header {
+  flex: 1;
+  width: 100%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background-size: cover;
+}
+
+.section_label {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  font-size: 0.6rem;
+  font-weight: bold;
+  margin: 0;
+  color: #fff;
+}
+
+.section_label.location_label {
+  right: unset;
+  left: 8px;
+  color: #6ea3dd;
+  font-size: 0.7rem;
+}
+
+.section_heading {
+  color: #efefef;
+  margin-bottom: 0;
+  font-size: 1.2rem;
+}
+
+.section_editor_slider {
+  position: absolute;
+  left: 0;
+  bottom: 50px;
+  width: 100%;
+  overflow: hidden;
+  max-height: 0;
+  transform: translateY(calc(100% + 50px));
+  transition: all 0.3s linear;
+}
+
+.section_editor_slider.open {
+  max-height: 300px;
+  transform: translateY(0);
+}
+
+.section_editor_slider_pad {
+  padding: 4px;
+}
+
+.section_footer {
+  position: relative;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: flex-end;
+  min-height: 34px;
+  background-color: #fff;
+  border-top: 1px solid #d9dee5;
+}
+
+.city_section {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.city_header {
+  background-image: url(../../../assets/images/cityscape.jpg);
+}
+
+.city_body {
+  position: relative;
+  padding: 16px 8px;
+}
+
+.city_details_wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.city_details_row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+
+.city_details_state_country_row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.city_details_label {
+  position: relative;
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 2px 0 0 20px;
+}
+
+.city_details_value {
+  padding-left: 4px;
+}
+
+.city_details_label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 16px;
+  height: 16px;
+  background-image: url(../../../assets/images/marker.svg);
+  background-size: 100% 100%;
+}
+
+.city_footer {
+  position: relative;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: flex-end;
+  min-height: 34px;
+  border-top: #d9dee5;
+}
+
+.city_editor_section {
+  padding: 0 4px;
+}
+
+.city_editor {
+  padding: 12px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.25) 0 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0 0 0 1px inset;
+}
+
+.city_editor_heading {
+  margin-bottom: 12px;
+  color: #354764;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 100%;
+  letter-spacing: -0.22px;
+}
+
+.city_editor_selects_wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #fff;
+  color: #354764;
+}
+
+.city_editor_select_wrap {
+  position: relative;
+  width: 100%;
+  background-color: #ebedf0;
+  border-radius: 4px;
+  padding: 2px 0 2px 16px;
+}
+
+.city_editor_select_wrap::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 7px;
+  width: 18px;
+  height: 18px;
+  background-size: 100% 100%;
+  background-image: url(../../../assets/images/marker.svg);
+}
+
+.city_editor_select {
+  display: block;
+  border: none;
+}
+
+.city_editor_select > select {
+  border: none;
+  background-color: transparent;
+  color: #354764;
+}
+
+.location_section {
+  width: 100%;
+  max-width: 280px;
+  overflow: hidden;
+}
+
+.location_header {
+  background-image: url(../../../assets/images/nasa.jpg);
+}
+
+.location_body {
+  min-height: 80px;
+  padding: 16px;
+}
+
+.location_body_inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px 16px;
+}
+
+.location_company_details {
+  padding: 16px;
+}
+
+.location_details_wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.location_details_row {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.8rem;
+  padding-left: 24px;
+}
+
+.location_details_row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 16px;
+  height: 16px;
+  background-size: 100% 100%;
+  background-image: url(../../../assets/images/marker.svg);
+}
+
+.location_details_label {
+  font-weight: bold;
+  min-width: 65px;
+}
+
+.location_footer {
+  padding: 4px;
+}
+
+.location_editor_section {
+  padding: 8px;
+}
+
+.location_editor {
+  padding: 12px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.25) 0 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0 0 0 1px inset;
+}
+
+.location_editor_heading {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.location_reload_link_wrap {
+  padding: 8px 0 0 8px;
+}
+
+.open_hours_header {
+  background-image: url(../../../assets/images/shop_open.jpg);
+}
+
+.open_days_grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 0.8rem;
+  padding: 12px;
+}
+
+.open_hours_wrap {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16px;
+  padding: 16px 16px 8px;
+  border-top: 1px dotted #d8e0e5;
+}
+
+.open_time_wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.open_time_label {
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.subscription_section {
+  color: #fff;
+  background-color: #011c39;
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.subscription_header {
+  padding: 24px;
+  background-color: #8b0030;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+}
+
+.subscription_heading {
+  font-size: 1.2rem;
+}
+
+.subscription_body {
+  flex: 1;
+}
+
+.subscription_footer {
+  padding: 8px;
+}
+
+.subscription_status {
+  position: relative;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  padding-right: 24px;
+}
+
+.subscription_status::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-size: 80% 80%;
+  background-position: center;
+  box-shadow: rgba(0, 0, 0, 0.25) 0 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0 0 0 1px inset;
+}
+
+.subscription_status:not(.pending)::after {
+  background-color: #21b25f;
+  color: #fff;
+  background-image: url(../../../assets/images/check.svg);
+}
+
+.subscription_status.suspended::after {
+  background-color: #e80808;
+  color: #fff;
+  background-image: url(../../../assets/images/close.svg);
+}
+
+.subscription_plan_wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 24px;
+}
+
+.subscription_plan {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 16px;
+  line-height: 25px;
+}
+
+.subscription_price_label {
+  font-weight: 300;
+}
+
+.subscription_price {
+  font-weight: 500;
+}
+
+.subscription_plan_btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 16px;
+  font-weight: 300;
+  font-size: 13px;
+  color: #fff;
+  background-color: transparent;
+  padding: 6px 12px;
+  border-left: 1px dotted #2a3c4f;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.subscription_plan_btn::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  color: #fff;
+  background-size: 100% 100%;
+  background-image: url(../../../assets/images/swap.svg);
+}
+
+.subscription_plan_btn_change {
+  font-weight: 700;
+}
+
+.subscription_next_payment_wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 24px;
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 25px;
+}
+
+.subscription_next_payment_wrap::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: 0;
+  border: 1px solid #092747;
+}
+
+.subscription_next_payment_label {
+  font-weight: 200;
+}
+
+.subscription_payment_btn {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: -0.16px;
+  color: #fff;
+  background-color: #89e101;
+  cursor: pointer;
+}
+
+.subscription_payment_btn:hover {
+  background-color: #6aaa09;
+}
+
+.upload_header {
+  padding-top: 28px;
+  color: #fff;
+}
+
+.profile_header {
+  background-color: #011c39;
+}
+
+.payment_section {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.payment_option_heading {
+  font-weight: bold;
+  margin-bottom: 12px;
+  font-size: 0.9rem;
+}
+
+.payment_body {
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 16px;
+}
+
+.payments_rows_panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+}
+
+.payment_row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.payment_row_label {
+  position: relative;
+  padding-left: 16px;
+  font-size: 0.8rem;
+}
+
+.payment_row_label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 8px;
+  height: 8px;
+  background-color: #7e0404;
+  transform: rotate(45deg);
+}
+
+.payment_row_label.enrolled::before {
+  background-color: #21b25f;
+}
+
+.payment_header {
+  background-image: url(../../../assets/images/payment2.avif);
+}
+
+@media only screen and (min-width: 576px) {
+  .page_header {
+    flex-direction: row-reverse;
+    padding: 0.8rem;
+  }
+
+  .page_header.new {
+    flex-direction: row;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .page_heading {
+    align-self: center;
+    font-size: 1.6rem;
+  }
+
+  .sub_heading {
+    font-size: 1.2rem;
+  }
+
+  .page_header.subscription {
+    flex-direction: column;
+  }
+}

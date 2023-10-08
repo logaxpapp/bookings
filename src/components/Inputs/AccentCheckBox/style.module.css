@@ -1,0 +1,30 @@
+.accent_checkbox_label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.accent_checkbox_label input[type="checkbox"] {
+  display: none;
+}
+
+.accent_checkbox_label input[type="checkbox"] + span.radio {
+  background-color: #b5babd;
+  border-radius: 4px;
+}
+
+.accent_checkbox_label input[type="checkbox"]:checked + span.radio {
+  position: relative;
+  background-color: var(--color-accent);
+}
+
+.accent_checkbox_label input[type="checkbox"]:checked + span.radio::after {
+  content: '';
+  position: absolute;
+  left: 15%;
+  top: 15%;
+  width: 70%;
+  height: 70%;
+  background-size: 100%;
+  background-image: url(../../../assets/images/check.svg);
+}

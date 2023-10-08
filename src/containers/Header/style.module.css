@@ -1,0 +1,249 @@
+.header {
+  position: relative;
+  padding: 16px 8px;
+  width: 100%;
+  height: 48px;
+}
+
+.dimmer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+}
+
+.header:not(.transparent) {
+  border-bottom: 1px solid #efefef;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.nav {
+  position: relative;
+  width: 100%;
+  display: none;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.main_nav_brand {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.logo {
+  width: 24px;
+}
+
+.nav_brand_wrap {
+  font-size: 18px;
+  font-weight: bold;
+  color: #00416a;
+  text-shadow: 0 0 10px #ecece7, 0 0 20px #f2f6f7, 0 0 30px #ebeeef, 0 0 40px #e9ecec;
+  text-align: center;
+}
+
+.nav_brand_wrap .loga {
+  color: #00416a;
+}
+
+.nav_brand_wrap .xp {
+  color: #05683a;
+}
+
+.menus_wrap {
+  grid-column: 2 / span 3;
+  display: flex;
+  justify-content: space-between;
+}
+
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.menu_link {
+  color: var(--primary-color);
+  display: block;
+  font-size: 14px;
+}
+
+.menu_link:hover,
+.menu_link.active {
+  color: var(--color-accent);
+}
+
+.header.transparent .menu_link {
+  color: #fff;
+}
+
+.header.transparent .menu_link:hover,
+.header.transparent .menu_link.active {
+  color: var(--color-accent);
+}
+
+.menu_link.register_menu_item {
+  color: #fff;
+  background-color: var(--primary-color-dark);
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  white-space: nowrap;
+}
+
+.menu_link.register_menu_item:hover {
+  background-color: #053452;
+}
+
+.globe {
+  width: 24px;
+  height: 24px;
+}
+
+.drawer_nav_bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2000;
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 300px;
+  background-color: #fff;
+  padding: 10px;
+  pointer-events: all;
+  transform: translateX(100%);
+  transition: transform 0.3s linear;
+  border-left: 1px solid #efefef;
+  box-shadow: rgba(0, 0, 0, 0.16) 0 1px 4px;
+}
+
+.drawer.open {
+  transform: translateX(0);
+}
+
+.drawer_nav_hamburger_nav {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+.drawer_nav_hamburger_nav .main_nav_brand {
+  font-size: 24px;
+}
+
+.drawer_header {
+  border-bottom: 1px solid #efefef;
+}
+
+.drawer a {
+  display: block;
+  width: 100%;
+  padding: 16px;
+}
+
+.drawer_logout_btn {
+  display: block;
+  background-color: transparent;
+  padding: 16px;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.drawer a:hover,
+.drawer_logout_btn:hover {
+  color: var(--color-accent);
+}
+
+.user_menu {
+  position: relative;
+  padding-right: 12px;
+  cursor: pointer;
+  background-color: #fff;
+  z-index: 1001;
+  transition: all 0.3s linear;
+  cursor: pointer;
+}
+
+.user_menu:hover {
+  transform: scale(1.05);
+}
+
+.user_menu::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 6px;
+  width: 16px;
+  height: 16px;
+  transform: rotate(180deg);
+  background-size: 100% 100%;
+  background-image: url(../../assets/images/chevron.svg);
+}
+
+.user_menu_popup {
+  position: absolute;
+  right: -4px;
+  top: 80%;
+  width: 180px;
+  display: none;
+}
+
+.user_menu:hover .user_menu_popup {
+  display: block;
+}
+
+.user_menu_popup * {
+  white-space: nowrap;
+  font-family: Inter;
+  font-size: 0.9rem;
+  color: var(--color-primary-dark);
+}
+
+.menu_demarcator {
+  border-bottom: 1px dotted #ddd;
+}
+
+@media only screen and (min-width: 650px) {
+  .nav {
+    display: grid;
+  }
+
+  .drawer_nav_bar {
+    display: none;
+  }
+
+  .header {
+    height: unset;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .menu_link {
+    font-size: 18px;
+  }
+
+  .header {
+    height: unset;
+  }
+}

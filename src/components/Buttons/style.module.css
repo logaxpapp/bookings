@@ -1,0 +1,85 @@
+.new_btn {
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  align-self: flex-end;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.8rem;
+  color: #666;
+  white-space: nowrap;
+  background-color: transparent;
+  transition: transform 0.3s linear;
+  box-shadow: rgba(0, 0, 0, 0.16) 0 3px 6px, rgba(0, 0, 0, 0.23) 0 3px 6px;
+}
+
+.new_btn:hover {
+  transform: scale(1.05);
+}
+
+.new_btn * {
+  pointer-events: none;
+}
+
+.new_svg {
+  margin-right: 10px;
+  color: #2c622c;
+  width: 24px;
+  height: 24px;
+}
+
+.image_btn {
+  width: 24px;
+  height: 24px;
+}
+
+.image_btn img {
+  width: 100%;
+  height: 100%;
+  transition: all 0.3s linear;
+  pointer-events: none;
+}
+
+.image_btn:hover img {
+  transform: scale(1.1);
+}
+
+.header_date_wrap {
+  position: relative;
+}
+
+.header_date_btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #3d87e5;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 7px 16px 7px 8px;
+}
+
+.header_date_btn:hover {
+  background-color: #1454a8;
+}
+
+.header_date_btn * {
+  pointer-events: none;
+}
+
+.header_calendar_date_icon {
+  transform: scale(0.9);
+  min-width: 16px;
+}
+
+@media only screen and (min-width: 576px) {
+  .new_btn {
+    align-self: center;
+    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+  }
+}

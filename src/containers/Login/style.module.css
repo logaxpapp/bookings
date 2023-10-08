@@ -1,0 +1,85 @@
+.container {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-size: 100% 100%;
+}
+
+.main {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.innerWrap {
+  position: relative;
+  padding: 30px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+}
+
+.forgot_password_wrap {
+  display: flex;
+  justify-content: flex-end;
+  color: #096cee;
+  font-size: 0.9rem;
+}
+
+.h1 {
+  color: #0e2f5a;
+  font-size: 1.2rem;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px dotted #dfdfdf;
+}
+
+.controls {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.link {
+  color: #9e0606;
+  text-decoration: underline;
+}
+
+.error {
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #b60707;
+  text-align: center;
+  padding: 15px 0 0;
+}
+
+.reset_success_wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.recovery_success {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  text-align: center;
+}
+
+.login_link {
+  color: #1a45cf;
+  text-decoration: underline;
+}
+
+.reset_success_message {
+  color: #155724;
+}

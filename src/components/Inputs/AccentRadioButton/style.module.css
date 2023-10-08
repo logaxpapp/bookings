@@ -1,0 +1,31 @@
+.accent_radio_btn_label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.accent_radio_btn_label input[type="radio"] {
+  display: none;
+}
+
+.accent_radio_btn_label input[type="radio"] + span.radio {
+  background-color: transparent;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+}
+
+.accent_radio_btn_label input[type="radio"]:checked + span.radio {
+  position: relative;
+  background-color: var(--color-accent);
+}
+
+.accent_radio_btn_label input[type="radio"]:checked + span.radio::after {
+  content: '';
+  position: absolute;
+  left: 15%;
+  top: 15%;
+  width: 70%;
+  height: 70%;
+  background-size: 100%;
+  background-image: url(../../../assets/images/check.svg);
+}

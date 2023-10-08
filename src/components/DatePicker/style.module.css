@@ -1,0 +1,60 @@
+.grid_calendar_header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.grid_calendar_header_controls {
+  display: flex;
+  gap: 8px;
+}
+
+.grid_calendar_cell {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 24px;
+  height: 24px;
+  font-weight: 500;
+  font-size: 0.7rem;
+  padding: 0;
+  border-radius: 50%;
+  transition: all 0.3s ease-in;
+}
+
+.grid_calendar_cell * {
+  pointer-events: none;
+}
+
+.grid_calendar_cell.fade {
+  opacity: 0.5;
+}
+
+.grid_calendar_cell.grid_calendar_cell_heading {
+  font-weight: 900;
+}
+
+.grid_calendar_cell:not(.grid_calendar_cell_heading):not(.today):not(.active):hover {
+  background-color: #efefef;
+}
+
+.grid_calendar_cell.active {
+  color: #fff;
+  background-color: #71c7f8;
+}
+
+.grid_calendar_cell.today {
+  background-color: #07f;
+  color: #fff;
+}
+
+.grid_calendar_cell.today:hover {
+  background-color: #0362ce;
+}
+
+.grid_calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}

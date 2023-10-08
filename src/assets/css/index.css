@@ -1,0 +1,382 @@
+::-webkit-scrollbar {
+  width: 4px;
+  height: 8px;
+  border: 1px solid #d5d5d5;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 0;
+  background: #eee;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 0;
+  background: #b0b0b0;
+}
+
+:root {
+  --primary-color: #354764;
+  --primary-color-dark: #011c39;
+  --color-accent: #fc5546;
+  --neutral-n-90: #8993A4;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Roboto, Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+  color: var(--primary-color);
+  width: 100%;
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+code {
+  font-family:
+    source-code-pro,
+    Menlo,
+    Monaco,
+    Consolas,
+    'Courier New',
+    monospace;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0 0 5px 0;
+  padding: 0;
+}
+
+input,
+button,
+textarea,
+select {
+  outline: none;
+  border: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dimmed {
+  position: relative;
+}
+
+.dimmed::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.fixed {
+  position: fixed;
+}
+
+.cover {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.clip {
+  position: absolute;
+  -webkit-clip-path: circle(1px);
+  clip-path: circle(1px);
+  color: transparent;
+  background-color: transparent;
+  overflow: hidden;
+  bottom: 0;
+  right: 0;
+}
+
+.link {
+  background-color: transparent;
+  color: #066fb9;
+  padding: 0;
+  cursor: pointer;
+}
+
+.link:active {
+  transform: scale(1.05);
+}
+
+.link.compact {
+  font-weight: bold;
+  font-size: 0.7rem;
+  text-decoration: underline;
+  color: #1454a8;
+}
+
+.select {
+  border: 1px solid #ceebd8;
+  padding: 4px 4px 4px 0;
+  position: relative;
+}
+
+.select::after {
+  content: '';
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 16px;
+  height: 16px;
+  font-weight: bold;
+  font-size: 1.2rem;
+  background-image: url(../images/menu-down.png);
+  background-size: 100% 100%;
+  pointer-events: none;
+}
+
+.select > select {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  padding: 0 26px 0 10px;
+  margin: 0;
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: inherit;
+  line-height: inherit;
+}
+
+.select > select::-ms-expand {
+  display: none;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.list.horizontal {
+  flex-direction: row;
+}
+
+.table-card {
+  box-shadow: rgba(0, 0, 0, 0.25) 0 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0 0 0 1px inset;
+  height: 100%;
+  padding: 8px;
+  overflow: auto;
+}
+
+.table {
+  max-width: 100%;
+  font-size: 0.875rem;
+  width: 100%;
+  margin-bottom: 1rem;
+  vertical-align: top;
+  border-color: #dee2e6;
+}
+
+.table > thead {
+  vertical-align: bottom;
+  border-color: inherit;
+  border-style: solid;
+  border-width: 0;
+}
+
+.table > tbody {
+  vertical-align: inherit;
+  border-color: inherit;
+  border-style: solid;
+  border-width: 0;
+}
+
+.table tr {
+  border-color: inherit;
+  border-style: solid;
+  border-width: 0;
+}
+
+.table tbody tr:not(.header):hover {
+  box-shadow: rgba(0, 0, 0, 0.35) 0 5px 15px;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  border-bottom-width: 1px;
+  white-space: nowrap;
+}
+
+.table td.control {
+  width: 36px;
+}
+
+.table th:not(:last-child),
+.table td:not(:last-child) {
+  padding-right: 1.5rem;
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-left: 8px;
+}
+
+.table > :not(caption) > * > * {
+  padding: 0.5rem 0.5rem;
+  background-color: transparent;
+  border-bottom-width: 1px;
+  box-shadow: inset 0 0 0 9999px transparent;
+}
+
+.form-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+.form-controls.pad-top {
+  padding-top: 20px;
+}
+
+.control-btn {
+  outline: none;
+  border: none;
+  padding: 7px 15px;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 0.8rem;
+  cursor: pointer;
+  background-color: #113c6b;
+  box-shadow: rgba(50, 50, 93, 0.25) 0 2px 5px -1px, rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
+}
+
+.control-btn.cancel {
+  background-color: #9d0606;
+}
+
+.control-btn.green {
+  background-color: #058352;
+}
+
+.control-btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+  box-shadow: unset;
+}
+
+.control-btn:hover:not(:disabled) {
+  background-color: #1660af;
+}
+
+.control-btn.cancel:hover:not(:disabled) {
+  background-color: #c90f0f;
+}
+
+.control-btn.green:not(:disabled):hover {
+  background-color: #045033;
+}
+
+.calendar-date-icon {
+  position: relative;
+  top: 0;
+  background-color: #fff;
+  color: #000;
+  padding: 10px 4px 3px;
+  font-weight: bold;
+  font-size: 0.5rem;
+  line-height: 0.5;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.calendar-date-icon::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 6px;
+  background-color: #ef4136;
+  border-radius: 2px 2px 0 0;
+}
+
+.calendar-date-icon::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 4px;
+  right: 4px;
+  height: 6px;
+  border-left: 2px solid #000;
+  border-right: 2px solid #000;
+}
+
+.context-menu {
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
+}
+
+.menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  background-color: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.menu-item:hover {
+  color: #fff;
+  background-color: #0a8be7;
+}
+
+.pointer-events-none {
+  pointer-events: none;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 0s 600000s, color 0s 600000s;
+}
+
+@media only screen and (min-width: 576px) {
+
+}

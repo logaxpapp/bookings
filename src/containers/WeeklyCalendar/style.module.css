@@ -1,0 +1,220 @@
+.main {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  min-width: 820px;
+  overflow: auto;
+}
+
+.main.mini {
+  min-width: unset;
+  width: 100%;
+}
+
+.horizontal_scroller {
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+.weekly_calendar {
+  height: auto;
+  width: auto;
+}
+
+.weekly_calendar_body {
+  width: auto;
+}
+
+.weekly_calendar_header {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  padding: 0 0 0 48px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid #eee;
+  background-color: #fff;
+  z-index: 3;
+}
+
+.main.mini .weekly_calendar_header {
+  display: block;
+}
+
+.weekly_calendar_header::before {
+  content: attr(data-timezone);
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  font-size: 0.6rem;
+  text-align: right;
+  padding: 0 5px;
+  z-index: 2;
+}
+
+.week_header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  font-weight: 700;
+  color: #888;
+  padding: 16px 0;
+}
+
+.main.mini .weekly_calendar_header .week_header {
+  align-items: flex-start;
+  transform: translate(-32px, -8px);
+}
+
+.week_header::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 16px;
+  border-left: 1px solid #eee;
+  background-color: #eee;
+}
+
+.week_day {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.week_date {
+  font-size: 24px;
+}
+
+.weekly_calendar_row {
+  position: relative;
+  width: 100%;
+  padding-left: 48px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border-bottom: 1px solid #eee;
+}
+
+.main.mini .weekly_calendar_row {
+  display: block;
+}
+
+.weekly_calendar_row::before {
+  content: attr(data-hour);
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 36px;
+  font-size: 0.7rem;
+  text-align: right;
+  padding-right: 10px;
+  background-color: #fff;
+  z-index: 2;
+}
+
+.weekly_calendar_cell {
+  position: relative;
+  min-height: 48px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-left: 1px solid #eee;
+}
+
+.weekly_calendar_cell,
+.week_header {
+  min-width: 64px;
+}
+
+.weekly_calendar_cell_new_btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: transparent;
+  cursor: default;
+}
+
+.weekly_calendar_event_view_btn_wrap {
+  position: relative;
+  width: 100%;
+  padding-right: 24px;
+}
+
+.weekly_calendar_event_view_btn {
+  display: block;
+  width: 100%;
+  padding: 1px;
+  color: #fff;
+  background-color: #039be5;
+  border-radius: 4px;
+  font-size: 0.5rem;
+  text-align: left;
+}
+
+.event_panel_window {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  pointer-events: all;
+  z-index: 5;
+}
+
+.event_panel {
+  position: absolute;
+  width: 360px;
+  right: 10px;
+  bottom: 10px;
+  padding: 16px 32px 32px;
+  background-color: #fff;
+  transition: all 0.1s linear;
+  box-shadow: 0 24px 38px 3px rgba(0, 0, 0, .14), 0 9px 46px 8px rgba(0, 0, 0, .12), 0 11px 15px -7px rgba(0, 0, 0, .2);
+}
+
+.event_panel_header {
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px dotted #c3cad7;
+}
+
+.event_panel_heading {
+  color: #0a214b;
+  font-size: 1.2rem;
+}
+
+.appointment_body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.appointment_row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+
+.appointment_row svg {
+  width: 14px;
+  height: 14px;
+}
+
+.appointment_row.venue_row {
+  align-items: flex-start;
+}
+
+.venue_row span {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  white-space: pre-wrap;
+}

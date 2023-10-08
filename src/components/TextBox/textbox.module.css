@@ -1,0 +1,60 @@
+.account,
+.company,
+.email,
+.name,
+.password,
+.marker,
+.phone,
+.category {
+  position: relative;
+  padding-right: 24px;
+}
+
+.account::after,
+.company::after,
+.email::after,
+.name::after,
+.password::after,
+.marker::after,
+.phone::after,
+.category::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  top: 10px;
+  width: 16px;
+  height: 16px;
+  background-size: 100% 100%;
+}
+
+.account::after {
+  background-image: url(../../assets/images/account.svg);
+}
+
+.company::after {
+  background-image: url(../../assets/images/domain.svg);
+}
+
+.email::after {
+  background-image: url(../../assets/images/email.svg);
+}
+
+.name::after {
+  background-image: url(../../assets/images/account.svg);
+}
+
+.password::after {
+  background-image: url(../../assets/images/lock.svg);
+}
+
+.marker::after {
+  background-image: url(../../assets/images/marker.svg);
+}
+
+.phone::after {
+  background-image: url(../../assets/images/phone.svg);
+}
+
+.category::after {
+  background-image: url(../../assets/images/category.svg);
+}

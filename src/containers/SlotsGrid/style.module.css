@@ -1,0 +1,44 @@
+.container {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  gap: 3px;
+  padding: 4px;
+  overflow: auto;
+}
+
+.container.empty {
+  display: block;
+}
+
+.slot_btn {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 6px;
+  background: linear-gradient(#bef1eb, #6cbbff, #bef1eb);
+  font-weight: bold;
+  font-size: 0.6rem;
+  color: #0f3724;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.5s ease-in-out;
+}
+
+.slot_btn:hover {
+  background: linear-gradient(#6cbbff, #bef1eb, #6cbbff);
+}
+
+.slot_btn * {
+  pointer-events: none;
+}
+
+.empty_info {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  color: #858b9c;
+  text-align: center;
+}

@@ -1,0 +1,42 @@
+.simple_checkbox {
+  position: relative;
+  font-size: 0.9rem;
+}
+
+.simple_checkbox input[type="checkbox"] {
+  display: none;
+  visibility: hidden;
+}
+
+.simple_checkbox span {
+  padding: 2px 5px 5px 25px;
+  white-space: nowrap;
+}
+
+.simple_checkbox span::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: rgba(60, 64, 67, 0.3) 0 1px 2px 0, rgba(60, 64, 67, 0.15) 0 2px 6px 0;
+}
+
+.simple_checkbox span::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #8c9ba1;
+}
+
+.simple_checkbox input[type="checkbox"]:checked + span::after {
+  background-color: #abff00;
+  box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89ff00 0 2px 0;
+}

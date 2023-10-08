@@ -1,0 +1,147 @@
+.container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.main {
+  padding: 32px;
+  max-width: 960px;
+  margin: auto;
+}
+
+.heading {
+  font-size: 1.2rem;
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.plans_wrap {
+  position: relative;
+}
+
+.loading_wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+  padding: 48px;
+}
+
+.subscriptions_grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.subscription {
+  width: 100%;
+  background-color: #fff;
+  padding: 8px;
+  border-radius: 16px;
+  box-shadow: 0 30px 30px -25px rgba(65, 51, 183, 0.25);
+}
+
+.subscription_inner {
+  position: relative;
+  padding: 48px 24px 24px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.subscription:nth-child(1) .subscription_inner {
+  color: #917072;
+  background-color: #ffedec;
+}
+
+.subscription:nth-child(2) .subscription_inner {
+  color: #a69fd6;
+  background-color: #f1eeff;
+}
+
+.subscription:nth-child(3) .subscription_inner {
+  color: #0c5460;
+  background-color: #d1ecf1;
+}
+
+.subscription:nth-child(4) .subscription_inner {
+  color: #155724;
+  background-color: #d4edda;
+}
+
+.subscription_heading {
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin: 8px 0;
+}
+
+.price_wrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 99em 0 0 99em;
+  display: flex;
+  align-items: center;
+  padding: 0.625em 0.75em;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.price_wrap small {
+  display: inline-block;
+  font-size: 0.75em;
+  font-weight: normal;
+  opacity: 0.8;
+}
+
+.price_wrap small:not(:first-child) {
+  margin-left: 0.25em;
+}
+
+.subscription:nth-child(1) .price_wrap {
+  color: #754d42;
+  background-color: #fbc8be;
+}
+
+.subscription:nth-child(2) .price_wrap {
+  color: #4e4b83;
+  background-color: #cbccee;
+}
+
+.subscription:nth-child(3) .price_wrap {
+  color: #053e58;
+  background-color: #9fc1d4;
+}
+
+.subscription:nth-child(4) .price_wrap {
+  color: #11420d;
+  background-color: #afd3b7;
+}
+
+.subscription_description {
+  width: 100%;
+  text-align: center;
+}
+
+.register_link {
+  display: block;
+  width: 100%;
+  margin: 16px 0 0;
+  color: #fff;
+  background-color: var(--primary-color-dark);
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 1.125rem;
+  padding: 10px;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+}
+
+span.register_link {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+a.register_link:hover {
+  background-color: var(--primary-color);
+}
