@@ -78,6 +78,9 @@ const getDuration = (str) => {
   if (!str) {
     return 0;
   }
+  if (typeof str === 'number') {
+    return 60 * str;
+  }
   const parts = str.split(':').map((p) => (Number.isNaN(p) ? 0 : Number.parseInt(p, 10)));
   if (!parts.length) {
     return 0;
@@ -442,6 +445,7 @@ const ServiceEditor = ({ service, category, onClose }) => {
               value={price}
               label="Price"
               placeholder="10.50"
+              error={priceError}
               style={{ backgroundColor: '#edf1f7' }}
               containerStyle={{ marginBottom: 0 }}
               onChange={handleValueChange}
@@ -465,7 +469,6 @@ const ServiceEditor = ({ service, category, onClose }) => {
               value={deposit}
               label="Deposit"
               placeholder="1.00"
-              error={priceError}
               style={{ backgroundColor: '#edf1f7' }}
               containerStyle={{ marginBottom: 0 }}
               onChange={handleValueChange}

@@ -129,7 +129,7 @@ export const loadStripe = (apiKey, options) => {
 export const useStripe = () => ({
   confirmPayment: ({ confirmParams }) => new Promise((resolve) => {
     put(
-      'http://localhost:7171/v1/payment_intents/10',
+      'https://chass.pythonanywhere.com/v1/payment_intents/10/confirm',
       {
         client_secret: secret,
         status: 'succeeded',

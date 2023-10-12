@@ -93,7 +93,7 @@ const ServiceImages = () => {
       const image = service.images.find((img) => img.id === id);
       if (image) {
         confirmDialog.show(
-          'The selected will be permanently deleted!',
+          'The selected image will be permanently deleted!',
           'Do you wish to continue?',
           (confirmed) => {
             if (confirmed) {
@@ -122,7 +122,7 @@ const ServiceImages = () => {
           <h1 className={css.h1}>{`${service.name} - Images`}</h1>
         </div>
         {!reachedLimit ? (
-          <NewButton name={NEW} text="New Service" onClick={handleClick} />
+          <NewButton name={NEW} text="New Image" onClick={handleClick} />
         ) : null}
       </header>
       {reachedLimit ? (
@@ -156,7 +156,7 @@ const ServiceImages = () => {
           </div>
         ) : (
           <div className={`${css.empty_notice} ${css.center} ${css.pad_top}`}>
-            No Image found!
+            No images found for service!
           </div>
         )}
       </>

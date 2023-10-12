@@ -32,6 +32,7 @@ const styles = {
     flexDirection: 'column',
     width: '100%',
     height: '100%',
+    minWidth: '250px',
     padding: '0',
     borderRadius: '4px',
     backgroundColor: 'transparent',
@@ -156,9 +157,8 @@ const ImageUploader = ({
     if (file) {
       if (onValidate) {
         onValidate(file, (error) => {
-          if (error) {
-            setError(error);
-          } else {
+          setError(error || '');
+          if (!error) {
             setInputFile(file);
           }
         });
@@ -166,7 +166,7 @@ const ImageUploader = ({
         setInputFile(file);
       }
     }
-  }, [setInputFile, onValidate]);
+  }, [setInputFile, setError, onValidate]);
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === FILE_BTN) {
@@ -175,9 +175,8 @@ const ImageUploader = ({
       setUploading(true);
       onSubmit(file.input, (error) => {
         setUploading(false);
-        if (error) {
-          setError(error);
-        } else if (onClose) {
+        setError(error || '');
+        if (!error && onClose) {
           onClose();
         }
       });
@@ -323,7 +322,7 @@ ImageUploadDialog.propTypes = {
 ImageUploadDialog.defaultProps = {
   onValidate: null,
   openDialogPrompt: OPEN_DIALOG_PROMPT,
-  buttonText: OPEN_DIALOG_PROMPT,
+  buttonText: BUTTON_TEXT,
   previewPlaceholder: null,
   aspectRatio: ASPECT_RATIO,
   maxImageHeight: MAX_IMAGE_HEIGHT,

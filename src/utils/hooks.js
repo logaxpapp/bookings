@@ -315,13 +315,10 @@ export const useBook = () => {
       return;
     }
 
-    const successSubmit = (firstname, lastname, email, phoneNumber) => {
-      resolve({
-        firstname,
-        lastname,
-        email,
-        phone_number: phoneNumber,
-      });
+    const successSubmit = (data, callback) => {
+      callback();
+
+      resolve({ token: null, data });
     };
 
     const failureCancel = () => reject(new Error('User cancelled action.'));

@@ -144,7 +144,7 @@ const UserRegistration = () => {
     })
       .then(({ id }) => {
         setBusy(false);
-        navigate(routes.signupSuccess, {
+        navigate(routes.user.emailVerification(id), {
           replace: true,
           state: { email, resendPath: `users/${id}/resend_verification_link` },
         });

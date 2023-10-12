@@ -9,6 +9,7 @@
   width: 100%;
   height: 100%;
   gap: 10px;
+  pointer-events: all;
 }
 
 .dimmer {
@@ -269,5 +270,43 @@
 }
 
 /* END: Double Ring Loader */
+
+/* START: Loading Bar */
+
+.loading_bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  display: inline-block;
+  background: #ffffff26;
+  overflow: hidden;
+}
+
+.loading_bar::after {
+  content: '';
+  width: 192px;
+  height: 3px;
+  background: #80a4f1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  animation: bar_loader 2s linear infinite;
+}
+
+@keyframes bar_loader {
+  0% {
+    left: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    left: 100%;
+    transform: translateX(0%);
+  }
+}
+
+/* END: Loading Bar */
 
 /* END https://cssloaders.github.io/ */

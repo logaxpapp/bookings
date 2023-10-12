@@ -126,4 +126,4 @@ export const authenticateUser = (email, password) => (
 
 export const registerCompany = (data) => post(url('companies/auth/signup', true), data);
 
-export const registerUser = (data) => post(url('companies/auth/signin', true), data);
+export const registerUser = (data) => post(url('users/auth/signup', true), data);

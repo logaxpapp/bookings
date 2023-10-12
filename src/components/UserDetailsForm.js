@@ -101,9 +101,12 @@ export const UserDetailsForm = ({ onSubmit }) => {
     }
 
     setBusy(true);
-    onSubmit(firstname, lastname, email, phoneNumber, () => {
-      setBusy(false);
-    });
+    onSubmit({
+      firstname,
+      lastname,
+      email,
+      phoneNumber,
+    }, () => setBusy(false));
   }, [firstname, lastname, email, phoneNumber, onSubmit, setErrors, setBusy]);
 
   return (
@@ -179,17 +182,16 @@ export const UserDetailsFormDialog = ({ onSubmit, onClose }) => {
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === CLOSE) {
       setOpen(false);
-      setTimeout(onClose, 500);
+      setTimeout(() => onClose(true), 500);
     }
   }, [onClose, setOpen]);
 
-  const handleSubmit = useCallback((firstname, lastname, email, phoneNumber, callback) => {
-    onSubmit(firstname, lastname, email, phoneNumber, (err) => {
-      if (err) {
-        callback();
-      } else {
+  const handleSubmit = useCallback((data, callback) => {
+    onSubmit(data, (err) => {
+      callback();
+      if (!err) {
         setOpen(false);
-        setTimeout(onClose, 500);
+        setTimeout(() => onClose(false), 500);
       }
     });
   }, [onClose, setOpen]);
@@ -224,9 +226,11 @@ export const useUserDetailsDialog = () => {
   return {
     show: (onSubmit, onCancelled) => {
       let popup;
-      const handleClose = () => {
+      const handleClose = (cancelled = true) => {
         popup.close();
-        onCancelled();
+        if (cancelled) {
+          onCancelled();
+        }
       };
 
       popup = dialog.show(

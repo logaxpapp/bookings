@@ -533,17 +533,15 @@ const OpenHoursPanel = ({ company }) => {
         </div>
       </div>
       <div className={css.section_footer}>
-        {company.location ? (
-          <SvgButton
-            type="button"
-            name={SAVE}
-            path={paths.save}
-            color="#228349"
-            title="Save"
-            onClick={handleClick}
-            sm
-          />
-        ) : null}
+        <SvgButton
+          type="button"
+          name={SAVE}
+          path={paths.save}
+          color="#228349"
+          title="Save"
+          onClick={handleClick}
+          sm
+        />
       </div>
     </section>
   );

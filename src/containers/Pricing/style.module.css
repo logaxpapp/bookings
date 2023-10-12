@@ -82,20 +82,20 @@
   padding: 16px 24px;
 }
 
-th.features_heading {
+.table th.features_heading {
   font-size: 1.2rem;
   text-align: left;
 }
 
-td.feature {
+.table td.feature {
   font-weight: bold;
 }
 
-td:not(.feature) {
+.table td:not(.feature) {
   text-align: center;
 }
 
-td svg {
+.table td svg {
   color: #00bda5;
   width: 24px;
   height: 24px;

@@ -622,6 +622,7 @@ h1.md {
 
   .page_header.images_header {
     flex-direction: row;
+    justify-content: space-between;
   }
 
   .page_header.new {

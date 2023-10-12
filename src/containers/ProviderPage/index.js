@@ -128,7 +128,7 @@ const TimeSlotsViewer = ({
 
   const handleBookSlot = useCallback((slot) => {
     const popup = busyDialog.show('Booking Appointment ...');
-    book(slot, provider, (err) => {
+    book(slot, { ...service, company: provider }, (err) => {
       if (!err) {
         const key = `${date}${service.id}`;
         dispatch(removeProviderTimeSlot({ id: slot.id, key }));
@@ -223,7 +223,7 @@ const ImagesViewer = ({
   }, [onClose]);
 
   return (
-    <section className={`${css.service_container} ${mini ? css.mini : ''}`}>
+    <section ref={container} className={`${css.service_container} ${mini ? css.mini : ''}`}>
       <header className={css.sub_header}>
         <div className={css.back_btn_wrap}>
           <SvgButton
@@ -489,7 +489,7 @@ const ProviderPage = ({ provider }) => {
                           <ServiceCard
                             key={service.id}
                             service={service}
-                            symbol={provider.city.state.country.currencySymbol}
+                            symbol={provider.country.currencySymbol}
                             onViewImage={showServiceTImages}
                             onViewSlots={showServiceTimeSlots}
                           />

@@ -32,6 +32,7 @@ import { useDialog } from '../../../lib/Dialog';
 import { DateButton } from '../../../components/Buttons';
 import { Ring } from '../../../components/LoadingButton';
 import { AccentRadioButton } from '../../../components/Inputs';
+import { LoadingBar } from '../../../components/LoadingSpinner';
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
@@ -659,6 +660,7 @@ const Dashboard = () => {
   const [date, setDate] = useState(dateToNormalizedString(new Date()));
   const [incompleteSetupMessage, setIncompleteSetupMessage] = useState('');
   const [updateRequestsCount, setUpdateRequestsCount] = useState(0);
+  const [loadCount, setLoadCount] = useState(0);
   const company = useSelector(selectCompany);
   const dialog = useDialog();
   const dispatch = useDispatch();
@@ -671,8 +673,11 @@ const Dashboard = () => {
   }, [state, setDate]);
 
   useEffect(() => {
-    dispatch(loadAppointmentsAsync(date, () => {}));
-  }, [date]);
+    setLoadCount((count) => count + 1);
+    dispatch(loadAppointmentsAsync(date, () => {
+      setLoadCount((count) => count - 1);
+    }));
+  }, [date, setLoadCount]);
 
   useEffect(() => {
     const filterd = appointments[date] || [];
@@ -725,6 +730,9 @@ const Dashboard = () => {
 
   return (
     <main className={css.main}>
+      {loadCount ? (
+        <LoadingBar />
+      ) : null}
       <header className="page-header">
         <h1 className="page_heading">Appointments</h1>
         <DateButton date={date} onChange={setDate} />

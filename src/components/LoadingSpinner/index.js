@@ -59,6 +59,18 @@ Loader.defaultProps = {
   color: '#fff',
 };
 
+export const LoadingBar = ({ zIndex }) => (
+  <span style={{ zIndex }} className={css.loading_bar} />
+);
+
+LoadingBar.propTypes = {
+  zIndex: PropTypes.number,
+};
+
+LoadingBar.defaultProps = {
+  zIndex: 2,
+};
+
 export const useBusyDialog = () => {
   const dialog = useDialog();
 

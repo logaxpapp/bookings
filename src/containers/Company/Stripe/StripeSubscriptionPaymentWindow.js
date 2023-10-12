@@ -178,7 +178,7 @@ const StripeSubscriptionPaymentWindow = () => {
       includeError.current = false;
     }
 
-    updateResource(requestParams.token, `payments/${intentId}?type=deposit`, data, true)
+    updateResource(requestParams.token, `payments/${intentId}?type=subscription`, data, true)
       .then(({ status, stripeStatus }) => {
         if (status === 'pending') {
           setState((state) => ({
@@ -272,7 +272,7 @@ const StripeSubscriptionPaymentWindow = () => {
         },
       }));
     }
-  }, [updateServer, setState, stripe, elements]);
+  }, [setState, stripe, elements]);
 
   return (
     <BlankPage>

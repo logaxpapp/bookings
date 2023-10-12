@@ -46,8 +46,8 @@
 
 .trusted_by_inner_panel {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -62,7 +62,7 @@
 }
 
 .trusted_by_img {
-  margin: auto;
+  margin: 0 8px;
 }
 
 .steps_row {
@@ -187,6 +187,7 @@
 
 .service_row  .first {
   border-radius: 12px 12px 0 0;
+  width: 100%;
 }
 
 .service_row  .last {

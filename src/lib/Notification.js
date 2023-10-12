@@ -346,6 +346,16 @@ const Notice = ({ notification }) => {
 const NoticeParser = ({ notification }) => {
   const { id, text } = notification;
 
+  useEffect(() => {
+    if (id && !text) {
+      removeNotification(id);
+    }
+  }, []);
+
+  if (!text) {
+    return null;
+  }
+
   if (text.startsWith('{"status":')) {
     return <RailsErrorDisplay id={id} text={text} />;
   }

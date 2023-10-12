@@ -412,10 +412,10 @@ const Employees = () => {
   return (
     <main className={css.main}>
       <header className="page-header">
+        <h1 className="page-heading">Employees</h1>
         {permissions.isAdmin ? (
           <NewButton name={NEW} text="New Employee" onClick={handleClick} />
         ) : null}
-        <h1 className="page-heading">Employees</h1>
       </header>
       {busy ? (
         <div className="fill-wrapper">
