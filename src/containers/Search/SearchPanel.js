@@ -46,7 +46,10 @@ const serviceProps = PropTypes.shape({
   price: PropTypes.number,
   duration: PropTypes.number,
   minDeposit: PropTypes.number,
-  images: PropTypes.arrayOf(PropTypes.string),
+  images: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    url: PropTypes.string,
+  })),
   company: PropTypes.shape({
     id: PropTypes.number,
     name: PropTypes.string,
@@ -241,7 +244,7 @@ TimeSlotsPanel.propTypes = {
 
 const ServicePanel = ({ service }) => {
   const [index, setIndex] = useState(0);
-  const [images, setImages] = useState([service.images]);
+  const [images, setImages] = useState(service.images);
   const [price, setPrice] = useState('');
   const [profilePicture, setProfilePicture] = useState('');
   const [isTimeSlotOpen, setTimeSlotOpen] = useState(false);
@@ -256,26 +259,26 @@ const ServicePanel = ({ service }) => {
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === INCREMENT) {
-      const idx = index + 1;
-      if (idx < images.length) {
-        setIndex(idx);
-      }
+      setIndex((index) => {
+        const idx = index + 1;
+        return idx < images.length ? idx : index;
+      });
     } else if (name === DECREMENT) {
-      const idx = index - 1;
-      if (idx >= 0) {
-        setIndex(idx);
-      }
+      setIndex((index) => {
+        const idx = index - 1;
+        return idx >= 0 ? idx : index;
+      });
     } else if (name === OPEN_SLOTS) {
       setTimeSlotOpen(true);
     } else if (name === CLOSE_SLOTS) {
       setTimeSlotOpen(false);
     }
-  }, [index, images, setIndex]);
+  }, [images, setIndex, setTimeSlotOpen]);
 
   return (
     <section className={css.service_panel}>
       <div className={css.service_picture_wrap}>
-        <img alt={service.name} src={images[index]} className={css.service_picture} />
+        <img alt={service.name} src={images[index].url} className={css.service_picture} />
         <div className={css.picture_nav_wrap}>
           <nav className={css.picture_nav}>
             <button
