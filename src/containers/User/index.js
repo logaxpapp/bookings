@@ -412,7 +412,7 @@ const City = ({ user }) => {
       </header>
       <div className={css.settings_body}>
         <div
-          className={`${css.city_wrap} ${user.city ? '' : css.empty} ${formOpen ? '' : css.open}`}
+          className={`${css.city_wrap} ${user.city ? '' : css.empty} ${formOpen ? css.open : ''}`}
         >
           {user.city ? (
             <>
@@ -430,7 +430,7 @@ const City = ({ user }) => {
               </div>
             </>
           ) : null}
-          <div className={`${css.city_editor_wrap} ${formOpen ? '' : css.open}`}>
+          <div className={`${css.city_editor_wrap} ${formOpen ? css.open : ''}`}>
             <CityEditor user={user} />
           </div>
           {user.city ? null : (
