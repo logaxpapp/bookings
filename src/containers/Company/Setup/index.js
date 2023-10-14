@@ -199,9 +199,7 @@ const CityEditor = ({ company, countries }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (company.city) {
-      setCountry(countries.find((c) => c.id === company.city.state.country.id));
-    }
+    setCountry(countries.find((c) => c.id === company.country.id));
   }, []);
 
   useEffect(() => setState(country ? country.states[0] : null), [country, setState]);
@@ -246,9 +244,9 @@ const CityEditor = ({ company, countries }) => {
                 title={country && country.name}
               >
                 <option value="" disabled>Select Country</option>
-                {countries.map((country) => (
-                  <option key={country.id} value={country.id}>{country.name}</option>
-                ))}
+                <option value={company.country.id}>
+                  {company.country.name}
+                </option>
               </select>
             </label>
           </div>

@@ -89,6 +89,7 @@ export const companyProps = PropTypes.shape({
   profilePicture: PropTypes.string,
   coverPicture: PropTypes.string,
   city: cityProps,
+  country: countryProps,
   location: locationProps,
   serviceCategories: PropTypes.arrayOf(serviceCategoryProps),
 });
