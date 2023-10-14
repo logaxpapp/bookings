@@ -32,15 +32,14 @@ import {
   capitalize,
   currencyHelper,
   dateUtils,
-  windowUtils,
 } from '../../../utils';
 import { isImage, uploadFile } from '../../../lib/CloudinaryUtils';
 import ImageUploader from '../../../components/ImageUploader';
 import defaultImages from '../../../utils/defaultImages';
 import { SimpleCheckBox } from '../../../components/Inputs';
-import { fetchResources } from '../../../api';
 import GridPanel from '../../../components/GridPanel';
 import routes from '../../../routing/routes';
+import payments from '../../../payments';
 
 const location = UserLocation.getLocation();
 
@@ -65,14 +64,13 @@ const STATE = 'state';
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
 
-const paymentMethods = ['stripe'];
+const paymentMethods = ['stripe', 'paystack'];
 
 const PaymentsMethodRow = ({ name, company }) => {
   const [isEnrolled, setEnrolled] = useState(false);
   const [title, setTitle] = useState('');
   const [busy, setBusy] = useState(false);
   const token = useSelector(selectToken);
-  const notification = useNotification();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -80,41 +78,22 @@ const PaymentsMethodRow = ({ name, company }) => {
     setEnrolled(company.enabledPaymentMethods.includes(name));
   }, [name, company, setEnrolled, setTitle]);
 
-  const handleClick = useCallback(({ target: { name } }) => {
-    if (name === SETUP_PAYMENT) {
-      setBusy(true);
-      fetchResources('stripe_connected_accounts/links', token, true)
-        .then(({ url }) => {
-          if (!url) {
-            notification.showError('An error occurred while connecting to Stripe. If this error persists, please contact us using any of our contact platforms.');
-            return;
-          }
-
-          windowUtils.open(url);
-          const interval = setInterval(() => {
-            fetchResources('stripe_connected_accounts/status', token, true)
-              .then(({ status, hasActiveLink }) => {
-                if (status === 'active') {
-                  clearInterval(interval);
-                  setBusy(false);
-                  const methods = company.enabledPaymentMethods || [];
-                  if (!methods.includes('stripe')) {
-                    dispatch(setCompany({ ...company, enabledPaymentMethods: [...methods, 'stripe'] }));
-                  }
-                } else if (!hasActiveLink) {
-                  clearInterval(interval);
-                  setBusy(false);
-                }
-              })
-              .catch(() => {});
-          }, 90000);
-        })
-        .catch(({ message }) => {
-          notification.showError(message);
-          setBusy(false);
-        });
+  const handleSetupPaymentMethod = useCallback(() => {
+    const handler = payments.getHandler(name);
+    if (!handler) {
+      return;
     }
-  }, [company, setBusy]);
+    setBusy(true);
+    handler.setupPaymentMethod(token, (update) => {
+      setBusy(false);
+      if (update) {
+        const methods = company.enabledPaymentMethods || [];
+        if (!methods.includes(name)) {
+          dispatch(setCompany({ ...company, enabledPaymentMethods: [...methods, name] }));
+        }
+      }
+    });
+  }, [company, name, setBusy]);
 
   return (
     <div className={css.payment_row}>
@@ -130,7 +109,7 @@ const PaymentsMethodRow = ({ name, company }) => {
               type="button"
               name={SETUP_PAYMENT}
               className="link compact-link"
-              onClick={handleClick}
+              onClick={handleSetupPaymentMethod}
             >
               Setup Option
             </button>
@@ -177,7 +156,7 @@ const PaymentsPanel = ({ company }) => {
       </div>
       <div className={css.payment_body}>
         <h2 className={css.payment_option_heading}>Available Payment Options</h2>
-        <div className={css.payment_rows_panel}>
+        <div className={css.payments_rows_panel}>
           {paymentMethods.map((name) => (
             <PaymentsMethodRow key={name} name={name} company={company} />
           ))}
@@ -920,7 +899,7 @@ const Setup = () => {
       <div className={css.content}>
         {countries ? (
           <div className={css.setup_container}>
-            <GridPanel minimumChildWidth={230}>
+            <GridPanel minimumChildWidth={400}>
               <div className={css.section_wrap}>
                 <PaymentsPanel company={company} />
               </div>
