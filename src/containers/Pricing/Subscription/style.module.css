@@ -4,6 +4,21 @@
   gap: 16px;
 }
 
+.country_notice {
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.discovery_warning {
+  display: block;
+  margin-top: 8px;
+  padding: 4px;
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+}
+
 .loading_panel {
   position: relative;
   height: 240px;

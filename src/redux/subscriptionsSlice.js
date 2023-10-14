@@ -26,6 +26,10 @@ const slice = createSlice({
     setIpInfo: (state, { payload }) => {
       state.ipInfo = payload;
     },
+    clearIpInfo: (state) => {
+      state.ipInfo = null;
+      appStorage.delete(IP_STORAGE_KEY);
+    },
     setError: (state, { payload }) => {
       state.error = payload;
       state.loading = false;
@@ -35,6 +39,7 @@ const slice = createSlice({
 /* eslint-enable no-param-reassign */
 
 export const {
+  clearIpInfo,
   setIpInfo,
   setLoading,
   setError,

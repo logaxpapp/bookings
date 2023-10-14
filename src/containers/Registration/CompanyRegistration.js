@@ -5,7 +5,10 @@ import textboxCss from '../../components/TextBox/textbox.module.css';
 import AlertComponent from '../../components/AlertComponents';
 import Header from '../Header';
 import LoadingButton from '../../components/LoadingButton';
-import TextBox from '../../components/TextBox';
+import TextBox, {
+  matchesEmail,
+  matchesPhoneNumber,
+} from '../../components/TextBox';
 import routes from '../../routing/routes';
 import { registerCompany } from '../../api';
 
@@ -20,12 +23,6 @@ const PASSWORD_REPEAT = 'password_repeat';
 const PHONE_NUMBER = 'phone_number';
 
 const categories = ['Salon'];
-
-export const matchesEmail = (email) => /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.test(email);
-
-export const matchesPhoneNumber = (number) => (
-  /^[+]?[\s./0-9]*[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/g.test(number)
-);
 
 const CompanyRegistration = () => {
   const [priceId, setPriceId] = useState(0);
@@ -60,7 +57,7 @@ const CompanyRegistration = () => {
       setPriceId(location.state.priceId);
       setCountryId(location.state.countryId);
     } else {
-      navigate(routes.subscriptions, { replace: true });
+      navigate(routes.company.absolute.subscriptions, { replace: true });
     }
   }, []);
 
@@ -147,7 +144,7 @@ const CompanyRegistration = () => {
     })
       .then(({ id }) => {
         setBusy(false);
-        navigate(routes.company.absolute.emailVerification, {
+        navigate(routes.company.absolute.emailVerification(id), {
           replace: true,
           state: { email, resendPath: `companies/${id}/resend_verification_link` },
         });

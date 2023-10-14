@@ -13,7 +13,7 @@ import BlendedImageBackground from '../../components/BlendedImageBackground';
 import { Ring } from '../../components/LoadingButton';
 import { postResource } from '../../api';
 import { useNotification } from '../../lib/Notification';
-import { matchEmail } from '../../components/TextBox';
+import { matchesEmail } from '../../components/TextBox';
 
 const EMAIL = 'email';
 
@@ -231,7 +231,7 @@ const EmailSubscriptionPanel = () => {
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
-    if (!matchEmail(email)) {
+    if (!matchesEmail(email)) {
       notification.showError('Invalid Email Address!');
       return;
     }

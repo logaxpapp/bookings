@@ -1,4 +1,4 @@
-const API_HOST = 'https://appointment-bookings-api.onrender.com';
+const API_HOST = 'http://localhost:3000'; // 'https://appointment-bookings-api.onrender.com';
 
 const config = {
   API_HOST,

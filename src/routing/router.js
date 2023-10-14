@@ -60,7 +60,7 @@ const router = createBrowserRouter([
     element: <Pricing />,
   },
   {
-    path: routes.subscriptions,
+    path: routes.company.absolute.subscriptions,
     element: <Subscriptions />,
   },
   {

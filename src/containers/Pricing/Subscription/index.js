@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
 import {
+  clearIpInfo,
   loadSubscriptionPlansAsync,
   selectSubscriptions,
 } from '../../../redux/subscriptionsSlice';
@@ -221,6 +222,7 @@ SubscriptionPlans.defaultProps = {
 };
 
 const Subscriptions = () => {
+  const [countryName, setCountryName] = useState('');
   const subscriptions = useSelector(selectSubscriptions);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -228,14 +230,54 @@ const Subscriptions = () => {
   useEffect(() => {
     if (!subscriptions) {
       dispatch(loadSubscriptionPlansAsync());
+    } else if (subscriptions.length) {
+      const subscription = subscriptions[0];
+      if (subscription.prices && subscription.prices.length) {
+        setCountryName(subscription.prices[0].country.name);
+      }
     }
+  }, []);
+
+  const handleClearMemo = useCallback(() => {
+    dispatch(clearIpInfo());
+    window.location.reload();
   }, []);
 
   const handleSelection = useCallback((state) => {
     navigate(routes.company.absolute.registration, { state });
   }, []);
 
-  return <SubscriptionPlans subscriptions={subscriptions} onSelect={handleSelection} />;
+  return (
+    <div>
+      {countryName ? (
+        <div className={css.country_notice}>
+          <span>
+            {`Our System detected that you are in ${countryName}. If this were NOT the case, you may need to disable your VPN (if you are using one) and/or`}
+          </span>
+          <button
+            type="button"
+            className="link compact-link"
+            style={{ fontSize: '0.9rem' }}
+            onClick={handleClearMemo}
+          >
+            &nbsp;clear&nbsp;
+          </button>
+          <span>
+            your device memoized location before continuing.
+          </span>
+          <br />
+          <span className={`warning bold ${css.discovery_warning}`}>
+            Please NOTE that it is only users searching from your
+            registered location that can discover you services.
+          </span>
+        </div>
+      ) : null}
+      <SubscriptionPlans
+        subscriptions={subscriptions}
+        onSelect={handleSelection}
+      />
+    </div>
+  );
 };
 
 export default Subscriptions;

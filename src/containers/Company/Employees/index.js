@@ -15,7 +15,7 @@ import { colors, paths, SvgButton } from '../../../components/svg';
 import GridPanel from '../../../components/GridPanel';
 import { useConfirmDialog, useDialog } from '../../../lib/Dialog';
 import SlideDialog from '../../../components/SlideInDialog';
-import TextBox, { matchEmail } from '../../../components/TextBox';
+import TextBox, { matchesEmail } from '../../../components/TextBox';
 import LoadingButton from '../../../components/LoadingButton';
 import { useNotification } from '../../../lib/Notification';
 
@@ -105,7 +105,7 @@ const EmployeeForm = ({ employee, onConfirm }) => {
       } else {
         data.lastname = lastname;
       }
-      if (!matchEmail(email)) {
+      if (!matchesEmail(email)) {
         errors.email = 'Invalid Email Address!';
       } else {
         data.email = email;

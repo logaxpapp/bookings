@@ -7,7 +7,10 @@ import css from './style.module.css';
 import textboxCss from '../../components/TextBox/textbox.module.css';
 import Header from '../Header';
 import LoadingButton from '../../components/LoadingButton';
-import TextBox from '../../components/TextBox';
+import TextBox, {
+  matchesEmail,
+  matchesPhoneNumber,
+} from '../../components/TextBox';
 import { registerUser } from '../../api';
 import routes from '../../routing/routes';
 
@@ -17,12 +20,6 @@ const EMAIL = 'email';
 const PHONE_NUMBER = 'phone_number';
 const PASSWORD = 'password';
 const PASSWORD_REPEAT = 'password_repeat';
-
-export const matchesEmail = (email) => /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.test(email);
-
-export const matchesPhoneNumber = (number) => (
-  /^[+]?[\s./0-9]*[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/g.test(number)
-);
 
 const GoogleSignupBtn = ({ callbackFunction }) => (
   <>

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import Header from '../../Header';
-import TextBox, { matchEmail } from '../../../components/TextBox';
+import TextBox, { matchesEmail } from '../../../components/TextBox';
 import LoadingButton from '../../../components/LoadingButton';
 import { postResource } from '../../../api';
 import { useNotification } from '../../../lib/Notification';
@@ -53,7 +53,7 @@ const AccountLinksRefresh = () => {
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
     const errors = {};
-    if (!matchEmail(email)) {
+    if (!matchesEmail(email)) {
       errors.email = 'Invalid Email Address!';
     }
     if (!password) {

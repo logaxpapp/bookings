@@ -66,7 +66,6 @@ const routes = {
   },
   pricing: '/pricing',
   contact: '/contact',
-  subscriptions: '/companies/signup/subscriptions',
   signupSuccess: '/signup/success',
   passwordReset: '/:resource/password-reset/:token',
   passwordRecoverySuccess: '/password-recoveries',

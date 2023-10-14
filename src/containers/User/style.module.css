@@ -662,7 +662,7 @@
 }
 
 .settings_body {
-  padding: 0 16px 8px;
+  padding: 0 8px 8px;
 }
 
 .appointments_tab {
@@ -693,6 +693,7 @@
   display: flex;
   gap: 8px;
   font-size: 0.8rem;
+  padding-left: 8px;
 }
 
 .direction_btn {
@@ -756,7 +757,7 @@
 }
 
 .city_wrap.open {
-  height: 280px;
+  height: 240px;
   padding: 16px 4px;
 }
 

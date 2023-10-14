@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import TextBox, { matchEmail, matchesPhoneNumber } from './TextBox';
+import TextBox, { matchesEmail, matchesPhoneNumber } from './TextBox';
 import LoadingButton from './LoadingButton';
 import SlideDialog from './SlideInDialog';
 import { SvgButton, colors, paths } from './svg';
@@ -86,7 +86,7 @@ export const UserDetailsForm = ({ onSubmit }) => {
       errors ||= {};
       errors.lastname = 'Lastname must be at least 2 characters';
     }
-    if (!matchEmail(email)) {
+    if (!matchesEmail(email)) {
       errors ||= {};
       errors.email = 'Invalid Email Address!';
     }

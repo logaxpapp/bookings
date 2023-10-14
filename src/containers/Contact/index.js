@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import css from './style.module.css';
 import { postForm } from '../../api';
-import TextBox, { matchEmail } from '../../components/TextBox';
+import TextBox, { matchesEmail } from '../../components/TextBox';
 import { useNotification } from '../../lib/Notification';
 import Header from '../Header';
 import LoadingButton from '../../components/LoadingButton';
@@ -47,7 +47,7 @@ const Contact = () => {
     e.preventDefault();
     const errors = {
       name: !name,
-      email: !matchEmail(email),
+      email: !matchesEmail(email),
       subject: !subject,
       content: !content,
     };
