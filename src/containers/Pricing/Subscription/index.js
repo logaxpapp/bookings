@@ -221,7 +221,7 @@ SubscriptionPlans.defaultProps = {
   subscriptions: null,
 };
 
-const Subscriptions = () => {
+const Subscriptions = ({ showNotice }) => {
   const [countryName, setCountryName] = useState('');
   const subscriptions = useSelector(selectSubscriptions);
   const dispatch = useDispatch();
@@ -230,7 +230,7 @@ const Subscriptions = () => {
   useEffect(() => {
     if (!subscriptions) {
       dispatch(loadSubscriptionPlansAsync());
-    } else if (subscriptions.length) {
+    } else if (showNotice && subscriptions.length) {
       const subscription = subscriptions[0];
       if (subscription.prices && subscription.prices.length) {
         setCountryName(subscription.prices[0].country.name);
@@ -278,6 +278,14 @@ const Subscriptions = () => {
       />
     </div>
   );
+};
+
+Subscriptions.propTypes = {
+  showNotice: PropTypes.bool,
+};
+
+Subscriptions.defaultProps = {
+  showNotice: false,
 };
 
 export default Subscriptions;

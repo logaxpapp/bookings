@@ -1,3 +1,4 @@
+import Paystack from './Paystack';
 import Stripe from './Stripe';
 
 const payments = {
@@ -9,6 +10,8 @@ const payments = {
     switch (identifier) {
       case 'stripe':
         return Stripe;
+      case 'paystack':
+        return Paystack;
       default:
         return null;
     }
