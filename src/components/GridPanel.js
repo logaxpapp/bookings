@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { childrenProps } from '../utils/propTypes';
 import { useWindowSize } from '../lib/hooks';
 
-const GridPanel = ({ children, minimumChildWidth }) => {
+const GridPanel = ({ children, minimumChildWidth, maxColumns }) => {
   const [state, setState] = useState({
     columns: 1,
     style: {
@@ -21,7 +21,10 @@ const GridPanel = ({ children, minimumChildWidth }) => {
   const panel = useRef(null);
 
   useEffect(() => {
-    const columns = Math.floor(panel.current.clientWidth / minimumChildWidth);
+    let columns = Math.floor(panel.current.clientWidth / minimumChildWidth);
+    if (maxColumns && columns > maxColumns) {
+      columns = maxColumns;
+    }
     setState((state) => (
       state.columns === columns ? state : {
         columns,
@@ -42,10 +45,12 @@ const GridPanel = ({ children, minimumChildWidth }) => {
 
 GridPanel.propTypes = {
   minimumChildWidth: PropTypes.number.isRequired,
+  maxColumns: PropTypes.number,
   children: childrenProps,
 };
 
 GridPanel.defaultProps = {
+  maxColumns: 0,
   children: null,
 };
 

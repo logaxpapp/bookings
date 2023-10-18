@@ -45,6 +45,7 @@ import UpdateSubscriptionPage from '../containers/Company/Setup/UpdateSubscripti
 import SubscriptionRenewal from '../containers/Company/SubscriptionRenewal';
 import StripeSubscriptionPaymentWindow from '../containers/Company/Stripe/StripeSubscriptionPaymentWindow';
 import StripeSubscriptionReturnWindow from '../containers/Company/Stripe/StripeSubscriptionReturnWindow';
+import { PaystackIntentCallbackWindow } from '../payments/Paystack';
 
 const router = createBrowserRouter([
   {
@@ -220,6 +221,10 @@ const router = createBrowserRouter([
   {
     path: routes.stripe.subscriptions.return(':intent_id'),
     element: <StripeSubscriptionReturnWindow />,
+  },
+  {
+    path: routes.paystack.payment(':type'),
+    element: <PaystackIntentCallbackWindow />,
   },
   {
     path: '*',

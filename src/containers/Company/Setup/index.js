@@ -820,7 +820,7 @@ const CoverImagePanel = ({ company }) => {
   }, []);
 
   const handleSubmit = useCallback((file, callback) => {
-    const popup = busyDialog.show('Uploading profile picture ...');
+    const popup = busyDialog.show('Uploading cover image ...');
     uploadFile('chassnet', 'image', 'logaxp', file)
       .then(({ secure_url: url }) => dispatch(updateCompanyImages(
         url, 'cover', 'coverImage', (err) => {
@@ -899,7 +899,7 @@ const Setup = () => {
       <div className={css.content}>
         {countries ? (
           <div className={css.setup_container}>
-            <GridPanel minimumChildWidth={400}>
+            <GridPanel minimumChildWidth={280} maxColumns={4}>
               <div className={css.section_wrap}>
                 <PaymentsPanel company={company} />
               </div>

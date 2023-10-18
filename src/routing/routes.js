@@ -84,6 +84,9 @@ const routes = {
       return: (intentId) => `/stripe/payments/subscriptions/${intentId}/return`,
     },
   },
+  paystack: {
+    payment: (type) => `/paystack-payment-callback/type/${type}`,
+  },
   search: '/search',
 };
 

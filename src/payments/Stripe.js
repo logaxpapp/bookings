@@ -68,7 +68,7 @@ const createIntent = (
           }
         }
 
-        if (response.status === 'failed') {
+        if (status === 'canceled') {
           respond(id, new Error('Payment was not successful'));
         } else {
           respond(id);

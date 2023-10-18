@@ -244,14 +244,17 @@ TimeSlotsPanel.propTypes = {
 
 const ServicePanel = ({ service }) => {
   const [index, setIndex] = useState(0);
-  const [images, setImages] = useState(service.images);
+  const [images, setImages] = useState([{
+    id: 0,
+    url: defaultImages.randomServiceImage(),
+  }]);
   const [price, setPrice] = useState('');
   const [profilePicture, setProfilePicture] = useState('');
   const [isTimeSlotOpen, setTimeSlotOpen] = useState(false);
 
   useEffect(() => {
-    if (!service.images.length) {
-      setImages([defaultImages.randomServiceImage()]);
+    if (service.images.length) {
+      setImages(service.images);
     }
     setPrice(currencyHelper.toString(service.price, service.company.country.currencySymbol));
     setProfilePicture(service.company.profilePicture || defaultImages.profile);
