@@ -565,6 +565,31 @@ export const updateSubscriptionAsync = (
     });
 };
 
+export const updateSubscriptionPlanAsync = (priceId, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  postResource(token, 'subscriptions/update-plan', { price_id: priceId }, true)
+    .then((subscription) => {
+      dispatch(setSubscription(subscription));
+      if (callback) {
+        callback(null);
+      }
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      if (callback) {
+        callback(message);
+      }
+    });
+};
+
 export const createServiceCategoryAsync = (name, callback) => (dispatch, getState) => {
   const { company: { token, serviceCategories } } = getState();
 

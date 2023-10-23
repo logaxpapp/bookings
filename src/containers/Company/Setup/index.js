@@ -677,14 +677,23 @@ LocationPanel.propTypes = {
 };
 
 const SubscriptionPanel = () => {
-  const [nextPaymentDueDate, setNextPaymentDueDate] = useState('--');
   const subscription = useSelector(selectSubscription);
+  const [params, setParams] = useState({
+    nextPaymentDueDate: '--',
+    amount: '--',
+  });
 
   useEffect(() => {
-    if (subscription.dueOn) {
-      setNextPaymentDueDate(new Date(subscription.dueOn).toLocaleDateString());
+    if (subscription) {
+      setParams({
+        nextPaymentDueDate: new Date(subscription.dueOn).toLocaleDateString(),
+        amount: currencyHelper.toString(
+          subscription.price.amount,
+          subscription.price.country.currencySymbol,
+        ),
+      });
     }
-  }, [subscription, setNextPaymentDueDate]);
+  }, [subscription, setParams]);
 
   if (!subscription) {
     return <></>;
@@ -710,14 +719,11 @@ const SubscriptionPanel = () => {
               Plan Price
             </span>
             <span className={css.subscription_price}>
-              {currencyHelper.fromDecimal(
-                subscription.price.amount,
-                subscription.price.country.currencySymbol,
-              )}
+              {params.amount}
             </span>
           </div>
           <Link
-            to={routes.company.absolute.subscriptions}
+            to={routes.company.absolute.subscriptionChange}
             className={css.subscription_plan_btn}
           >
             <span className={css.subscription_plan_btn_change}>Change</span>
@@ -729,7 +735,7 @@ const SubscriptionPanel = () => {
             Next Payment Date
           </span>
           <span>
-            {nextPaymentDueDate}
+            {params.nextPaymentDueDate}
           </span>
         </div>
       </div>

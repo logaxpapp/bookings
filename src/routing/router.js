@@ -163,7 +163,7 @@ const router = createBrowserRouter([
         element: <Employees />,
       },
       {
-        path: routes.company.subscriptions,
+        path: routes.company.subscriptionChange,
         element: <UpdateSubscriptionPage />,
       },
       {

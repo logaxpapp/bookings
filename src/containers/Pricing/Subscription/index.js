@@ -39,12 +39,17 @@ const Plan = ({
   const [price, setPrice] = useState('');
 
   useEffect(() => {
-    setPrice(currencyHelper.toString(100 * plan.price, plan.currencySymbol));
+    setPrice(currencyHelper.toString(plan.price, plan.currencySymbol));
   }, []);
 
   const handleClik = useCallback((e) => {
     e.preventDefault();
-    onSelect({ priceId: plan.priceId, countryId: plan.countryId });
+    onSelect({
+      name: plan.name,
+      priceId: plan.priceId,
+      countryId: plan.countryId,
+      priceAmount: plan.price,
+    });
   }, []);
 
   if (mostPopular) {
@@ -127,7 +132,7 @@ Plan.propTypes = {
   plan: PropTypes.shape({
     name: PropTypes.string,
     currencySymbol: PropTypes.string,
-    price: PropTypes.string,
+    price: PropTypes.number,
     priceId: PropTypes.number,
     countryId: PropTypes.number,
     freePeriod: PropTypes.number,
