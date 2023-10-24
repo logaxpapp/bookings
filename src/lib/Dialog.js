@@ -69,7 +69,7 @@ const manager = (() => {
   };
 })();
 
-const dialog = {
+export const dialog = {
   show: (element) => (
     manager.add(element)
   ),

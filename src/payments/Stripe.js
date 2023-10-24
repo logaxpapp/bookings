@@ -1,4 +1,4 @@
-import { postResource, updateResource } from '../api';
+import { fetchResources, postResource, updateResource } from '../api';
 import { notification } from '../lib/Notification';
 import { windowUtils } from '../utils';
 import routes from '../routing/routes';
@@ -68,7 +68,7 @@ const createIntent = (
           }
         }
 
-        if (response.status === 'failed') {
+        if (status === 'canceled') {
           respond(id, new Error('Payment was not successful'));
         } else {
           respond(id);
@@ -178,11 +178,44 @@ const subscribe = (
   routes.stripe.subscriptions.elementHost,
   onConnect,
   onResponse,
-  true,
+  false,
 );
+
+const setupPaymentMethod = (token, callback) => fetchResources(
+  'stripe_connected_accounts/links',
+  token,
+  true,
+)
+  .then(({ url }) => {
+    if (!url) {
+      notification.showError('An error occurred while connecting to Stripe. If this error persists, please contact us using any of our contact platforms.');
+      callback(false);
+      return;
+    }
+
+    windowUtils.open(url);
+    const interval = setInterval(() => {
+      fetchResources('stripe_connected_accounts/status', token, true)
+        .then(({ status, hasActiveLink }) => {
+          if (status === 'active') {
+            clearInterval(interval);
+            callback(true);
+          } else if (!hasActiveLink) {
+            clearInterval(interval);
+            callback(false);
+          }
+        })
+        .catch(() => {});
+    }, 90000);
+  })
+  .catch(({ message }) => {
+    notification.showError(message);
+    callback(false);
+  });
 
 const Stripe = {
   deposit,
+  setupPaymentMethod,
   subscribe,
 };
 

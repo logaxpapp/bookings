@@ -7,7 +7,7 @@ const Subscriptions = () => (
     <Header />
     <main className={css.main}>
       <h1 className={css.heading}>Please Select A Subscription Plan To Proceed</h1>
-      <SubscriptionPanel />
+      <SubscriptionPanel showNotice />
     </main>
   </div>
 );

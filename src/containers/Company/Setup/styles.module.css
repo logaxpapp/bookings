@@ -37,6 +37,8 @@
 
 .sub_heading {
   font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .setup_container {
@@ -562,6 +564,7 @@
 
 .payment_body {
   flex: 1;
+  display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 16px;
@@ -571,7 +574,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   overflow: auto;
 }
 
@@ -579,6 +582,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 0 4px;
 }
 
 .payment_row_label {
@@ -606,6 +610,56 @@
   background-image: url(../../../assets/images/payment2.avif);
 }
 
+.upgrade_dialog {
+  position: relative;
+  width: 280px;
+  height: 380px;
+  padding: 24px; 
+}
+
+.upgrade_vertical_spacer {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.upgrade_info_panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upgrade_info_row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+
+.upgrade_info_label {
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.upgrade_busy_info {
+  color: var(--primary-color);
+}
+
+.upgrade_btn {
+  width: 100%;
+  padding: 12px 24px;
+  text-align: center;
+  color: #fff;
+  background-color: var(--primary-color-dark);
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.upgrade_btn:hover {
+  opacity: 0.8;
+}
+
 @media only screen and (min-width: 576px) {
   .page_header {
     flex-direction: row-reverse;
@@ -623,7 +677,7 @@
   }
 
   .sub_heading {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
   }
 
   .page_header.subscription {

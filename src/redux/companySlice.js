@@ -536,6 +536,31 @@ export const updateCompanyImages = (
     });
 };
 
+export const loadSubscriptionAsync = (callback) => (dispatch, getState) => {
+  const { company: { token, subscription } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  fetchResources(`subscriptions/${subscription.id}`, token, true)
+    .then((subscription) => {
+      dispatch(setSubscription(subscription));
+      if (callback) {
+        callback(null);
+      }
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      if (callback) {
+        callback(message);
+      }
+    });
+};
+
 export const updateSubscriptionAsync = (
   subscription,
   { priceId },
@@ -551,6 +576,31 @@ export const updateSubscriptionAsync = (
   }
 
   updateResource(token, `subscriptions/${subscription.id}`, { price_id: priceId }, true)
+    .then((subscription) => {
+      dispatch(setSubscription(subscription));
+      if (callback) {
+        callback(null);
+      }
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      if (callback) {
+        callback(message);
+      }
+    });
+};
+
+export const updateSubscriptionPlanAsync = (priceId, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  postResource(token, 'subscriptions/update-plan', { price_id: priceId }, true)
     .then((subscription) => {
       dispatch(setSubscription(subscription));
       if (callback) {

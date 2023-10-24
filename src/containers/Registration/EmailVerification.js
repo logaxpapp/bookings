@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useLocation, useParams } from 'react-router';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
@@ -6,18 +6,27 @@ import BlankPage from '../../components/BlankPage';
 import { paths } from '../../components/svg';
 import { fetchResources } from '../../api';
 import { useNotification } from '../../lib/Notification';
+import { Ring } from '../../components/LoadingButton';
 
 const RESEND_LINK = 'resend_link';
 
 const EmailVerification = ({ email, resendPath }) => {
+  const [busy, setBusy] = useState(false);
   const notification = useNotification();
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === RESEND_LINK) {
       if (resendPath) {
+        setBusy(true);
         fetchResources(resendPath, null, true)
-          .then(() => notification.showSuccess(`Link has been resent to ${email}`))
-          .catch(() => notification.showError('An error occurred while resending link. Please try again.'));
+          .then(() => {
+            setBusy(false);
+            notification.showSuccess(`Link has been resent to ${email}`);
+          })
+          .catch(() => {
+            setBusy(false);
+            notification.showError('An error occurred while resending link. Please try again.');
+          });
       }
     }
   }, []);
@@ -46,13 +55,18 @@ const EmailVerification = ({ email, resendPath }) => {
             <span>
               Didn&apos;t get the email?
             </span>
-            <button
-              type="button"
-              className={`link compact-link ${css.link}`}
-              onClick={handleClick}
-            >
-              Click here to resend
-            </button>
+            {busy ? (
+              <Ring color="#1454a8" size={18} />
+            ) : (
+              <button
+                type="button"
+                name={RESEND_LINK}
+                className={`link compact-link ${css.link}`}
+                onClick={handleClick}
+              >
+                Click here to resend
+              </button>
+            )}
           </footer>
         </section>
       </main>

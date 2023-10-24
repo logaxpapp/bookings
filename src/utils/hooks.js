@@ -14,6 +14,7 @@ import { Loader } from '../components/LoadingSpinner';
 import { useDialog } from '../lib/Dialog';
 import defaultImages from './defaultImages';
 import { currencyHelper } from '.';
+import paystackIcon from '../assets/images/paystack.png';
 import stripeIcon from '../assets/images/stripe-icon.png';
 import { serviceProps } from './propTypes';
 import payments from '../payments';
@@ -22,6 +23,7 @@ import payments from '../payments';
 
 const icons = {
   stripe: stripeIcon,
+  paystack: paystackIcon,
 };
 
 const userLocation = UserLocation.getLocation();
@@ -96,6 +98,11 @@ const styles = {
     margin: 0,
     padding: '12px 0',
     listStyle: 'none',
+    maxHeight: 160,
+    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
   },
   methodIcon: {
     height: 16,

@@ -39,12 +39,17 @@ const Plan = ({
   const [price, setPrice] = useState('');
 
   useEffect(() => {
-    setPrice(currencyHelper.toString(100 * plan.price, plan.currencySymbol));
+    setPrice(currencyHelper.toString(plan.price, plan.currencySymbol));
   }, []);
 
   const handleClik = useCallback((e) => {
     e.preventDefault();
-    onSelect({ priceId: plan.priceId, countryId: plan.countryId });
+    onSelect({
+      name: plan.name,
+      priceId: plan.priceId,
+      countryId: plan.countryId,
+      priceAmount: plan.price,
+    });
   }, []);
 
   if (mostPopular) {
@@ -127,7 +132,7 @@ Plan.propTypes = {
   plan: PropTypes.shape({
     name: PropTypes.string,
     currencySymbol: PropTypes.string,
-    price: PropTypes.string,
+    price: PropTypes.number,
     priceId: PropTypes.number,
     countryId: PropTypes.number,
     freePeriod: PropTypes.number,
@@ -221,7 +226,7 @@ SubscriptionPlans.defaultProps = {
   subscriptions: null,
 };
 
-const Subscriptions = () => {
+const Subscriptions = ({ showNotice }) => {
   const [countryName, setCountryName] = useState('');
   const subscriptions = useSelector(selectSubscriptions);
   const dispatch = useDispatch();
@@ -230,7 +235,7 @@ const Subscriptions = () => {
   useEffect(() => {
     if (!subscriptions) {
       dispatch(loadSubscriptionPlansAsync());
-    } else if (subscriptions.length) {
+    } else if (showNotice && subscriptions.length) {
       const subscription = subscriptions[0];
       if (subscription.prices && subscription.prices.length) {
         setCountryName(subscription.prices[0].country.name);
@@ -278,6 +283,14 @@ const Subscriptions = () => {
       />
     </div>
   );
+};
+
+Subscriptions.propTypes = {
+  showNotice: PropTypes.bool,
+};
+
+Subscriptions.defaultProps = {
+  showNotice: false,
 };
 
 export default Subscriptions;

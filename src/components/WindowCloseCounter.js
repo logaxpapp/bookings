@@ -1,9 +1,23 @@
-import { useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import PropTypes from 'prop-types';
+
+const CLOSE = 'close';
+const STOP_TIMER = 'stop_timer';
 
 const styles = {
   timerPanel: {
     padding: 12,
+  },
+  controls: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: 48,
+    paddingTop: 16,
   },
 };
 
@@ -44,8 +58,12 @@ const countDown = (() => {
 const WindowCloseCounter = ({ duration, style }) => {
   const [time, setTime] = useState('');
   const [conStyle, setConStyle] = useState(styles.timerPanel);
+  const clearTimer = useRef();
 
-  useEffect(() => countDown(duration, setTime), []);
+  useEffect(() => {
+    clearTimer.current = countDown(duration, setTime);
+    return () => clearTimer.current();
+  }, []);
 
   useEffect(() => {
     if (style && Object.keys(style).length) {
@@ -53,8 +71,36 @@ const WindowCloseCounter = ({ duration, style }) => {
     }
   }, [style, setConStyle]);
 
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === CLOSE) {
+      window.close();
+    } else if (name === STOP_TIMER) {
+      clearTimer.current();
+    }
+  }, []);
+
   return (
-    <div style={conStyle}>{time}</div>
+    <div style={conStyle}>
+      <div>{time}</div>
+      <div style={styles.controls}>
+        <button
+          type="button"
+          name={CLOSE}
+          className="link compact-link"
+          onClick={handleClick}
+        >
+          Close Window
+        </button>
+        <button
+          type="button"
+          name={STOP_TIMER}
+          className="link compact-link"
+          onClick={handleClick}
+        >
+          Stop Counter
+        </button>
+      </div>
+    </div>
   );
 };
 

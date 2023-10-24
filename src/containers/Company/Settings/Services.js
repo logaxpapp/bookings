@@ -5,6 +5,7 @@ import {
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useOutletContext } from 'react-router';
 import PropTypes from 'prop-types';
 import css from './styles.module.css';
 import TextBox, {
@@ -519,6 +520,7 @@ ServiceEditor.defaultProps = {
 const ServiceRow = ({
   service,
   category,
+  currencySymbol,
   onEdit,
   onDelete,
 }) => {
@@ -529,9 +531,9 @@ const ServiceRow = ({
   });
 
   useEffect(() => {
-    const price = currencyHelper.toString(service.price, '$');
+    const price = currencyHelper.toString(service.price, currencySymbol);
     const duration = toDuration(service.duration);
-    const deposit = currencyHelper.toString(service.minDeposit, '$');
+    const deposit = currencyHelper.toString(service.minDeposit, currencySymbol);
     setParams({ price, duration, deposit });
   }, [service, setParams]);
 
@@ -593,6 +595,7 @@ ServiceRow.propTypes = {
   category: PropTypes.shape({
     id: PropTypes.number,
   }).isRequired,
+  currencySymbol: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
 };
@@ -600,6 +603,7 @@ ServiceRow.propTypes = {
 const ServiceCard = ({
   service,
   category,
+  currencySymbol,
   onEdit,
   onDelete,
 }) => {
@@ -610,9 +614,9 @@ const ServiceCard = ({
   });
 
   useEffect(() => {
-    const price = currencyHelper.toString(service.price, '$');
+    const price = currencyHelper.toString(service.price, currencySymbol);
     const duration = toDuration(service.duration);
-    const deposit = currencyHelper.toString(service.minDeposit, '$');
+    const deposit = currencyHelper.toString(service.minDeposit, currencySymbol);
     setParams({ price, duration, deposit });
   }, [service, setParams]);
 
@@ -692,11 +696,17 @@ ServiceCard.propTypes = {
   category: PropTypes.shape({
     id: PropTypes.number,
   }).isRequired,
+  currencySymbol: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
 };
 
-const ServicesTable = ({ categories, onEdit, onDelete }) => (
+const ServicesTable = ({
+  categories,
+  currencySymbol,
+  onEdit,
+  onDelete,
+}) => (
   <div className={`table-card ${css.services_table_wrap}`}>
     <table className="table">
       <thead>
@@ -726,6 +736,7 @@ const ServicesTable = ({ categories, onEdit, onDelete }) => (
                   key={service.id}
                   service={service}
                   category={cat}
+                  currencySymbol={currencySymbol}
                   onEdit={onEdit}
                   onDelete={onDelete}
                 />
@@ -755,11 +766,17 @@ ServicesTable.propTypes = {
       id: PropTypes.number,
     })),
   })).isRequired,
+  currencySymbol: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
 };
 
-const ServicesGrid = ({ categories, onEdit, onDelete }) => (
+const ServicesGrid = ({
+  categories,
+  currencySymbol,
+  onEdit,
+  onDelete,
+}) => (
   <section className={css.services_grid_panel}>
     {categories.map((cat) => (
       <section key={cat.id}>
@@ -770,6 +787,7 @@ const ServicesGrid = ({ categories, onEdit, onDelete }) => (
               <ServiceCard
                 service={service}
                 category={cat}
+                currencySymbol={currencySymbol}
                 onEdit={onEdit}
                 onDelete={onDelete}
               />
@@ -788,6 +806,7 @@ ServicesGrid.propTypes = {
       id: PropTypes.number,
     })),
   })).isRequired,
+  currencySymbol: PropTypes.string.isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired,
 };
@@ -795,6 +814,7 @@ ServicesGrid.propTypes = {
 const Services = () => {
   const [panelClass, setPanelClass] = useState(css.services_panel);
   const categories = useSelector(selectServiceCategories);
+  const [company] = useOutletContext();
   const panel = useRef(null);
   const dialog = useDialog();
   const busyDialog = useBusyDialog();
@@ -850,11 +870,13 @@ const Services = () => {
           <>
             <ServicesTable
               categories={categories}
+              currencySymbol={company.country.currencySymbol}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
             <ServicesGrid
               categories={categories}
+              currencySymbol={company.country.currencySymbol}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />

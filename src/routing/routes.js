@@ -19,6 +19,7 @@ const routes = {
     },
     setup: 'setup',
     subscriptions: 'subscriptions',
+    subscriptionChange: 'subscription-change',
     subscriptionRenewal: 'subscription-renewal',
     absolute: {
       dashboard: '/companies',
@@ -36,6 +37,7 @@ const routes = {
       },
       setup: '/companies/setup',
       subscriptions: '/companies/subscriptions',
+      subscriptionChange: '/companies/subscription-change',
       subscriptionRenewal: '/companies/subscription-renewal',
       emailVerification: (id) => `/companies/${id}/verify-email-address`,
       login: '/companies/signin',
@@ -83,6 +85,9 @@ const routes = {
       elementHost: (intentId) => `/stripe/payments/subscriptions/${intentId}`,
       return: (intentId) => `/stripe/payments/subscriptions/${intentId}/return`,
     },
+  },
+  paystack: {
+    payment: (type) => `/paystack-payment-callback/type/${type}`,
   },
   search: '/search',
 };
