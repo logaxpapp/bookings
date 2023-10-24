@@ -178,7 +178,7 @@ const subscribe = (
   routes.stripe.subscriptions.elementHost,
   onConnect,
   onResponse,
-  true,
+  false,
 );
 
 const setupPaymentMethod = (token, callback) => fetchResources(

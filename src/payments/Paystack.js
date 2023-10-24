@@ -14,6 +14,7 @@ import { paystackStorageHelpers, usePaystackStoredParams } from './helpers';
 import BlankPage from '../components/BlankPage';
 import { Loader } from '../components/LoadingSpinner';
 import AlertComponent from '../components/AlertComponents';
+import WindowCloseCounter from '../components/WindowCloseCounter';
 
 const storage = AppStorage.getInstance();
 
@@ -219,13 +220,13 @@ BankAccountForm.propTypes = {
 const updateWithGuard = (() => {
   let lCallback;
   let updating = false;
-  return (token, intentId, callback) => {
+  return (token, type, intentId, callback) => {
     lCallback = callback;
     if (updating) {
       return;
     }
 
-    updateResource(token, `payments/${intentId}?type=deposit`, {
+    updateResource(token, `payments/${intentId}?type=${type}`, {
       provider: 'paystack',
       broadcast: true,
       requested_by: 'customer',
@@ -255,7 +256,7 @@ export const PaystackIntentCallbackWindow = () => {
   const updateServer = useCallback(() => {
     setBusy(true);
     setState((state) => ({ ...state, canReconnect: false }));
-    updateWithGuard(params.token, params.intentId, (err, res) => {
+    updateWithGuard(params.token, params.type, params.intentId, (err, res) => {
       setBusy(false);
 
       if (err) {
@@ -273,14 +274,14 @@ export const PaystackIntentCallbackWindow = () => {
       if (status === 'pending') {
         setState({
           type: 'info',
-          text: `The Paystack status [(${paystackStatus})] of this session means that we cannot take any actions at the moment. We will update your appointment status as soon as this status changes. If you want to open a ticket with us on this session, please use the code below.\n\nTransaction ID: ${params.ticketId}`,
+          text: `The Paystack status [(${paystackStatus})] of this session means that we cannot take any actions at the moment. We will update your ${params.type === 'deposit' ? 'appointment status' : 'subscription'} as soon as this status changes. If you want to open a ticket with us on this session, please use the code below.\n\nTransaction ID: ${params.ticketId}`,
           canReconnect: true,
           updated: false,
         });
       } else if (status === 'successful') {
         setState({
           type: 'success',
-          text: 'Your appointment was successfully booked. Thanks for choosing LogaXP.',
+          text: params.type === 'deposit' ? 'Your appointment was successfully booked. Thanks for choosing LogaXP.' : 'Your payment has been received and your subscription updated accordingly',
           canReconnect: false,
           updated: true,
         });
@@ -288,7 +289,7 @@ export const PaystackIntentCallbackWindow = () => {
       } else {
         setState({
           type: 'error',
-          text: `Paystack has updated the status of this session to ${paystackStatus}, therefore we are marking it as failed also. If you want to open a ticket with us on this session, please use the code below.\n\nTransaction ID: ${params.ticketId}`,
+          text: `Paystack status of this session to - ${paystackStatus} - means that we will be marking your payment as failed. If you want to open a ticket with us on this session, please use the code below.\n\nTransaction ID: ${params.ticketId}`,
           canReconnect: true,
         });
       }
@@ -330,19 +331,7 @@ export const PaystackIntentCallbackWindow = () => {
                 <pre style={styles.pre}>{state.text}</pre>
               </AlertComponent>
               {state.updated ? (
-                <div>
-                  <span>You can&nbsp;</span>
-                  <button
-                    type="button"
-                    name={CLOSE}
-                    className="link"
-                    style={styles.linkBtn}
-                    onClick={window.close}
-                  >
-                    close
-                  </button>
-                  <span>&nbsp;this window now and return to your dashboard.</span>
-                </div>
+                <WindowCloseCounter duration={20} style={{ textAlign: 'center' }} />
               ) : null}
               {state.canReconnect ? (
                 <div>
@@ -431,7 +420,7 @@ const createIntent = (
           }
         }
 
-        if (response.status === 'failed') {
+        if (status === 'failed') {
           respond(id, new Error('Payment was not successful'));
         } else {
           respond(id);
@@ -542,7 +531,7 @@ const subscribe = (
   {},
   onConnect,
   onResponse,
-  true,
+  false,
 );
 
 const fetchBanks = (token) => new Promise((resolve, reject) => {

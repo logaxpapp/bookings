@@ -158,7 +158,7 @@ const StripeSubscriptionReturnWindow = () => {
                 <pre style={styles.pre}>{state.text}</pre>
               </AlertComponent>
               {state.counter ? (
-                <WindowCloseCounter duration={state.counter} />
+                <WindowCloseCounter duration={state.counter} style={{ textAlign: 'center' }} />
               ) : null}
             </div>
           </div>

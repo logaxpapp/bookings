@@ -686,7 +686,7 @@ const SubscriptionPanel = () => {
   useEffect(() => {
     if (subscription) {
       setParams({
-        nextPaymentDueDate: new Date(subscription.dueOn).toLocaleDateString(),
+        nextPaymentDueDate: new Date(subscription.dueOn).toLocaleString(),
         amount: currencyHelper.toString(
           subscription.price.amount,
           subscription.price.country.currencySymbol,

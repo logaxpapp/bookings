@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
 import stripeIcon from '../assets/images/stripe-icon.png';
+import paystackPng from '../assets/images/paystack-logo.png';
 
 export const StripeButton = ({ onClick }) => {
   const handleClick = useCallback(() => onClick('stripe'), []);
@@ -68,7 +69,7 @@ export const PayStackButton = ({ onClick }) => {
       className={css.icon_btn}
       onClick={handleClick}
     >
-      PayStack
+      <img src={paystackPng} alt="paystack" />
     </button>
   );
 };
