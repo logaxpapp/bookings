@@ -43,6 +43,10 @@
   font-size: 0.8rem;
 }
 
+.busy-label {
+  color: var(--primary-color-dark);
+}
+
 .body {
   position: relative;
   flex: 1;

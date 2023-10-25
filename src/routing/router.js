@@ -46,6 +46,7 @@ import SubscriptionRenewal from '../containers/Company/SubscriptionRenewal';
 import StripeSubscriptionPaymentWindow from '../containers/Company/Stripe/StripeSubscriptionPaymentWindow';
 import StripeSubscriptionReturnWindow from '../containers/Company/Stripe/StripeSubscriptionReturnWindow';
 import { PaystackIntentCallbackWindow } from '../payments/Paystack';
+import { CompanyPage } from '../containers/ProviderPage';
 
 const router = createBrowserRouter([
   {
@@ -103,6 +104,10 @@ const router = createBrowserRouter([
   {
     path: routes.user.registeration,
     element: <UserRegistration />,
+  },
+  {
+    path: routes.providerPage(':code'),
+    element: <CompanyPage />,
   },
   {
     path: routes.search,

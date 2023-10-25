@@ -56,6 +56,7 @@ const StarRatingsPanel = () => (
 
 const SearchForm = ({ onSearch }) => {
   const [term, setTerm] = useState('');
+  const navigate = useNavigate();
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === TERM) {
@@ -67,6 +68,11 @@ const SearchForm = ({ onSearch }) => {
     e.preventDefault();
 
     if (term) {
+      if (term.match(/^A[0-9]+$/)) {
+        navigate(routes.providerPage(term));
+        return;
+      }
+
       onSearch(term);
     }
   }, [term, onSearch]);
@@ -78,6 +84,7 @@ const SearchForm = ({ onSearch }) => {
         name={TERM}
         onChange={handleValueChange}
         className={css.search_input}
+        placeholder="Enter Service or Provider Code"
       />
       <button type="submit" className={css.search_btn}>
         Search

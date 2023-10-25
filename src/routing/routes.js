@@ -2,6 +2,7 @@ const routes = {
   home: '/',
   login: '/auth',
   register: '/signup',
+  providerPage: (code) => `/pages/${code}`,
   company: {
     base: '/companies',
     dashboard: '',

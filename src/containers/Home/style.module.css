@@ -455,6 +455,7 @@
 
 .subscription_email {
   flex: 1;
+  min-width: 60px;
   color: #fff;
   background-color: transparent;
 }

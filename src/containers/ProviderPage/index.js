@@ -5,6 +5,7 @@ import {
   useState,
 } from 'react';
 import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
 import { currencyHelper, dateUtils } from '../../utils';
@@ -14,8 +15,9 @@ import {
   timeSlotProps,
 } from '../../utils/propTypes';
 import { SvgButton, paths } from '../../components/svg';
-import { useBusyDialog } from '../../components/LoadingSpinner';
+import { Loader, useBusyDialog } from '../../components/LoadingSpinner';
 import {
+  getProviderAsync,
   getServiceTimeSlotsAsync,
   removeProviderTimeSlot,
 } from '../../redux/serviceProvidersSlice';
@@ -24,6 +26,8 @@ import { useBook } from '../../utils/hooks';
 import GridPanel from '../../components/GridPanel';
 import { useWindowSize } from '../../lib/hooks';
 import { DateButton } from '../../components/Buttons';
+import Header from '../Header';
+import Error404 from '../Error404';
 
 const CLOSE_WINDOW = 'close window';
 const CATEGORY = 'category';
@@ -517,6 +521,61 @@ const ProviderPage = ({ provider }) => {
 
 ProviderPage.propTypes = {
   provider: companyProps.isRequired,
+};
+
+export const CompanyPage = () => {
+  const [busy, setBusy] = useState(true);
+  const [provider, setProvider] = useState(null);
+  const params = useParams();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const { code } = params;
+    if (!(code && code.match(/^A[0-9]+$/))) {
+      setBusy(false);
+      return;
+    }
+
+    // Our codes is generated from ids by adding 1000 - we want our codes to start from 1001
+    const id = Number.parseInt(code.substring(1), 10) - 1000;
+    if (id <= 0) {
+      setBusy(false);
+      return;
+    }
+
+    dispatch(getProviderAsync(id, (err, provider) => {
+      if (!err) {
+        setProvider(provider);
+      }
+      setBusy(false);
+    }));
+  }, []);
+
+  if (busy) {
+    return (
+      <div className="container">
+        <Header />
+        <div className="relative panel">
+          <Loader type="double_ring">
+            <span className="busy-label">Loading provider ...</span>
+          </Loader>
+        </div>
+      </div>
+    );
+  }
+
+  if (provider) {
+    return (
+      <div className="container">
+        <Header />
+        <div className="relative panel">
+          <ProviderPage provider={provider} />
+        </div>
+      </div>
+    );
+  }
+
+  return <Error404 />;
 };
 
 export default ProviderPage;

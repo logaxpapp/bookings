@@ -299,7 +299,7 @@ const Footer = () => (
         <p
           className={`${css.footer_address_col_text} ${css.footer_address} ${css.pre_icon}`}
         >
-          1105 Berry Street, Old Hickory, TN 37565
+          1105 Berry Street, Old Hickory, Tennessee 37138
         </p>
         <div className={css.footer_address_col_social_media_panel}>
           <a
@@ -393,9 +393,21 @@ const Footer = () => (
             <span className={css.footer_col_link}>FAQ</span>
             <a
               className={`${css.footer_col_link} ${css.pre_icon} ${css.telephone}`}
-              href="tel:+(555) 123-4567"
+              href="tel:+1 (615) 930-6090"
             >
-              (555) 123-4567
+              +1 (615) 930-6090
+            </a>
+            <a
+              className={`${css.footer_col_link} ${css.pre_icon} ${css.telephone}`}
+              href="tel:+1 (832) 946-5563"
+            >
+              +1 (832) 946-5563
+            </a>
+            <a
+              className={`${css.footer_col_link} ${css.pre_icon} ${css.telephone}`}
+              href="tel:+2348031332801"
+            >
+              +2348031332801
             </a>
             <a
               href="mailto:enquiries@logaxp.com"
