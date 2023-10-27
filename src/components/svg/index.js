@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
@@ -43,6 +44,7 @@ export const paths = {
   plus: 'M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z',
   plusOrMinus: 'M3 7H6V4H8V7H11V9H8V12H6V9H3V7M13 15H21V17H13V15M16.04 3H18.35L7.96 21H5.65L16.04 3Z',
   refresh: 'M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2M18 11H13L14.81 9.19A3.94 3.94 0 0 0 12 8A4 4 0 1 0 15.86 13H17.91A6 6 0 1 1 12 6A5.91 5.91 0 0 1 16.22 7.78L18 6Z',
+  restore: 'M13,3A9,9 0 0,0 4,12H1L4.89,15.89L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z',
   roomService: 'M12,5A2,2 0 0,1 14,7C14,7.24 13.96,7.47 13.88,7.69C17.95,8.5 21,11.91 21,16H3C3,11.91 6.05,8.5 10.12,7.69C10.04,7.47 10,7.24 10,7A2,2 0 0,1 12,5M22,19H2V17H22V19Z',
   save: 'M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z',
   update: 'M21,10.12H14.22L16.96,7.3C14.23,4.6 9.81,4.5 7.08,7.2C4.35,9.91 4.35,14.28 7.08,17C9.81,19.7 14.23,19.7 16.96,17C18.32,15.65 19,14.08 19,12.1H21C21,14.08 20.12,16.65 18.36,18.39C14.85,21.87 9.15,21.87 5.64,18.39C2.14,14.92 2.11,9.28 5.62,5.81C9.13,2.34 14.76,2.34 18.27,5.81L21,3V10.12M12.5,8V12.25L16,14.33L15.28,15.54L11,13V8H12.5Z',
@@ -218,4 +220,80 @@ SvgButton.defaultProps = {
   sm: false,
   xsm: false,
   xxsm: false,
+};
+
+/**
+ * @param {Object} props
+ * @param {string} props.path
+ * @param {import('../../types').NamedStyle} props.style
+ * @param {string} props.className
+ * @param {number} props.width viewport width
+ * @param {number} props.height viewport height
+ * @param {string} props.color
+ */
+export const Svg = ({
+  path,
+  style,
+  className,
+  width,
+  height,
+  color,
+  sm,
+}) => {
+  const [svgStyle, setSvgStyle] = useState({});
+
+  useEffect(() => {
+    let w = width;
+    let h = height;
+    if (sm) {
+      w = 18;
+      h = 18;
+    } else if (style) {
+      if (style.width) {
+        w = style.width;
+      }
+      if (style.height) {
+        h = style.height;
+      }
+    }
+    setSvgStyle(style ? {
+      ...style,
+      color,
+      width: w,
+      height: h,
+    } : {
+      color,
+      width: w,
+      height: h,
+    });
+  }, [color, style, width, height, setSvgStyle]);
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className={className}
+      style={svgStyle}
+    >
+      <path fill="currentColor" d={path} />
+    </svg>
+  );
+};
+
+Svg.propTypes = {
+  path: PropTypes.string.isRequired,
+  style: PropTypes.shape(),
+  className: PropTypes.string,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  color: PropTypes.string,
+  sm: PropTypes.bool,
+};
+
+Svg.defaultProps = {
+  style: null,
+  className: null,
+  width: 24,
+  height: 24,
+  color: '#0c2b47',
+  sm: false,
 };

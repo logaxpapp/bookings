@@ -23,6 +23,14 @@ export const matchesPhoneNumber = (number) => (
 
 export const isNumber = (number) => /^-?\d*\.?\d*$/.test(number);
 
+export const parseIntegerInput = (text) => {
+  if (!text) {
+    return '';
+  }
+
+  return Number.parseInt(text, 10);
+};
+
 /**
  * @param {string} str
  * @returns

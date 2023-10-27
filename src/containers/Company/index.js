@@ -61,7 +61,13 @@ const links = [
     title: 'Profile Page',
     route: routes.company.absolute.profile,
     svgPath: 'M16,12H15V10H13V7H14V9H15V7H16M11,10H9V11H11V12H8V9H10V8H8V7H11M19,7V4H5V7H2V20H10V16H14V20H22V7H19Z',
-    overflow: '',
+    overflow: 'M20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20Z',
+    isActive: (pathname) => pathname === routes.company.absolute.profile,
+  },
+  {
+    title: 'Business Card',
+    route: routes.company.absolute.card,
+    svgPath: 'M20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20Z',
     isActive: (pathname) => pathname === routes.company.absolute.profile,
   },
   {
@@ -97,6 +103,7 @@ const OverflowMenu = ({ isOpen, close }) => {
 
   /* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
   /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+
   return (
     <div
       role="dialog"

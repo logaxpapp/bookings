@@ -2,13 +2,14 @@ const routes = {
   home: '/',
   login: '/auth',
   register: '/signup',
-  providerPage: (code) => `/pages/${code}`,
+  providerPage: (code) => `/providers/${code}`,
   company: {
     base: '/companies',
     dashboard: '',
     profile: 'profile',
     calendar: 'calendar',
     employees: 'employees',
+    card: 'card',
     settings: {
       base: 'settings',
       details: '',
@@ -27,6 +28,7 @@ const routes = {
       calendar: '/companies/calendar',
       employees: '/companies/employees',
       profile: '/companies/profile',
+      card: '/companies/card',
       settings: {
         base: '/companies/settings',
         details: '/companies/settings',

@@ -47,6 +47,7 @@ import StripeSubscriptionPaymentWindow from '../containers/Company/Stripe/Stripe
 import StripeSubscriptionReturnWindow from '../containers/Company/Stripe/StripeSubscriptionReturnWindow';
 import { PaystackIntentCallbackWindow } from '../payments/Paystack';
 import { CompanyPage } from '../containers/ProviderPage';
+import CardEditor from '../containers/Company/CardEditor';
 
 const router = createBrowserRouter([
   {
@@ -174,6 +175,10 @@ const router = createBrowserRouter([
       {
         path: routes.company.subscriptionRenewal,
         element: <SubscriptionRenewal />,
+      },
+      {
+        path: routes.company.card,
+        element: <CardEditor />,
       },
     ],
   },
