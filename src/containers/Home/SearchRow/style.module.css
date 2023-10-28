@@ -55,6 +55,11 @@ section.container {
   width: 100%;
 }
 
+.video {
+  width: 100%;
+  min-height: 280px;
+}
+
 .search_intro_text {
   font-size: 14px;
   font-style: normal;
@@ -265,6 +270,10 @@ section.container {
   .search_wrap {
     width: 100%;
     max-width: 360px;
+  }
+
+  .video {
+    height: 100%;
   }
 
   .right {

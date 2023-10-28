@@ -1,7 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line
+import QrScanner from 'qr-scanner';
 import css from './style.module.css';
 import homeCss from '../style.module.css';
 import { loadCountriesAsync, selectCountries } from '../../../redux/countriesSlice';
@@ -12,6 +19,7 @@ import slide3 from '../../../assets/images/hair-spies-2.jpg';
 import StarRating from '../../../lib/StarRating';
 import routes from '../../../routing/routes';
 import { useNotification } from '../../../lib/Notification';
+import { SvgButton, paths } from '../../../components/svg';
 
 const CITY = 'city';
 const COUNTRY = 'country';
@@ -27,6 +35,8 @@ const slides = [
   { id: 2, alt: 'manicure', src: slide2 },
   { id: 3, alt: 'haircut', src: slide3 },
 ];
+
+/* eslint-disable jsx-a11y/media-has-caption */
 
 export const Slide = ({ slide }) => (
   <div className={css.slide_content}>
@@ -54,7 +64,7 @@ const StarRatingsPanel = () => (
   </div>
 );
 
-const SearchForm = ({ onSearch }) => {
+const SearchForm = ({ onSearch, onScan }) => {
   const [term, setTerm] = useState('');
   const navigate = useNavigate();
 
@@ -89,15 +99,28 @@ const SearchForm = ({ onSearch }) => {
       <button type="submit" className={css.search_btn}>
         Search
       </button>
+      <SvgButton
+        type="button"
+        title="Click to scan qrcode"
+        path={paths.qrcodeScan}
+        style={{ marginLeft: 4 }}
+        onClick={onScan}
+      />
     </form>
   );
 };
 
 SearchForm.propTypes = {
   onSearch: PropTypes.func.isRequired,
+  onScan: PropTypes.func.isRequired,
 };
 
-const CitySearchPanel = ({ setSearchCity, onSearch, toggleSearchMode }) => {
+const CitySearchPanel = ({
+  setSearchCity,
+  onSearch,
+  onScan,
+  toggleSearchMode,
+}) => {
   const countries = useSelector(selectCountries);
   const [country, setCountry] = useState('');
   const [state, setState] = useState('');
@@ -149,7 +172,7 @@ const CitySearchPanel = ({ setSearchCity, onSearch, toggleSearchMode }) => {
       >
         Search By My Location
       </button>
-      <SearchForm onSearch={handleSearch} />
+      <SearchForm onSearch={handleSearch} onScan={onScan} />
       <div className={css.city_search_selects_wrap}>
         <div className={css.city_search_select_wrap}>
           <label className={`select ${css.city_search_select}`} htmlFor={COUNTRY}>
@@ -209,12 +232,34 @@ const CitySearchPanel = ({ setSearchCity, onSearch, toggleSearchMode }) => {
 CitySearchPanel.propTypes = {
   setSearchCity: PropTypes.func.isRequired,
   onSearch: PropTypes.func.isRequired,
+  onScan: PropTypes.func.isRequired,
   toggleSearchMode: PropTypes.func.isRequired,
+};
+
+const CodeReader = () => {
+  const videoRef = useRef();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const scanner = new QrScanner(videoRef.current, (result) => {
+      const code = result.data;
+      if (code) {
+        scanner.stop();
+        navigate(routes.providerPage(code));
+      }
+    }, { returnDetailedScanResult: true });
+    scanner.start();
+  }, []);
+
+  return (
+    <video ref={videoRef} className={css.video} />
+  );
 };
 
 const SearchPanel = () => {
   const [locationMode, setLocationMode] = useState(true);
   const [city, setCity] = useState(null);
+  const [scanning, setScanning] = useState(false);
   const notification = useNotification();
   const navigate = useNavigate();
 
@@ -238,44 +283,55 @@ const SearchPanel = () => {
 
   const handleCommonTermClick = useCallback(({ target: { name } }) => handleSearch(name), []);
 
+  const handleScan = useCallback(() => {
+    setScanning(true);
+  }, []);
+
   return (
     <div className={css.search_wrap}>
-      {locationMode ? (
-        <div>
-          <p className={css.search_intro_text}>
-            Discover top-notch service providers near you.
-            Enter service below to start your search and get connected with the best
-            professionals in your community.
-          </p>
-          <button
-            type="button"
-            className={`link compact-link ${css.search_mode_toggle_btn}`}
-            onClick={toggleSearchMode}
-          >
-            Searching by location. Click to search by city instead.
-          </button>
-          <SearchForm onSearch={handleSearch} />
-        </div>
+      {scanning ? (
+        <CodeReader />
       ) : (
-        <CitySearchPanel
-          setSearchCity={setCity}
-          onSearch={handleSearch}
-          toggleSearchMode={toggleSearchMode}
-        />
+        <>
+          {locationMode ? (
+            <div>
+              <p className={css.search_intro_text}>
+                Discover top-notch service providers near you.
+                Enter service below to start your search and get connected with the best
+                professionals in your community.
+              </p>
+              <button
+                type="button"
+                className={`link compact-link ${css.search_mode_toggle_btn}`}
+                onClick={toggleSearchMode}
+              >
+                Searching by location. Click to search by city instead.
+              </button>
+              <SearchForm onSearch={handleSearch} onScan={handleScan} />
+            </div>
+          ) : (
+            <CitySearchPanel
+              setSearchCity={setCity}
+              onSearch={handleSearch}
+              onScan={handleScan}
+              toggleSearchMode={toggleSearchMode}
+            />
+          )}
+          <div className={css.common_search_term_btns_panel}>
+            {commonTerms.map((term) => (
+              <button
+                key={term}
+                type="button"
+                name={term}
+                className={css.common_search_term_btn}
+                onClick={handleCommonTermClick}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        </>
       )}
-      <div className={css.common_search_term_btns_panel}>
-        {commonTerms.map((term) => (
-          <button
-            key={term}
-            type="button"
-            name={term}
-            className={css.common_search_term_btn}
-            onClick={handleCommonTermClick}
-          >
-            {term}
-          </button>
-        ))}
-      </div>
     </div>
   );
 };
@@ -298,3 +354,5 @@ const SearchRow = () => (
 );
 
 export default SearchRow;
+
+/* eslint-enable jsx-a11y/media-has-caption */
