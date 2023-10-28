@@ -50,6 +50,7 @@ import { CompanyPage } from '../containers/ProviderPage';
 import CardEditor from '../containers/Company/CardEditor';
 import ReturnPolicy from '../containers/ReturnPolicy';
 import CompanyReturnPolicy from '../containers/Company/ReturnPolicy';
+import { PrivacyPolicy, TermsAndConditions } from '../containers/TermsAndPrivacy';
 
 const router = createBrowserRouter([
   {
@@ -59,6 +60,14 @@ const router = createBrowserRouter([
   {
     path: routes.contact,
     element: <Contact />,
+  },
+  {
+    path: routes.termsAndConditions,
+    element: <TermsAndConditions />,
+  },
+  {
+    path: routes.privacyPolicy,
+    element: <PrivacyPolicy />,
   },
   {
     path: routes.returnPolicy,

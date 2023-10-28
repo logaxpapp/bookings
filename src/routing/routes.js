@@ -74,6 +74,8 @@ const routes = {
   pricing: '/pricing',
   contact: '/contact',
   returnPolicy: '/return-policy',
+  termsAndConditions: '/terms-and-conditions',
+  privacyPolicy: '/privacy-policy',
   signupSuccess: '/signup/success',
   passwordReset: '/:resource/password-reset/:token',
   passwordRecoverySuccess: '/password-recoveries',

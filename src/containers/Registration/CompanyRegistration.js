@@ -11,9 +11,15 @@ import TextBox, {
 } from '../../components/TextBox';
 import routes from '../../routing/routes';
 import { registerCompany } from '../../api';
+import { SimpleCheckBox } from '../../components/Inputs';
+import {
+  usePrivacyPolicyDialog,
+  useTermsAndConditionDialog,
+} from '../TermsAndPrivacy';
 
 const ADDRESS = 'address';
 const CATEGORY = 'category';
+const CONSENT = 'consent';
 const EMAIL = 'email';
 const FIRSTNAME = 'firstname';
 const LASTNAME = 'lastname';
@@ -21,6 +27,8 @@ const NAME = 'name';
 const PASSWORD = 'password';
 const PASSWORD_REPEAT = 'password_repeat';
 const PHONE_NUMBER = 'phone_number';
+const PRIVACY_POLICY = 'privacy_policy';
+const TERMS_AND_CONDITIONS = 'terms_and_conditions';
 
 const categories = ['Salon'];
 
@@ -48,9 +56,12 @@ const CompanyRegistration = () => {
     password: '',
     passwordRepeat: '',
   });
+  const [consented, setConsented] = useState(false);
   const [busy, setBusy] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const termsAndConditionsDialog = useTermsAndConditionDialog();
+  const privacyPolicyDialog = usePrivacyPolicyDialog();
 
   useEffect(() => {
     if (location.state && location.state.priceId && location.state.countryId) {
@@ -61,7 +72,9 @@ const CompanyRegistration = () => {
     }
   }, []);
 
-  const handleValueChange = useCallback(({ target: { name, value } }) => {
+  const handleValueChange = useCallback(({ target }) => {
+    const { name, value } = target;
+
     if (name === FIRSTNAME) {
       setFirstname(value);
     } else if (name === LASTNAME) {
@@ -80,11 +93,28 @@ const CompanyRegistration = () => {
       setPassword(value);
     } else if (name === PASSWORD_REPEAT) {
       setPasswordRepeat(value);
+    } else if (name === CONSENT) {
+      setConsented(target.checked);
+    }
+  }, []);
+
+  const handleClick = useCallback(({ target }) => {
+    const { name } = target;
+
+    if (name === TERMS_AND_CONDITIONS) {
+      termsAndConditionsDialog.show();
+    } else if (name === PRIVACY_POLICY) {
+      privacyPolicyDialog.show();
     }
   }, []);
 
   const handleFormSubmit = useCallback((e) => {
     e.preventDefault();
+
+    if (!consented) {
+      return;
+    }
+
     const errors = {};
 
     if (!firstname || firstname.length < 2) {
@@ -155,7 +185,7 @@ const CompanyRegistration = () => {
       });
   }, [
     name, email, phoneNumber, category, firstname, lastname,
-    password, passwordRepeat, address, priceId, countryId,
+    password, passwordRepeat, address, priceId, countryId, consented,
     setErrors, setBusy, setError,
   ]);
 
@@ -270,8 +300,37 @@ const CompanyRegistration = () => {
             style={{ backgroundColor: '#efefef', borderRadius: 4 }}
             onChange={handleValueChange}
           />
+          <div className={css.consent_row}>
+            <SimpleCheckBox
+              name={CONSENT}
+              checked={consented}
+              label="I have read and agree to the"
+              onChange={handleValueChange}
+            />
+            <button
+              type="button"
+              name={TERMS_AND_CONDITIONS}
+              className="link compact-link"
+              onClick={handleClick}
+            >
+              Terms and Conditions
+            </button>
+            <span>and</span>
+            <button
+              type="button"
+              name={PRIVACY_POLICY}
+              className="link compact-link"
+              onClick={handleClick}
+            >
+              Privacy Policy
+            </button>
+          </div>
           <div className={css.submit_pad}>
-            <LoadingButton type="submit" label="Register" loading={busy} />
+            {consented ? (
+              <LoadingButton type="submit" label="Register" loading={busy} />
+            ) : (
+              <div className={css.submit_btn_placeholder}>Register</div>
+            )}
           </div>
         </form>
       </main>

@@ -13,13 +13,21 @@ import TextBox, {
 } from '../../components/TextBox';
 import { registerUser } from '../../api';
 import routes from '../../routing/routes';
+import { SimpleCheckBox } from '../../components/Inputs';
+import {
+  usePrivacyPolicyDialog,
+  useTermsAndConditionDialog,
+} from '../TermsAndPrivacy';
 
+const CONSENT = 'consent';
 const FIRSTNAME = 'firstname';
 const LASTNAME = 'lastname';
 const EMAIL = 'email';
 const PHONE_NUMBER = 'phone_number';
 const PASSWORD = 'password';
 const PASSWORD_REPEAT = 'password_repeat';
+const PRIVACY_POLICY = 'privacy_policy';
+const TERMS_AND_CONDITIONS = 'terms_and_conditions';
 
 const GoogleSignupBtn = ({ callbackFunction }) => (
   <>
@@ -55,16 +63,23 @@ const UserRegistration = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [passwordRepeat, setPasswordRepeat] = useState('');
-  const [firstnameError, setFirstnameError] = useState('');
-  const [lastnameError, setLastnameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [phoneNumberError, setPhoneNumberError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [passwordRepeatError, setPasswordRepeatError] = useState('');
+  const [errors, setErrors] = useState({
+    firstname: '',
+    lastname: '',
+    email: '',
+    phoneNumber: '',
+    password: '',
+    passwordRepeat: '',
+  });
   const [busy, setBusy] = useState(false);
+  const [consented, setConsented] = useState(false);
   const navigate = useNavigate();
+  const termsAndConditionsDialog = useTermsAndConditionDialog();
+  const privacyPolicyDialog = usePrivacyPolicyDialog();
 
-  const handleValueChange = useCallback(({ target: { name, value } }) => {
+  const handleValueChange = useCallback(({ target }) => {
+    const { name, value } = target;
+
     if (name === FIRSTNAME) {
       setFirstname(value);
     } else if (name === LASTNAME) {
@@ -77,56 +92,56 @@ const UserRegistration = () => {
       setPassword(value);
     } else if (name === PASSWORD_REPEAT) {
       setPasswordRepeat(value);
+    } else if (name === CONSENT) {
+      setConsented(target.checked);
+    }
+  }, []);
+
+  const handleClick = useCallback(({ target }) => {
+    const { name } = target;
+
+    if (name === TERMS_AND_CONDITIONS) {
+      termsAndConditionsDialog.show();
+    } else if (name === PRIVACY_POLICY) {
+      privacyPolicyDialog.show();
     }
   }, []);
 
   const handleFormSubmit = useCallback((e) => {
     e.preventDefault();
-    let hasError = false;
+
+    if (!consented) {
+      return;
+    }
+
+    const errors = {};
 
     if (!firstname || firstname.length < 2) {
-      setFirstnameError('Firstname MUST be at least 2 characters long!');
-      hasError = true;
-    } else {
-      setFirstnameError('');
+      errors.firstname = 'Firstname MUST be at least 2 characters long!';
     }
 
     if (!lastname || lastname.length < 2) {
-      setLastnameError('Lastname MUST be at least 2 characters long!');
-      hasError = true;
-    } else {
-      setLastnameError('');
+      errors.lastname = 'Lastname MUST be at least 2 characters long!';
     }
 
     if (!matchesEmail(email)) {
-      setEmailError('Invalid Email Address!');
-      hasError = true;
-    } else {
-      setEmailError('');
+      errors.email = 'Invalid Email Address!';
     }
 
     if (!matchesPhoneNumber(phoneNumber)) {
-      setPhoneNumberError('Invalid Phone Number!');
-      hasError = true;
-    } else {
-      setPhoneNumberError('');
+      errors.phoneNumber = 'Invalid Phone Number!';
     }
 
     if (!password || password.length < 6) {
-      setPasswordError('Password MUST be at least 6 characters long!');
-      hasError = true;
-    } else {
-      setPasswordError('');
+      errors.password = 'Password MUST be at least 6 characters long!';
     }
 
     if (passwordRepeat !== password) {
-      setPasswordRepeatError('Password Mismatch!');
-      hasError = true;
-    } else {
-      setPasswordRepeatError('');
+      errors.passwordRepeat = 'Password Mismatch!';
     }
 
-    if (hasError) {
+    if (Object.keys(errors).length) {
+      setErrors(errors);
       return;
     }
 
@@ -150,9 +165,9 @@ const UserRegistration = () => {
         setBusy(false);
       });
   }, [
-    firstname, lastname, email, phoneNumber, password, passwordRepeat,
-    setFirstnameError, setLastnameError, setEmailError, setPhoneNumberError,
-    setPasswordError, setPasswordRepeatError, setBusy,
+    firstname, lastname, email, phoneNumber,
+    password, passwordRepeat, consented,
+    setErrors, setBusy,
   ]);
 
   return (
@@ -167,7 +182,7 @@ const UserRegistration = () => {
               name={FIRSTNAME}
               value={firstname}
               label="Firstname"
-              error={firstnameError}
+              error={errors.firstname}
               className={textboxCss.account}
               style={{ backgroundColor: '#efefef', borderRadius: 4 }}
               onChange={handleValueChange}
@@ -177,7 +192,7 @@ const UserRegistration = () => {
               name={LASTNAME}
               value={lastname}
               label="Lastname"
-              error={lastnameError}
+              error={errors.lastname}
               className={textboxCss.account}
               style={{ backgroundColor: '#efefef', borderRadius: 4 }}
               onChange={handleValueChange}
@@ -189,7 +204,7 @@ const UserRegistration = () => {
             name={EMAIL}
             value={email}
             label="Email"
-            error={emailError}
+            error={errors.email}
             className={textboxCss.email}
             style={{ backgroundColor: '#efefef', borderRadius: 4 }}
             onChange={handleValueChange}
@@ -199,7 +214,7 @@ const UserRegistration = () => {
             name={PHONE_NUMBER}
             value={phoneNumber}
             label="Phone Number"
-            error={phoneNumberError}
+            error={errors.phoneNumber}
             className={textboxCss.phone}
             style={{ backgroundColor: '#efefef', borderRadius: 4 }}
             onChange={handleValueChange}
@@ -211,7 +226,7 @@ const UserRegistration = () => {
               name={PASSWORD}
               value={password}
               label="Password"
-              error={passwordError}
+              error={errors.password}
               className={textboxCss.password}
               style={{ backgroundColor: '#efefef', borderRadius: 4 }}
               onChange={handleValueChange}
@@ -222,13 +237,44 @@ const UserRegistration = () => {
               name={PASSWORD_REPEAT}
               value={passwordRepeat}
               label="Repeat Password"
-              error={passwordRepeatError}
+              error={errors.passwordRepeat}
               className={textboxCss.password}
               style={{ backgroundColor: '#efefef', borderRadius: 4 }}
               onChange={handleValueChange}
             />
           </div>
-          <LoadingButton type="submit" label="Register" loading={busy} />
+          <div className={css.consent_row}>
+            <SimpleCheckBox
+              name={CONSENT}
+              checked={consented}
+              label="I have read and agree to the"
+              onChange={handleValueChange}
+            />
+            <button
+              type="button"
+              name={TERMS_AND_CONDITIONS}
+              className="link compact-link"
+              onClick={handleClick}
+            >
+              Terms and Conditions
+            </button>
+            <span>and</span>
+            <button
+              type="button"
+              name={PRIVACY_POLICY}
+              className="link compact-link"
+              onClick={handleClick}
+            >
+              Privacy Policy
+            </button>
+          </div>
+          <div className={css.submit_pad}>
+            {consented ? (
+              <LoadingButton type="submit" label="Register" loading={busy} />
+            ) : (
+              <div className={css.submit_btn_placeholder}>Register</div>
+            )}
+          </div>
         </form>
       </main>
     </div>

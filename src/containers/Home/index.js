@@ -424,10 +424,10 @@ const Footer = () => (
     <div className={css.footer_copyright_panel}>
       <span>© 2023. LogaXP. All Rights Reserved</span>
       <div>
-        <Link to="/termss-of-use" className={css.terms_link}>
+        <Link to={routes.termsAndConditions} className={css.terms_link}>
           Terms of Use
         </Link>
-        <Link to="/termss-of-use" className={css.privacy_link}>
+        <Link to={routes.privacyPolicy} className={css.privacy_link}>
           Privacy & Security
         </Link>
         <Link to={routes.returnPolicy} className={css.return_policy}>

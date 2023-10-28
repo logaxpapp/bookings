@@ -103,3 +103,23 @@
 .google_btn_wrap {
   padding-bottom: 24px;
 }
+
+.consent_row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.submit_btn_placeholder {
+  width: 100%;
+  padding: 16px 0;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.4rem;
+  text-align: center;
+  background-color: #0c2f8f;
+  opacity: 0.3;
+  border-radius: 4px;
+  margin-top: 24px;
+}

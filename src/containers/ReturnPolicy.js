@@ -92,7 +92,7 @@ export const ReturnPolicyComponent = ({
   phoneNumber,
 }) => (
   <section style={styles.container}>
-    <h1 style={styles.h1}>Return Policy - Appointment Booking App</h1>
+    <h1 style={styles.h1}>Return Policy</h1>
     {homepage ? (
       <AlertComponent type="error" style={{ padding: 24, borderRadius: 8 }}>
         <section>
