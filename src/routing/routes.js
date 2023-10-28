@@ -10,6 +10,7 @@ const routes = {
     calendar: 'calendar',
     employees: 'employees',
     card: 'card',
+    returnPolicy: 'return-policy',
     settings: {
       base: 'settings',
       details: '',
@@ -29,6 +30,7 @@ const routes = {
       employees: '/companies/employees',
       profile: '/companies/profile',
       card: '/companies/card',
+      returnPolicy: '/companies/return-policy',
       settings: {
         base: '/companies/settings',
         details: '/companies/settings',
@@ -71,6 +73,7 @@ const routes = {
   },
   pricing: '/pricing',
   contact: '/contact',
+  returnPolicy: '/return-policy',
   signupSuccess: '/signup/success',
   passwordReset: '/:resource/password-reset/:token',
   passwordRecoverySuccess: '/password-recoveries',

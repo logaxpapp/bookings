@@ -48,6 +48,8 @@ import StripeSubscriptionReturnWindow from '../containers/Company/Stripe/StripeS
 import { PaystackIntentCallbackWindow } from '../payments/Paystack';
 import { CompanyPage } from '../containers/ProviderPage';
 import CardEditor from '../containers/Company/CardEditor';
+import ReturnPolicy from '../containers/ReturnPolicy';
+import CompanyReturnPolicy from '../containers/Company/ReturnPolicy';
 
 const router = createBrowserRouter([
   {
@@ -57,6 +59,10 @@ const router = createBrowserRouter([
   {
     path: routes.contact,
     element: <Contact />,
+  },
+  {
+    path: routes.returnPolicy,
+    element: <ReturnPolicy homepage />,
   },
   {
     path: routes.pricing,
@@ -179,6 +185,10 @@ const router = createBrowserRouter([
       {
         path: routes.company.card,
         element: <CardEditor />,
+      },
+      {
+        path: routes.company.returnPolicy,
+        element: <CompanyReturnPolicy />,
       },
     ],
   },

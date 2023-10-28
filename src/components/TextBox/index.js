@@ -244,12 +244,20 @@ TextBox.defaultProps = {
   hideErrorOnNull: false,
 };
 
+/**
+ * @param {Object} props
+ * @param {import('../../types').NamedStyle} props.style
+ */
 export const FieldEditor = ({
   name,
   label,
   type,
+  style,
+  inputStyle,
   initialValue,
   onSave,
+  isInteger,
+  transparent,
 }) => {
   const [value, setValue] = useState('');
   const [editing, setEditing] = useState(false);
@@ -278,7 +286,7 @@ export const FieldEditor = ({
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === VALUE) {
-      setValue(value);
+      setValue(isInteger ? parseIntegerInput(value) : value);
     }
   }, []);
 
@@ -299,9 +307,12 @@ export const FieldEditor = ({
 
   if (!editing) {
     return (
-      <div className={css.field_wrap}>
-        <span className={css.input_label_text}>{label}</span>
-        <div className={css.field_row}>
+      <div className={css.field_wrap} style={style}>
+        {label ? <span className={css.input_label_text}>{label}</span> : null}
+        <div
+          className={css.field_row}
+          style={{ backgroundColor: transparent ? 'transparent' : '#eef3f3' }}
+        >
           <span className={css.field_value} title={value}>{value}</span>
           <SvgButton
             type="button"
@@ -317,8 +328,8 @@ export const FieldEditor = ({
   }
 
   return (
-    <form className={css.field_wrap} onSubmit={handleSubmit}>
-      <span className={css.input_label_text}>{label}</span>
+    <form className={css.field_wrap} onSubmit={handleSubmit} style={style}>
+      {label ? <span className={css.input_label_text}>{label}</span> : null}
       <div className={css.field_row}>
         <TextBox
           ref={textbox}
@@ -327,6 +338,7 @@ export const FieldEditor = ({
           name={VALUE}
           value={value}
           containerStyle={{ marginBottom: 0 }}
+          style={inputStyle}
           onChange={handleValueChange}
           hideErrorOnNull
         />
@@ -362,15 +374,24 @@ export const FieldEditor = ({
 
 FieldEditor.propTypes = {
   name: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.string,
   type: PropTypes.string,
   initialValue: PropTypes.string,
+  style: PropTypes.shape({}),
+  inputStyle: PropTypes.shape({}),
   onSave: PropTypes.func.isRequired,
+  isInteger: PropTypes.bool,
+  transparent: PropTypes.bool,
 };
 
 FieldEditor.defaultProps = {
   initialValue: '',
   type: 'text',
+  label: '',
+  style: undefined,
+  inputStyle: {},
+  isInteger: false,
+  transparent: false,
 };
 
 export default TextBox;

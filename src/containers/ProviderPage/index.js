@@ -14,7 +14,7 @@ import {
   serviceProps,
   timeSlotProps,
 } from '../../utils/propTypes';
-import { SvgButton, paths } from '../../components/svg';
+import { SvgButton, colors, paths } from '../../components/svg';
 import { Loader, useBusyDialog } from '../../components/LoadingSpinner';
 import {
   getProviderAsync,
@@ -28,11 +28,77 @@ import { useWindowSize } from '../../lib/hooks';
 import { DateButton } from '../../components/Buttons';
 import Header from '../Header';
 import Error404 from '../Error404';
+import { ReturnPolicyComponent } from '../ReturnPolicy';
+import { useDialog } from '../../lib/Dialog';
 
 const CLOSE_WINDOW = 'close window';
 const CATEGORY = 'category';
+const RETURN_POLICY = 'return_policy';
 const VIEW_IMAGES = 'view images';
 const VIEW_SLOTS = 'view slots';
+
+const ProviderReturnPolicy = ({ provider, onClose }) => {
+  const [scaled, setSacled] = useState(false);
+
+  useEffect(() => setSacled(true), []);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === CLOSE_WINDOW) {
+      setSacled(false);
+      setTimeout(onClose, 500);
+    }
+  }, []);
+
+  return (
+    <div className={`${css.scaler} ${scaled ? css.scaled : ''}`}>
+      <div className={css.return_policy_wrap}>
+        {provider.returnPolicy ? (
+          <ReturnPolicyComponent
+            effectiveDate={new Date(provider.returnPolicy.updatedAt).toLocaleDateString()}
+            minNoticeTime={provider.returnPolicy.minNoticeTime}
+            refundPercent={provider.returnPolicy.refundPercent}
+            refundDelay={provider.returnPolicy.refundDelay}
+            email={provider.email}
+            phoneNumber={provider.phoneNumber}
+          />
+        ) : <ReturnPolicyComponent email={provider.email} phoneNumber={provider.phoneNumber} />}
+        <SvgButton
+          type="button"
+          title="Close"
+          name={CLOSE_WINDOW}
+          color={colors.delete}
+          path={paths.close}
+          onClick={handleClick}
+          style={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            width: 32,
+            height: 32,
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
+ProviderReturnPolicy.propTypes = {
+  provider: PropTypes.shape({
+    returnPolicy: PropTypes.shape({
+      updatedAt: PropTypes.string,
+      minNoticeTime: PropTypes.number,
+      refundPercent: PropTypes.number,
+      refundDelay: PropTypes.number,
+    }),
+    email: PropTypes.string,
+    phoneNumber: PropTypes.string,
+  }),
+  onClose: PropTypes.func.isRequired,
+};
+
+ProviderReturnPolicy.defaultProps = {
+  provider: null,
+};
 
 const serviceDisplayModes = {
   slots: 'slots',
@@ -164,7 +230,7 @@ const TimeSlotsViewer = ({
       {slots.length ? (
         <div className="table-wrap">
           {mini ? (
-            <div className="panel overflow-auto">
+            <div className={`panel overflow-auto ${css.pad_bottom}`}>
               <GridPanel minimumChildWidth={180}>
                 {slots.map((slot) => (
                   <div key={slot.id} className="card-center">
@@ -174,7 +240,7 @@ const TimeSlotsViewer = ({
               </GridPanel>
             </div>
           ) : (
-            <div className={css.table_card}>
+            <div className={`${css.table_card} ${css.pad_bottom}`}>
               <table className="table">
                 <thead>
                   <tr>
@@ -243,7 +309,7 @@ const ImagesViewer = ({
         </div>
       </header>
       {service.images.length ? (
-        <div className={css.card_list_wrap}>
+        <div className={`${css.card_list_wrap} ${css.pad_bottom}`}>
           <GridPanel minimumChildWidth={240}>
             {service.images.map(({ id, url }) => (
               <div key={id} className={`${css.service_card_wrap} ${css.image_wrap}`}>
@@ -361,6 +427,7 @@ const ProviderPage = ({ provider }) => {
   });
   const container = useRef(null);
   const { width } = useWindowSize();
+  const dialog = useDialog();
 
   useEffect(() => {
     setMini(container.current.clientWidth < 530);
@@ -401,6 +468,14 @@ const ProviderPage = ({ provider }) => {
       );
     }
   }, [provider, setCategory]);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === RETURN_POLICY) {
+      let popup;
+      const handleClose = () => popup.close();
+      popup = dialog.show(<ProviderReturnPolicy provider={provider} onClose={handleClose} />);
+    }
+  }, []);
 
   return (
     <section ref={container} className={css.container}>
@@ -487,7 +562,7 @@ const ProviderPage = ({ provider }) => {
               {services ? (
                 <>
                   {services.length ? (
-                    <div className={css.card_list_wrap}>
+                    <div className={`${css.card_list_wrap} ${css.pad_bottom}`}>
                       <GridPanel minimumChildWidth={240}>
                         {services.map((service) => (
                           <ServiceCard
@@ -513,6 +588,11 @@ const ProviderPage = ({ provider }) => {
               )}
             </>
           )}
+          <div className={css.terms_wrap}>
+            <button type="button" name={RETURN_POLICY} className="link compact-link" onClick={handleClick}>
+              Return Policy
+            </button>
+          </div>
         </div>
       </div>
     </section>

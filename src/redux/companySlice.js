@@ -1502,6 +1502,34 @@ export const updatePasswordAsync = (
     });
 };
 
+export const updateReturnPolicyAsync = (
+  key,
+  value,
+  callback,
+) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  const policy = company.returnPolicy;
+
+  const url = `return_policies/${policy ? policy.id : 0}`;
+
+  updateResource(token, url, { [key]: value }, true)
+    .then((policy) => {
+      dispatch(updateCompany({ ...company, returnPolicy: policy }));
+
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
 export const selectToken = (state) => state.company.token;
 
 export const selectCompany = (state) => state.company.company;

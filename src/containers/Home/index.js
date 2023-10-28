@@ -430,6 +430,9 @@ const Footer = () => (
         <Link to="/termss-of-use" className={css.privacy_link}>
           Privacy & Security
         </Link>
+        <Link to={routes.returnPolicy} className={css.return_policy}>
+          Return Policy
+        </Link>
       </div>
     </div>
   </footer>

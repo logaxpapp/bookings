@@ -84,6 +84,13 @@ const links = [
     overflow: 'overflow',
     isActive: (pathname) => pathname === routes.company.absolute.employees,
   },
+  {
+    title: 'Return Policy',
+    route: routes.company.returnPolicy,
+    svgPath: paths.cardRefund,
+    overflow: 'overflow',
+    isActive: (pathname) => pathname === routes.company.absolute.returnPolicy,
+  },
 ];
 
 const overflowLinks = links.filter((l, idx) => idx > 3);
