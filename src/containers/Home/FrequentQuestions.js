@@ -45,7 +45,7 @@ There are four different staff security levels in LogaXP and they determine diff
   {
     id: 6,
     q: 'Will my clients have to call me to cancel or reschedule appointments?',
-    A: "While we can't prevent clients from calling you, we can offer a hassle-free way for them to manage their appointments without making a call. Our confirmation and reminder emails include a link that allows clients to easily cancel or reschedule their appointments for a more convenient time. Additionally, we provide the option for clients to create their own logins for your scheduling platform. This grants them access to your website or scheduling page, where they can log in, view their appointments, and make any necessary cancellations or rescheduling.",
+    a: "While we can't prevent clients from calling you, we can offer a hassle-free way for them to manage their appointments without making a call. Our confirmation and reminder emails include a link that allows clients to easily cancel or reschedule their appointments for a more convenient time. Additionally, we provide the option for clients to create their own logins for your scheduling platform. This grants them access to your website or scheduling page, where they can log in, view their appointments, and make any necessary cancellations or rescheduling.",
   },
   {
     id: 7,
@@ -56,11 +56,6 @@ There are four different staff security levels in LogaXP and they determine diff
     id: 8,
     q: 'Is my data secure?',
     a: "Data security is our top priority. We conduct complete hourly backups to ensure your data remains protected, and our servers are securely stored in a remote location. For a detailed overview of our data security measures, please visit our website's dedicated page: 'Security for your Online Scheduling System.",
-  },
-  {
-    id: 9,
-    q: "I'm moving to LogaXP from another scheduling system. Do you offer data upload?",
-    a: "LogaXP does not offer a direct upload feature for appointment data from other scheduling systems at this time. However, we do have a client upload feature available where you can import a spreadsheet with your previous client's data and match it with the appropriate client fields in LogaXP.",
   },
   {
     id: 10,

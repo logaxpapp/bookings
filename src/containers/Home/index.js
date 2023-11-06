@@ -391,7 +391,6 @@ const Footer = () => (
             Support
           </h1>
           <div className={css.footer_col_links_wrap}>
-            <span className={css.footer_col_link}>FAQ</span>
             <a
               className={`${css.footer_col_link} ${css.pre_icon} ${css.telephone}`}
               href="tel:+1 (615) 930-6090"
