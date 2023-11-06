@@ -19,6 +19,7 @@ export const createStore = () => configureStore({
     userLocation,
     userPreferences,
   },
+  devTools: process.env.NODE_ENV !== 'production',
 });
 
 const store = createStore();

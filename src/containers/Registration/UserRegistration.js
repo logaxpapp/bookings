@@ -13,21 +13,13 @@ import TextBox, {
 } from '../../components/TextBox';
 import { registerUser } from '../../api';
 import routes from '../../routing/routes';
-import { SimpleCheckBox } from '../../components/Inputs';
-import {
-  usePrivacyPolicyDialog,
-  useTermsAndConditionDialog,
-} from '../TermsAndPrivacy';
 
-const CONSENT = 'consent';
 const FIRSTNAME = 'firstname';
 const LASTNAME = 'lastname';
 const EMAIL = 'email';
 const PHONE_NUMBER = 'phone_number';
 const PASSWORD = 'password';
 const PASSWORD_REPEAT = 'password_repeat';
-const PRIVACY_POLICY = 'privacy_policy';
-const TERMS_AND_CONDITIONS = 'terms_and_conditions';
 
 const GoogleSignupBtn = ({ callbackFunction }) => (
   <>
@@ -72,10 +64,7 @@ const UserRegistration = () => {
     passwordRepeat: '',
   });
   const [busy, setBusy] = useState(false);
-  const [consented, setConsented] = useState(false);
   const navigate = useNavigate();
-  const termsAndConditionsDialog = useTermsAndConditionDialog();
-  const privacyPolicyDialog = usePrivacyPolicyDialog();
 
   const handleValueChange = useCallback(({ target }) => {
     const { name, value } = target;
@@ -92,27 +81,11 @@ const UserRegistration = () => {
       setPassword(value);
     } else if (name === PASSWORD_REPEAT) {
       setPasswordRepeat(value);
-    } else if (name === CONSENT) {
-      setConsented(target.checked);
-    }
-  }, []);
-
-  const handleClick = useCallback(({ target }) => {
-    const { name } = target;
-
-    if (name === TERMS_AND_CONDITIONS) {
-      termsAndConditionsDialog.show();
-    } else if (name === PRIVACY_POLICY) {
-      privacyPolicyDialog.show();
     }
   }, []);
 
   const handleFormSubmit = useCallback((e) => {
     e.preventDefault();
-
-    if (!consented) {
-      return;
-    }
 
     const errors = {};
 
@@ -166,7 +139,7 @@ const UserRegistration = () => {
       });
   }, [
     firstname, lastname, email, phoneNumber,
-    password, passwordRepeat, consented,
+    password, passwordRepeat,
     setErrors, setBusy,
   ]);
 
@@ -244,36 +217,29 @@ const UserRegistration = () => {
             />
           </div>
           <div className={css.consent_row}>
-            <SimpleCheckBox
-              name={CONSENT}
-              checked={consented}
-              label="I have read and agree to the"
-              onChange={handleValueChange}
-            />
-            <button
-              type="button"
-              name={TERMS_AND_CONDITIONS}
+            <span>
+              By clicking Create account below, you agree to the&nbsp;
+            </span>
+            <a
+              href="https://logaexp.netlify.app/terms-conditions"
+              target="_blank"
+              rel="noreferrer"
               className="link compact-link"
-              onClick={handleClick}
             >
               Terms and Conditions
-            </button>
-            <span>and</span>
-            <button
-              type="button"
-              name={PRIVACY_POLICY}
+            </a>
+            <span>&nbsp;and&nbsp;</span>
+            <a
+              href="https://logaexp.netlify.app/privacy-policy"
+              target="_blank"
+              rel="noreferrer"
               className="link compact-link"
-              onClick={handleClick}
             >
               Privacy Policy
-            </button>
+            </a>
           </div>
           <div className={css.submit_pad}>
-            {consented ? (
-              <LoadingButton type="submit" label="Register" loading={busy} />
-            ) : (
-              <div className={css.submit_btn_placeholder}>Register</div>
-            )}
+            <LoadingButton type="submit" label="Create Account" loading={busy} />
           </div>
         </form>
       </main>

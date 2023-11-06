@@ -153,7 +153,12 @@ const CitySearchPanel = ({
         (s) => s.id === Number.parseInt(value, 10),
       )) || null);
     } else if (name === CITY) {
-      setCity((state && state.cities.find((c) => c.id === Number.parseInt(value, 10))) || null);
+      let city = null;
+      if (state) {
+        city = state.cities.find((c) => c.id === Number.parseInt(value, 10));
+      }
+
+      setCity(city);
     }
   }, [countries, country, state, setCountry, setState, setCity]);
 
@@ -161,7 +166,7 @@ const CitySearchPanel = ({
     if (city) {
       onSearch(term);
     }
-  }, [city]);
+  }, [city, onSearch]);
 
   return (
     <section className={css.city_search_panel}>

@@ -14,6 +14,7 @@ import { Ring } from '../../components/LoadingButton';
 import { postResource } from '../../api';
 import { useNotification } from '../../lib/Notification';
 import { matchesEmail } from '../../components/TextBox';
+import FrequentQuestions from './FrequentQuestions';
 
 const EMAIL = 'email';
 
@@ -112,8 +113,8 @@ const Steps = () => (
       </div>
       <div className={css.steps_right}>
         <p className={css.steps_clients_text}>
-          We provide both web and mobile applications that help
-          potential clients discover your services.
+          We offer web and mobile applications designed to assist prospective
+          clients in exploring and accessing your services.
         </p>
         <img alt="user search" src={searchImage} className={css.search_picture} />
       </div>
@@ -449,6 +450,7 @@ const Home = () => (
     <SubscriptionPanel />
     <FindServices />
     <Testimonial />
+    <FrequentQuestions />
     <Footer />
   </div>
 );

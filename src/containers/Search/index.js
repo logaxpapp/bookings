@@ -9,9 +9,9 @@ const Search = () => {
 
   useEffect(() => {
     const term = searchParams.get('term');
-    const userId = searchParams.get('user_id');
+    const cityId = searchParams.get('city_id');
     const forceCurrentLocation = searchParams.get('force_current_location');
-    setParams({ term, userId, forceCurrentLocation });
+    setParams({ term, cityId, forceCurrentLocation });
   }, []);
 
   if (!params) {

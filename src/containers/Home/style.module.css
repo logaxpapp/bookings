@@ -392,6 +392,52 @@
   letter-spacing: -0.14px;
 }
 
+.faqs_panel {
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.faq_card {
+  display: flex;
+  padding: 24px 32px;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+  border-radius: 8px;
+  border: 1px solid var(--neutral-n-200, #6b788e);
+  background: #fff;
+}
+
+.faq_header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.faq_heading {
+  color: var(--neutral-n-600, #354764);
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 140%;
+  margin: 0;
+}
+
+.faq_body {
+  margin: 0;
+}
+
+.pre_wrap {
+  white-space: pre-wrap;
+  font-family: Inter;
+  line-height: 1.8;
+}
+
 .subscription_panel {
   display: flex;
   flex-direction: column;

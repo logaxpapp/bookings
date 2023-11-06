@@ -23,7 +23,12 @@ const normalizeError = (err) => {
   if (!err) {
     return { message: 'An unknown error encountered. Please try again.' };
   }
-  if (err.response) {
+  const { response } = err;
+  if (response) {
+    if (response.status === 404) {
+      return { message: 'Record Not Found!' };
+    }
+
     return { message: err.response.data.message || JSON.stringify(err.response.data) };
   }
   if (err.request) {
@@ -53,7 +58,9 @@ const instantiate = (headers = null) => {
 export const get = (path, headers = null) => new Promise((resolve, reject) => {
   instantiate(headers).get(path)
     .then(({ data }) => resolve(data))
-    .catch((err) => reject(normalizeError(err)));
+    .catch((err) => {
+      reject(normalizeError(err));
+    });
 });
 
 /**
@@ -66,7 +73,9 @@ export const get = (path, headers = null) => new Promise((resolve, reject) => {
 const post = (path, data, headers = null) => new Promise((resolve, reject) => {
   instantiate(headers).post(path, data)
     .then(({ data }) => resolve(data))
-    .catch((err) => reject(normalizeError(err)));
+    .catch((err) => {
+      reject(normalizeError(err));
+    });
 });
 
 /**
@@ -79,7 +88,9 @@ const post = (path, data, headers = null) => new Promise((resolve, reject) => {
 export const put = (path, data, headers = null) => new Promise((resolve, reject) => {
   instantiate(headers).put(path, data)
     .then(({ data }) => resolve(data))
-    .catch((err) => reject(normalizeError(err)));
+    .catch((err) => {
+      reject(normalizeError(err));
+    });
 });
 
 /**
