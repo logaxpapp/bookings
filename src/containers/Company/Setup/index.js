@@ -27,19 +27,22 @@ import AlertComponent from '../../../components/AlertComponents';
 import LoadingButton, { Ring } from '../../../components/LoadingButton';
 import { SvgButton, colors, paths } from '../../../components/svg';
 import ResourceLoader from '../../../components/ResourceLoader';
-import { useNotification } from '../../../lib/Notification';
 import {
   capitalize,
   currencyHelper,
   dateUtils,
+  notification,
 } from '../../../utils';
 import { isImage, uploadFile } from '../../../lib/CloudinaryUtils';
 import ImageUploader from '../../../components/ImageUploader';
 import defaultImages from '../../../utils/defaultImages';
-import { SimpleCheckBox } from '../../../components/Inputs';
+import { AccentRadioButton, SimpleCheckBox } from '../../../components/Inputs';
 import GridPanel from '../../../components/GridPanel';
 import routes from '../../../routing/routes';
 import payments from '../../../payments';
+import { useDialog } from '../../../lib/Dialog';
+import TextBox, { isNumber } from '../../../components/TextBox';
+import { getUserLocation, loadIPLocationAsync } from '../../../redux/userLocationSlice';
 
 const location = UserLocation.getLocation();
 
@@ -50,17 +53,28 @@ const location = UserLocation.getLocation();
  */
 const getLastSaved = (date) => `${date.toLocaleDateString()}T${date.toLocaleTimeString()}`;
 
+const CANCEL = 'cancel';
 const CITY = 'city';
-const CLOSE_CITY_EDITOR = 'close city editor';
-const CLOSE_LOCATION_EDITOR = 'close location editor';
+const CLOSE_CITY_EDITOR = 'close_city_editor';
+const CLOSE_LOCATION_EDITOR = 'close_location_editor';
+const CONFIRM_LOCATION = 'confirm_location';
 const COUNTRY = 'country';
-const OFFICE_CLOSE_TIME = 'office close time';
-const OFFICE_START_TIME = 'office start time';
-const OPEN_CITY_EDITOR = 'open city editor';
-const OPEN_LOCATION_EDITOR = 'open location editor';
+const LATITUDE = 'latitude';
+const LONGITUDE = 'longitude';
+const MODE = 'mode';
+const OFFICE_CLOSE_TIME = 'office_close_time';
+const OFFICE_START_TIME = 'office_start_time';
+const OPEN_CITY_EDITOR = 'open_city_editor';
+const OPEN_LOCATION_EDITOR = 'open_location_editor';
 const SAVE = 'save';
 const SETUP_PAYMENT = 'setup_payment';
 const STATE = 'state';
+
+const locationModes = {
+  device: 'device',
+  network: 'network',
+  manual: 'manual',
+};
 
 const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
 
@@ -177,25 +191,39 @@ const CityEditor = ({ company, countries }) => {
   const [busy, setBusy] = useState(false);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    setCountry(countries.find((c) => c.id === company.country.id));
+  const handleStateChange = useCallback((state) => {
+    setState(state);
+    if (state) {
+      setCity(state.cities[0]);
+    }
   }, []);
 
-  useEffect(() => setState(country ? country.states[0] : null), [country, setState]);
-
-  useEffect(() => setCity(state ? state.cities[0] : null), [state, setCity]);
+  useEffect(() => {
+    const c = countries.find(({ id }) => id === company.country.id);
+    setCountry(c);
+    if (c && company.city) {
+      const state = c.states.find(({ id }) => id === company.city.stateId);
+      setState(state);
+      if (state) {
+        setCity(state.cities.find(({ id }) => id === company.city.id));
+      }
+    }
+  }, []);
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === COUNTRY) {
-      setCountry(countries.find((c) => c.id === Number.parseInt(value, 10)));
+      const country = countries.find((c) => c.id === Number.parseInt(value, 10));
+      setCountry(country);
+      if (country) {
+        handleStateChange(country.states[0]);
+      }
     } else if (name === STATE) {
-      setState((country && country.states.find(
-        (s) => s.id === Number.parseInt(value, 10),
-      )) || null);
+      const state = country && country.states.find(({ id }) => id === Number.parseInt(value, 10));
+      handleStateChange(state);
     } else if (name === CITY) {
-      setCity((state && state.cities.find((c) => c.id === Number.parseInt(value, 10))) || null);
+      setCity(state && state.cities.find(({ id }) => id === Number.parseInt(value, 10)));
     }
-  }, [countries, country, state]);
+  }, [countries, country, state, handleStateChange]);
 
   const handleUpdate = useCallback(() => {
     if (!city) {
@@ -374,7 +402,6 @@ const OpenHoursPanel = ({ company }) => {
   const [start, setStart] = useState('');
   const [end, setEnd] = useState('');
   const busyDialog = useBusyDialog();
-  const notification = useNotification();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -528,14 +555,13 @@ OpenHoursPanel.propTypes = {
   company: companyProps.isRequired,
 };
 
-const LocationEditor = () => {
+export const LocationEditor1 = () => {
   const [busy, setBusy] = useState(false);
   const [coords, setCoords] = useState({
     latitude: location.hasData ? location.latitude : '--',
     longitude: location.hasData ? location.longitude : '--',
     lastSaved: location.hasData ? getLastSaved(location.lastSaved) : '--',
   });
-  const notification = useNotification();
   const dispatch = useDispatch();
 
   const reload = useCallback(() => (
@@ -603,16 +629,229 @@ const LocationEditor = () => {
   );
 };
 
+const LocationEditor = ({ onClose }) => {
+  const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState(locationModes.device);
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [data, setData] = useState({
+    latitude: '',
+    longitude: '',
+    confirmMessage: '',
+  });
+  const dispatch = useDispatch();
+
+  const handleValueChange = useCallback(({ target: { name, value } }) => {
+    if (name === MODE) {
+      setMode(value);
+    } else if (name === LATITUDE) {
+      if (value === '' || isNumber(value)) {
+        setLatitude(value);
+      }
+    } else if (name === LONGITUDE) {
+      if (value === '' || isNumber(value)) {
+        setLongitude(value);
+      }
+    }
+  }, []);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === SAVE) {
+      if (mode === locationModes.device) {
+        setBusy(true);
+        getUserLocation()
+          .then((location) => {
+            const confirmMessage = `Your Device Location\n\nLatitude: ${location.latitude}.\nLongitude: ${location.longitude}\n\nClick confirm to update.`;
+            setData({ ...location, confirmMessage });
+            setBusy(false);
+          })
+          .catch(() => {
+            notification.showError(
+              'Error determining your location. Please ensure that location is enabled for this page, then try again!',
+            );
+            setBusy(false);
+          });
+      } else if (mode === locationModes.network) {
+        setBusy(true);
+        dispatch(loadIPLocationAsync((err, location) => {
+          if (!err) {
+            const confirmMessage = `Your Network Determined Location\n\nLatitude: ${location.latitude}\nLongitude: ${location.longitude}\nCity: ${location.city}\nState: ${location.region}\nCountry: ${location.country}\n\nClick confirm to update.`;
+            setData({ ...location, confirmMessage });
+          } else {
+            notification.showError(
+              'Error determining your location. Please try again!',
+            );
+          }
+          setBusy(false);
+        }));
+      } else if (mode === locationModes.manual) {
+        if (!(latitude && longitude)) {
+          notification.showError('Please enter both latitude and longitude!');
+          return;
+        }
+
+        setData({
+          latitude,
+          longitude,
+          confirmMessage: `Manually Entered Location\n\nLatitude: ${latitude}\nLongitude: ${longitude}\n\nClick confirm to update.`,
+        });
+      }
+    } else if (name === CANCEL) {
+      setData((data) => ({ ...data, confirmMessage: '' }));
+    } else if (name === CONFIRM_LOCATION) {
+      setBusy(true);
+      setData((data) => ({ ...data, confirmMessage: '' }));
+      dispatch(updateCompanyLocationAsync(data.latitude, data.longitude, (err) => {
+        setBusy(false);
+
+        if (!err) {
+          onClose();
+        }
+      }));
+    }
+  }, [data, mode, latitude, longitude, onClose]);
+
+  return (
+    <div className="dialog">
+      <section className="bold-dialog-body">
+        <h1 className={css.location_dialog_heading}>
+          Please select a method below to update your location.
+        </h1>
+        <AccentRadioButton
+          name={MODE}
+          value={locationModes.device}
+          radioSize={28}
+          checked={mode === locationModes.device}
+          label="Device Location. (Please allow Location Access if prompted)"
+          onChange={handleValueChange}
+          style={{
+            fontSize: '1.05rem',
+            cursor: 'pointer',
+          }}
+        />
+        <AccentRadioButton
+          name={MODE}
+          value={locationModes.network}
+          radioSize={28}
+          checked={mode === locationModes.network}
+          label="Server Provided Location"
+          onChange={handleValueChange}
+          style={{
+            fontSize: '1.05rem',
+            cursor: 'pointer',
+          }}
+        />
+        <AccentRadioButton
+          name={MODE}
+          value={locationModes.manual}
+          radioSize={28}
+          checked={mode === locationModes.manual}
+          label="Manual Input. (Please use ONLY if you know what you are doing)"
+          onChange={handleValueChange}
+          style={{
+            fontSize: '1.05rem',
+            cursor: 'pointer',
+          }}
+        />
+        <div
+          className={`${css.location_dialog_manual_inputs} ${mode === locationModes.manual ? css.open : ''}`}
+        >
+          <TextBox
+            type="text"
+            name={LATITUDE}
+            id={LATITUDE}
+            value={latitude}
+            label="Latitude"
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: 4,
+            }}
+            onChange={handleValueChange}
+            hideErrorOnNull
+          />
+          <TextBox
+            type="text"
+            name={LONGITUDE}
+            id={LONGITUDE}
+            value={longitude}
+            label="Longitude"
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: 4,
+            }}
+            onChange={handleValueChange}
+            hideErrorOnNull
+          />
+        </div>
+        <LoadingButton
+          type="button"
+          name={SAVE}
+          loading={busy}
+          label="Update Location"
+          onClick={handleClick}
+          styles={{
+            fontSize: 14,
+            marginTop: 0,
+          }}
+        />
+        <SvgButton
+          title="Close"
+          color={colors.delete}
+          path={paths.close}
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            right: 4,
+            top: 4,
+          }}
+        />
+        {data.confirmMessage ? (
+          <div className={css.location_confirmation_wrap}>
+            <pre className={css.location_confirmation_text}>{data.confirmMessage}</pre>
+            <div className={css.location_confirmation_controls}>
+              <button
+                type="button"
+                name={CONFIRM_LOCATION}
+                className="control-btn bold"
+                onClick={handleClick}
+              >
+                Confirm
+              </button>
+              <button
+                type="button"
+                name={CANCEL}
+                className="control-btn bold cancel"
+                onClick={handleClick}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </section>
+    </div>
+  );
+};
+
+LocationEditor.propTypes = {
+  onClose: PropTypes.func.isRequired,
+};
+
 const LocationPanel = ({ company }) => {
   const [editorOpen, setEditorOpen] = useState(false);
+  const dialog = useDialog();
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === OPEN_LOCATION_EDITOR) {
-      setEditorOpen(true);
+      let popup;
+      const handleClose = () => popup.close();
+      popup = dialog.show(
+        <LocationEditor onClose={handleClose} />,
+      );
     } else if (name === CLOSE_LOCATION_EDITOR) {
       setEditorOpen(false);
     }
-  }, []);
+  }, [dialog]);
 
   return (
     <section className={`${css.card} ${css.section} ${css.location_section}`}>
@@ -625,11 +864,6 @@ const LocationPanel = ({ company }) => {
           </div>
           <h1 className={css.section_heading}>Location</h1>
         </header>
-        {company.location ? null : (
-          <AlertComponent type="error" style={{ margin: 0 }}>
-            <span>Please set your location for maximum visibility.</span>
-          </AlertComponent>
-        )}
       </div>
       <div className={css.section_body}>
         {company.location ? (
@@ -646,27 +880,20 @@ const LocationPanel = ({ company }) => {
             </div>
           </div>
         ) : (
-          <LocationEditor />
+          <AlertComponent type="error" style={{ margin: 0 }}>
+            <span>Please set your location for maximum visibility.</span>
+          </AlertComponent>
         )}
       </div>
-      {company.location ? (
-        <div className={`${css.section_editor_slider} ${editorOpen ? css.open : ''}`}>
-          <div className={css.section_editor_slider_pad}>
-            <LocationEditor />
-          </div>
-        </div>
-      ) : null}
       <div className={css.section_footer}>
-        {company.location ? (
-          <SvgButton
-            type="button"
-            name={editorOpen ? CLOSE_LOCATION_EDITOR : OPEN_LOCATION_EDITOR}
-            color={editorOpen ? colors.delete : '#011C39'}
-            path={editorOpen ? paths.close : paths.refresh}
-            onClick={handleClick}
-            sm
-          />
-        ) : null}
+        <SvgButton
+          type="button"
+          name={editorOpen ? CLOSE_LOCATION_EDITOR : OPEN_LOCATION_EDITOR}
+          color={editorOpen ? colors.delete : '#011C39'}
+          path={editorOpen ? paths.close : paths.refresh}
+          onClick={handleClick}
+          sm
+        />
       </div>
     </section>
   );
@@ -763,7 +990,7 @@ const ProfilePicturePanel = ({ company }) => {
 
   const handleSubmit = useCallback((file, callback) => {
     const popup = busyDialog.show('Uploading profile picture ...');
-    uploadFile('chassnet', 'image', 'logaxp', file)
+    uploadFile('logaxp', 'image', 'appointments', file)
       .then(({ secure_url: url }) => dispatch(updateCompanyImages(
         url, 'profile', 'profilePicture', (err) => {
           popup.close();
@@ -790,7 +1017,10 @@ const ProfilePicturePanel = ({ company }) => {
         <AlertComponent type="error" style={{ margin: '0', padding: 8 }}>
           <div>
             <div>You have NOT uploaded your profile picture!</div>
-            <div>A generic image is displayed on your page.</div>
+            <div>
+              This generic image is displayed on your profile page. Upload your profile
+              picture to give your page a personal touch and an appealing look.
+            </div>
           </div>
         </AlertComponent>
       )}
@@ -827,7 +1057,7 @@ const CoverImagePanel = ({ company }) => {
 
   const handleSubmit = useCallback((file, callback) => {
     const popup = busyDialog.show('Uploading cover image ...');
-    uploadFile('chassnet', 'image', 'logaxp', file)
+    uploadFile('logaxp', 'image', 'appointments', file)
       .then(({ secure_url: url }) => dispatch(updateCompanyImages(
         url, 'cover', 'coverImage', (err) => {
           popup.close();
@@ -853,8 +1083,11 @@ const CoverImagePanel = ({ company }) => {
       {company.coverImage ? null : (
         <AlertComponent type="error" style={{ margin: '0', padding: 8 }}>
           <div>
-            <div>Please uploaded your cover image!</div>
-            <div>They give your page a better look and feel.</div>
+            <div>Please upload your cover image!</div>
+            <div>
+              A good cover image gives your page a personal feel
+              and makes it more appealing to potential clients.
+            </div>
           </div>
         </AlertComponent>
       )}

@@ -6,7 +6,7 @@ import BlankPage from '../../../components/BlankPage';
 import { Loader } from '../../../components/LoadingSpinner';
 import AlertComponent from '../../../components/AlertComponents';
 import WindowCloseCounter from '../../../components/WindowCloseCounter';
-import { useNotification } from '../../../lib/Notification';
+import { notification } from '../../../utils';
 
 const styles = {
   container: {
@@ -93,7 +93,6 @@ const StripeSubscriptionReturnWindow = () => {
     text: '',
     counter: 0,
   });
-  const notification = useNotification();
   const { intent_id: intentId } = useParams();
 
   const updateServer = useCallback(() => {

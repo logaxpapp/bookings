@@ -3,7 +3,7 @@ import Header from '../../Header';
 import TextBox, { matchesEmail } from '../../../components/TextBox';
 import LoadingButton from '../../../components/LoadingButton';
 import { postResource } from '../../../api';
-import { useNotification } from '../../../lib/Notification';
+import { notification } from '../../../utils';
 import AlertComponent from '../../../components/AlertComponents';
 
 const EMAIL = 'email';
@@ -40,7 +40,6 @@ const AccountLinksRefresh = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({ email: '', password: '' });
-  const notification = useNotification();
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === EMAIL) {

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
+/* eslint-disable-next-line */
 import Header from '../Header';
 
 const AuthTypeChooser = ({ companyRoute, userRoute }) => (

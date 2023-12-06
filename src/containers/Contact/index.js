@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import css from './style.module.css';
 import { postForm } from '../../api';
 import TextBox, { matchesEmail } from '../../components/TextBox';
-import { useNotification } from '../../lib/Notification';
+import { notification } from '../../utils';
 import Header from '../Header';
 import LoadingButton from '../../components/LoadingButton';
 
@@ -19,7 +19,6 @@ const Contact = () => {
     subject: false,
     content: false,
   });
-  const notification = useNotification();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');

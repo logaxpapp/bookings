@@ -28,11 +28,10 @@ import {
   updateUserCityAsync,
 } from '../../redux/userSlice';
 import routes from '../../routing/routes';
-import { dateUtils, TIMEZONE } from '../../utils';
+import { dateUtils, notification, TIMEZONE } from '../../utils';
 import Header from '../Header';
 import UserLocation from '../../utils/userLocation';
 import { SvgButton, colors, paths } from '../../components/svg';
-import { useNotification } from '../../lib/Notification';
 import { appointmentProps, userProps } from '../../utils/propTypes';
 import {
   loadCountriesAsync,
@@ -135,7 +134,6 @@ UserMessagePanel.propTypes = {
 
 const Location = ({ onChange }) => {
   const [location, setLocation] = useState({ latitude: '', longitude: '' });
-  const notification = useNotification();
 
   useEffect(() => {
     const userLocation = UserLocation.getLocation();

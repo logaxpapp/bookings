@@ -16,7 +16,7 @@ import {
 import { SvgButton, colors, paths } from '../../components/svg';
 import defaultImages from '../../utils/defaultImages';
 import LoadingSpinner, { Loader } from '../../components/LoadingSpinner';
-import { currencyHelper, dateUtils } from '../../utils';
+import { currencyHelper, dateUtils, notification } from '../../utils';
 import Bookmark from '../Bookmark';
 import routes from '../../routing/routes';
 import { useBook, useSearch } from '../../utils/hooks';
@@ -25,7 +25,6 @@ import bg1 from '../../assets/images/barber.jpg';
 import bg2 from '../../assets/images/rinse.jpg';
 import bg3 from '../../assets/images/hair-spies-2.jpg';
 import bg4 from '../../assets/images/manicure.jpg';
-import { useNotification } from '../../lib/Notification';
 import { Ring } from '../../components/LoadingButton';
 import GridPanel from '../../components/GridPanel';
 
@@ -127,7 +126,6 @@ const TimeSlotsPanel = ({ service, onClose }) => {
   const dateInput = useRef(null);
   const book = useBook();
   const dispatch = useDispatch();
-  const notification = useNotification();
 
   const loadSlots = useCallback(() => {
     setBusy(true);

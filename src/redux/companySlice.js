@@ -6,12 +6,13 @@ import {
   postResource,
   updateResource,
 } from '../api';
-import { notification } from '../lib/Notification';
 import {
   LOCAL_TIME_DIFFERENCE,
   camelCase,
   dateUtils,
+  notification,
 } from '../utils';
+import { updateProvider } from './serviceProvidersSlice';
 
 const ACCESS_MESSAGE = 'You do not have access to requested resource!';
 
@@ -526,8 +527,10 @@ export const updateCompanyImages = (
 
   postResource(token, `companies/${company.id}/images?type=${type}`, { url }, true)
     .then(() => {
-      dispatch(updateCompany({ [propertyName]: url }));
-      notification.showSuccess('Profile picture successfully updated.');
+      const data = { [propertyName]: url };
+      dispatch(updateCompany(data));
+      dispatch(updateProvider({ id: company.id, data }));
+      notification.showSuccess(`${propertyName} successfully updated.`);
       callback(null);
     })
     .catch(({ message }) => {

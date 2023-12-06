@@ -14,10 +14,10 @@ import {
   paths,
 } from '../../../components/svg';
 import { DateButton, NewLink } from '../../../components/Buttons';
-import { useNotification } from '../../../lib/Notification';
 import {
   dateToNormalizedString,
   dateUtils,
+  notification,
 } from '../../../utils';
 import { useConfirmDialog, useDialog } from '../../../lib/Dialog';
 import {
@@ -230,7 +230,7 @@ const AutoTimeSlotRow = ({
       <td>{slot.weekday}</td>
       <td className="relative">
         <svg ref={overlapIcon} className={`${css.svg} ${css.sm}`}>
-          <path fill={colors.delete} d={paths.flash} />
+          <path fill={colors.delete} d={paths.contentDuplicate} />
         </svg>
         {overlaps ? (
           <span
@@ -436,7 +436,7 @@ const AutoTimeSlotCard = ({
           <svg ref={overlapIcon} className={`${css.svg} ${css.sm}`}>
             <path
               fill={overlaps && !overlaps.length ? '#2ec4b6' : colors.delete}
-              d={paths.flash}
+              d={paths.contentDuplicate}
             />
           </svg>
           {overlaps && overlaps.length ? (
@@ -549,7 +549,6 @@ const AutoGeneratePanel = ({ service }) => {
   const startDateRef = useRef();
   const endDateRef = useRef();
   const busyDialog = useBusyDialog();
-  const notification = useNotification();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -865,7 +864,6 @@ const UpdateTimeSlotPopup = ({ slot, onClose }) => {
   const [time, setTime] = useState(dateUtils.dateTimeToInputString(slot.time));
   const dispatch = useDispatch();
   const busyDialog = useBusyDialog();
-  const notification = useNotification();
 
   useEffect(() => {
     setOpen(true);
@@ -1085,7 +1083,6 @@ export const NewTimeSlot = () => {
   const [time, setTime] = useState(dateUtils.dateTimeToInputString(new Date()));
   const busyDialog = useBusyDialog();
   const dispatch = useDispatch();
-  const notification = useNotification();
 
   useEffect(() => {
     if (selectedCategory) {

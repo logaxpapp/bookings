@@ -20,6 +20,7 @@ import {
 } from '../../../components/svg';
 import {
   currencyHelper,
+  notification,
   toDuration,
 } from '../../../utils';
 import { NewButton } from '../../../components/Buttons';
@@ -32,7 +33,6 @@ import {
   updateServiceAsync,
 } from '../../../redux/companySlice';
 import { useBusyDialog } from '../../../components/LoadingSpinner';
-import { useNotification } from '../../../lib/Notification';
 import routes from '../../../routing/routes';
 import { useWindowSize } from '../../../lib/hooks';
 import GridPanel from '../../../components/GridPanel';
@@ -269,7 +269,6 @@ const ServiceEditor = ({ service, category, onClose }) => {
   const categories = useSelector(selectServiceCategories);
   const busyDialog = useBusyDialog();
   const dispatch = useDispatch();
-  const notification = useNotification();
 
   useEffect(() => {
     if (category) {
@@ -820,7 +819,6 @@ const Services = () => {
   const busyDialog = useBusyDialog();
   const confirmDialog = useConfirmDialog();
   const dispatch = useDispatch();
-  const notification = useNotification();
   const { width } = useWindowSize();
 
   useEffect(() => {

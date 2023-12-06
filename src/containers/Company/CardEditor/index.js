@@ -10,7 +10,7 @@ import { useOutletContext } from 'react-router';
 import QRCode from 'qrcode.react';
 import { toPng } from 'html-to-image';
 import css from './style.module.css';
-import { useNotification } from '../../../lib/Notification';
+import { notification } from '../../../utils';
 import defaultImages from '../../../utils/defaultImages';
 import AppStorage from '../../../utils/appStorage';
 import BlendedImageBackground from '../../../components/BlendedImageBackground';
@@ -49,7 +49,6 @@ const CardEditor = () => {
   const [borderRadius, setBorderRadius] = useState(0);
   const [colors, setColors] = useState(defaultColors);
   const cardRef = useRef();
-  const notification = useNotification();
   const [company] = useOutletContext();
 
   useEffect(() => {

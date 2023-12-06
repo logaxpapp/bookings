@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { fetchResources } from '../../../api';
 import { Loader } from '../../../components/LoadingSpinner';
-import { notification } from '../../../lib/Notification';
+import { notification } from '../../../utils';
 
 const styles = {
   container: {

@@ -1,3 +1,6 @@
+/* eslint-disable import/no-extraneous-dependencies */
+import { toast } from 'react-toastify';
+
 export const d2 = (num) => `00${num}`.slice(-2);
 
 export const range = (length) => [...Array(length)].map((v, i) => i);
@@ -460,4 +463,26 @@ export const windowUtils = {
     link.click();
     link.remove();
   },
+};
+
+const commonToastOptions = {
+  autoClose: 6000,
+  hideProgressBar: true,
+  position: toast.POSITION.BOTTOM_RIGHT,
+  pauseOnHover: true,
+};
+
+export const toastOptions = {
+  DEFAULT: { ...commonToastOptions, type: toast.TYPE.DEFAULT },
+  ERROR: { ...commonToastOptions, type: toast.TYPE.ERROR },
+  INFO: { ...commonToastOptions, type: toast.TYPE.INFO },
+  SUCCESS: { ...commonToastOptions, type: toast.TYPE.SUCCESS },
+  WARNING: { ...commonToastOptions, type: toast.TYPE.WARNING },
+};
+
+export const notification = {
+  showError: (msg) => toast(msg, toastOptions.ERROR),
+  showIinfo: (msg) => toast(msg, toastOptions.INFO),
+  showSuccess: (msg) => toast(msg, toastOptions.SUCCESS),
+  showWarning: (msg) => toast(msg, toastOptions.WARNING),
 };

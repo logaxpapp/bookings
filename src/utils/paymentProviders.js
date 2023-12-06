@@ -1,5 +1,5 @@
 import { postResource, updateResource } from '../api';
-import { notification } from '../lib/Notification';
+import { notification } from '../utils';
 import { windowUtils } from '.';
 import routes from '../routing/routes';
 import AppStorage from './appStorage';

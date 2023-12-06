@@ -12,7 +12,7 @@ import Subscriptions from '../Pricing/Subscription';
 import BlendedImageBackground from '../../components/BlendedImageBackground';
 import { Ring } from '../../components/LoadingButton';
 import { postResource } from '../../api';
-import { useNotification } from '../../lib/Notification';
+import { notification } from '../../utils';
 import { matchesEmail } from '../../components/TextBox';
 import FrequentQuestions from './FrequentQuestions';
 
@@ -222,7 +222,6 @@ const WhyChooseUs = () => (
 const EmailSubscriptionPanel = () => {
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
-  const notification = useNotification();
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === EMAIL) {
@@ -305,7 +304,7 @@ const Footer = () => (
         <div className={css.footer_address_col_social_media_panel}>
           <a
             className={css.footer_social_media_link}
-            href="/"
+            href="www.linkedin.com/in/logaxp"
             target="_blank"
             rel="noreferrer"
             aria-label="linkedin"
@@ -323,7 +322,7 @@ const Footer = () => (
           </a>
           <a
             className={css.footer_social_media_link}
-            href="/"
+            href="https://www.instagram.com/logaxpapp"
             target="_blank"
             rel="noreferrer"
             aria-label="instagram"
@@ -424,12 +423,22 @@ const Footer = () => (
     <div className={css.footer_copyright_panel}>
       <span>© 2023. LogaXP. All Rights Reserved</span>
       <div>
-        <Link to={routes.termsAndConditions} className={css.terms_link}>
+        <a
+          href="https://logaxp.com/terms-conditions"
+          target="_blank"
+          className={css.terms_link}
+          rel="noreferrer"
+        >
           Terms of Use
-        </Link>
-        <Link to={routes.privacyPolicy} className={css.privacy_link}>
+        </a>
+        <a
+          href="https://logaxp.com/privacy-policy"
+          target="_blank"
+          className={css.terms_link}
+          rel="noreferrer"
+        >
           Privacy & Security
-        </Link>
+        </a>
         <Link to={routes.returnPolicy} className={css.return_policy}>
           Return Policy
         </Link>

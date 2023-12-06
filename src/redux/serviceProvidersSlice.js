@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchResources } from '../api';
-import { notification } from '../lib/Notification';
+import { notification } from '../utils';
 
 //  While it is inefficient to hit the server
 //  each time user visits a company or browse a service,
@@ -53,6 +53,11 @@ const slice = createSlice({
         state.timeSlots[key] = slots.filter((slot) => slot.id !== id);
       }
     },
+    updateProvider: (state, { payload: { id, data } }) => {
+      state.companies = state.companies.map((c) => (
+        c.id === id ? { ...c, ...data } : c
+      ));
+    },
   },
 });
 /* eslint-enable no-param-reassign */
@@ -61,6 +66,7 @@ export const {
   addCompany,
   removeProviderTimeSlot,
   setSlotsForDate,
+  updateProvider,
 } = slice.actions;
 
 export const getProviderAsync = (id, callback) => (dispatch, getState) => {

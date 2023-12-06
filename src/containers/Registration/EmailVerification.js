@@ -5,14 +5,13 @@ import css from './style.module.css';
 import BlankPage from '../../components/BlankPage';
 import { paths } from '../../components/svg';
 import { fetchResources } from '../../api';
-import { useNotification } from '../../lib/Notification';
+import { notification } from '../../utils';
 import { Ring } from '../../components/LoadingButton';
 
 const RESEND_LINK = 'resend_link';
 
 const EmailVerification = ({ email, resendPath }) => {
   const [busy, setBusy] = useState(false);
-  const notification = useNotification();
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === RESEND_LINK) {
