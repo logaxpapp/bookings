@@ -18,7 +18,7 @@
   --primary-color: #354764;
   --primary-color-dark: #011c39;
   --color-accent: #fc5546;
-  --neutral-n-90: #8993A4;
+  --neutral-n-90: #8993a4;
 }
 
 body {
@@ -31,6 +31,7 @@ body {
   width: 100%;
   font-size: 16px;
   line-height: 1.2;
+
   /* background-color: #f0f2f5; */
 }
 
@@ -287,7 +288,7 @@ a {
 .control-btn.bold {
   font-size: 1.05rem;
   padding: 10px 20px;
-  border-radius: 5;
+  border-radius: 4px;
 }
 
 .control-btn.cancel {
@@ -387,7 +388,7 @@ input:-webkit-autofill:active {
 .modal {
   position: absolute;
   left: 0;
-  height: 0;
+  top: 0;
   width: 100%;
   height: 100%;
   padding: 24px;
@@ -461,7 +462,7 @@ input:-webkit-autofill:active {
   display: block;
   margin: auto;
   position: relative;
-  background: #FFF;
+  background: #fff;
   box-sizing: border-box;
 }
 
@@ -472,10 +473,11 @@ input:-webkit-autofill:active {
   top: 15px;
   left: 15px;
   position: absolute;
-  background-image: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
-   linear-gradient(#DDD 100px, transparent 0),
-   linear-gradient(#DDD 16px, transparent 0),
-   linear-gradient(#DDD 50px, transparent 0);
+  background-image:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
+    linear-gradient(#ddd 100px, transparent 0),
+    linear-gradient(#ddd 16px, transparent 0),
+    linear-gradient(#ddd 50px, transparent 0);
   background-repeat: no-repeat;
   background-size: 75px 175px, 100% 100px, 100% 16px, 100% 30px;
   background-position: -185px 0, center 0, center 115px, center 142px;
@@ -486,7 +488,7 @@ input:-webkit-autofill:active {
 .dialog {
   position: absolute;
   left: 0;
-  height: 0;
+  top: 0;
   width: 100%;
   height: 100%;
   padding: 24px;

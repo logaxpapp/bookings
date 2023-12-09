@@ -1,3 +1,5 @@
+/* stylelint-disable font-family-no-missing-generic-family-keyword */
+
 .header {
   position: relative;
   padding: 16px 8px;
@@ -142,7 +144,7 @@
   display: flex;
   justify-content: space-between;
   background-color: #fff;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
 }
 
 .drawer_nav_hamburger_nav .main_nav_brand {
@@ -179,7 +181,6 @@
 .user_menu {
   position: relative;
   padding-right: 12px;
-  cursor: pointer;
   background-color: #fff;
   z-index: 1001;
   transition: all 0.3s linear;
@@ -263,7 +264,7 @@
 .sub_menu_link {
   font-family: Roboto, sans-serif;
   font-size: 16px;
-  text-wrap: nowrap;
+  white-space: nowrap;
   padding: 8px 12px;
   display: block;
   width: 100%;
@@ -298,3 +299,5 @@
     height: unset;
   }
 }
+
+/* stylelint-enable font-family-no-missing-generic-family-keyword */

@@ -8,12 +8,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import css from './styles.module.css';
 import {
+  Svg,
   SvgButton,
   SvgLink,
   colors,
   paths,
 } from '../../../components/svg';
-import { DateButton, NewLink } from '../../../components/Buttons';
+import { DateButton, NewLink, TimePicker } from '../../../components/Buttons';
 import {
   dateToNormalizedString,
   dateUtils,
@@ -36,7 +37,7 @@ import { useBusyDialog } from '../../../components/LoadingSpinner';
 import AlertComponent from '../../../components/AlertComponents';
 import { useOnHoverContextMenu } from '../../../components/ContextMenu';
 import PageHeader from '../../PageHeader';
-import { useWindowSize } from '../../../lib/hooks';
+import GridPanel from '../../../components/GridPanel';
 
 const AUTO = 'auto';
 const CATEGORY = 'category';
@@ -228,10 +229,8 @@ const AutoTimeSlotRow = ({
         </div>
       </td>
       <td>{slot.weekday}</td>
-      <td className="relative">
-        <svg ref={overlapIcon} className={`${css.svg} ${css.sm}`}>
-          <path fill={colors.delete} d={paths.contentDuplicate} />
-        </svg>
+      <td ref={overlapIcon} className="relative">
+        <Svg path={paths.alertOutline} color={overlaps && !overlaps.length ? '#2ec4b6' : colors.delete} sm />
         {overlaps ? (
           <span
             style={{
@@ -432,13 +431,17 @@ const AutoTimeSlotCard = ({
             onChange={handleValueChange}
           />
         </div>
-        <div className="relative">
-          <svg ref={overlapIcon} className={`${css.svg} ${css.sm}`}>
-            <path
-              fill={overlaps && !overlaps.length ? '#2ec4b6' : colors.delete}
-              d={paths.contentDuplicate}
-            />
-          </svg>
+        <SvgButton
+          type="button"
+          name={DELETE}
+          title="Delete"
+          path={paths.deleteOutline}
+          onClick={handleClick}
+          color={colors.delete}
+          sm
+        />
+        <div ref={overlapIcon} className="relative">
+          <Svg path={paths.alertOutline} color={overlaps && !overlaps.length ? '#2ec4b6' : colors.delete} sm />
           {overlaps && overlaps.length ? (
             <span
               style={{
@@ -512,15 +515,6 @@ const AutoTimeSlotCard = ({
             </section>
           </hoverContext.Menu>
         </div>
-        <SvgButton
-          type="button"
-          name={DELETE}
-          title="Delete"
-          path={paths.deleteOutline}
-          onClick={handleClick}
-          color={colors.delete}
-          sm
-        />
       </footer>
     </article>
   );
@@ -656,17 +650,18 @@ const AutoGeneratePanel = ({ service }) => {
       </h1>
       <div className={css.auto_generate_body}>
         {slots.length ? (
-          <section className={css.auto_slot_cards_panel}>
+          <GridPanel minimumChildWidth={240}>
             {slots.map((slot) => (
-              <AutoTimeSlotCard
-                key={slot.id}
-                slot={slot}
-                service={service}
-                onChange={handleChange}
-                onDelete={handleDelete}
-              />
+              <div key={slot.id} style={{ padding: 4 }}>
+                <AutoTimeSlotCard
+                  slot={slot}
+                  service={service}
+                  onChange={handleChange}
+                  onDelete={handleDelete}
+                />
+              </div>
             ))}
-          </section>
+          </GridPanel>
         ) : (
           <>
             {setupCompleted ? (
@@ -955,74 +950,32 @@ const NewTimeSlotBody = ({
   valueChangeHandler,
 }) => {
   const [tab, setTab] = useState(AUTO);
-  const [state, setState] = useState({
-    isTab: false,
-    tab: AUTO,
-    newStyle: { display: 'flex' },
-    autoStyle: { display: 'block' },
-    headerStyle: { display: 'none' },
-    panelStyle: { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
-  });
-  const panel = useRef(null);
-  const { width } = useWindowSize();
-
-  useEffect(() => {
-    setState((state) => {
-      const isTab = panel.current.clientWidth < 480;
-      if (tab === state.tab && isTab === state.isTab) {
-        return state;
-      }
-
-      if (isTab) {
-        return {
-          isTab,
-          tab,
-          newStyle: { display: tab === NEW ? 'flex' : 'none' },
-          autoStyle: { display: tab === AUTO ? 'block' : 'none' },
-          headerStyle: { display: 'flex' },
-          panelStyle: { gridTemplateColumns: 'repeat(1, 1fr)' },
-        };
-      }
-
-      return {
-        isTab,
-        tab,
-        newStyle: { display: 'flex' },
-        autoStyle: { display: 'block' },
-        headerStyle: { display: 'none' },
-        panelStyle: { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
-      };
-    });
-  }, [tab, width, setState]);
-
   const handleHeaderClick = useCallback(({ target: { name } }) => setTab(name), []);
 
   return (
     <div className={css.new_time_slot_tab_control}>
-      <div className={css.new_time_slot_tab_headers_panel} style={state.headerStyle}>
-        <button
-          type="button"
-          name={NEW}
-          className={`${css.new_time_slot_tab_header} ${tab === NEW ? css.active : ''}`}
-          onClick={handleHeaderClick}
-        >
-          New Slot
-        </button>
+      <div className={css.new_time_slot_tab_headers_panel}>
         <button
           type="button"
           name={AUTO}
           className={`${css.new_time_slot_tab_header} ${tab === AUTO ? css.active : ''}`}
           onClick={handleHeaderClick}
         >
-          New Slot
+          Auto Generate
+        </button>
+        <button
+          type="button"
+          name={NEW}
+          className={`${css.new_time_slot_tab_header} ${tab === NEW ? css.active : ''}`}
+          onClick={handleHeaderClick}
+        >
+          Custom Slot
         </button>
       </div>
-      <div
-        ref={panel}
-        className={`table-wrap ${css.new_time_slot_panel}`}
-        style={state.panelStyle}
-      >
-        <div className={css.new_time_slot_form_overlap_wrap} style={state.newStyle}>
+      <div className={`table-wrap ${css.new_time_slot_panel}`}>
+        <div
+          className={`tab ${tab === NEW ? 'active' : ''} ${css.new_time_slot_form_overlap_wrap}`}
+        >
           <div className={`${css.new_time_slot_overlap_wrap} ${css.new_section}`}>
             <OverlapsPanel
               serviceId={service ? service.id : 0}
@@ -1030,21 +983,9 @@ const NewTimeSlotBody = ({
             />
           </div>
           <section className={`${css.time_slot_update_section} ${css.new} ${css.new_section}`}>
-            <h1 className={`${css.h1} ${css.pad} ${css.sm}`}>
-              Create TimeSlot
-            </h1>
-            <div className={css.time_slot_update_inputs_wrap}>
-              <div className={css.custom_input_wrap}>
-                <div className={css.custom_input_label}>Set Time</div>
-                <input
-                  type="datetime-local"
-                  name={TIME}
-                  defaultValue={time}
-                  onChange={valueChangeHandler}
-                />
-              </div>
-            </div>
-            <div className="form-controls pad-top">
+            <div className={css.new_timeslot_custom_controls_wrap}>
+              <div className={css.custom_input_label}>Set Time</div>
+              <TimePicker time={time} onChange={valueChangeHandler} />
               <button
                 type="button"
                 name={SAVE}
@@ -1057,8 +998,7 @@ const NewTimeSlotBody = ({
           </section>
         </div>
         <div
-          className={`${css.new_time_slot_auto_generate_wrap} ${css.new_section}`}
-          style={state.autoStyle}
+          className={`tab ${tab === AUTO ? 'active' : ''} ${css.new_time_slot_auto_generate_wrap} ${css.new_section}`}
         >
           <AutoGeneratePanel service={service} />
         </div>
@@ -1179,7 +1119,7 @@ export const NewTimeSlot = () => {
                 service={service}
                 time={time}
                 clickHandler={handleClick}
-                valueChangeHandler={handleValueChange}
+                valueChangeHandler={setTime}
               />
             )}
           </>

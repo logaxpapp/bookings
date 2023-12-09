@@ -54,6 +54,11 @@
   z-index: 2;
 }
 
+.weekly_calendar_cell,
+.week_header {
+  min-width: 64px;
+}
+
 .week_header {
   position: relative;
   display: flex;
@@ -126,11 +131,6 @@
   border-left: 1px solid #eee;
 }
 
-.weekly_calendar_cell,
-.week_header {
-  min-width: 64px;
-}
-
 .weekly_calendar_cell_new_btn {
   position: absolute;
   top: 0;
@@ -177,7 +177,7 @@
   padding: 16px 32px 32px;
   background-color: #fff;
   transition: all 0.1s linear;
-  box-shadow: 0 24px 38px 3px rgba(0, 0, 0, .14), 0 9px 46px 8px rgba(0, 0, 0, .12), 0 11px 15px -7px rgba(0, 0, 0, .2);
+  box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
 }
 
 .event_panel_header {

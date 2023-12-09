@@ -17,7 +17,7 @@
 
 .card {
   width: 100%;
-  aspect-ratio: 3.5 / 2;
+  aspect-ratio: 7 / 4;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -163,7 +163,7 @@
   margin: 0;
   padding: 8px 0;
   text-align: center;
-  font-size: 1.0rem;
+  font-size: 1rem;
 }
 
 .config_body {

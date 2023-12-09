@@ -288,6 +288,13 @@ h1.md {
   background-color: #e7f1f5;
 }
 
+.new_timeslot_custom_controls_wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+}
+
 .time_slot_update_inputs_wrap {
   min-width: 240px;
   display: grid;
@@ -355,25 +362,25 @@ h1.md {
 
 .new_time_slot_tab_headers_panel {
   display: flex;
+  background-color: #e8ecf1;
+  padding-top: 8px;
 }
 
 .new_time_slot_tab_header {
+  color: #223d77;
   background-color: transparent;
-  padding: 8px 16px;
+  padding: 12px 24px;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
 }
 
 .new_time_slot_tab_header.active {
-  border-bottom-color: var(--primary-color-dark);
+  background-color: #f8f9f9;
+  font-weight: 700;
 }
 
 .new_time_slot_panel {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  background-color: #f8f9f9;
+  overflow: hidden;
 }
 
 .new_time_slot_auto_generate_wrap {
@@ -382,8 +389,6 @@ h1.md {
 }
 
 .new_time_slot_form_overlap_wrap {
-  width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;

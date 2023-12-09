@@ -160,3 +160,72 @@ DateButton.defaultProps = {
   date: '',
   onChange: null,
 };
+
+export const TimePicker = ({ time, onChange }) => {
+  const [localTime, setLocalTime] = useState();
+  const [timeText, setTimeText] = useState('Time not set.');
+  const dateInput = useRef();
+
+  useEffect(() => {
+    if (time) {
+      setLocalTime(dateUtils.dateTimeToInputString(time));
+    }
+  }, [time, setLocalTime]);
+
+  useEffect(() => {
+    if (localTime) {
+      const date = new Date(localTime);
+      if (!Number.isNaN(date.getDate())) {
+        setTimeText(date.toLocaleString());
+      }
+    }
+  }, [localTime]);
+
+  const handleValueChange = useCallback(({ target: { name, value } }) => {
+    if (name === DATE) {
+      if (onChange) {
+        onChange(value);
+      }
+      if (!time) {
+        setLocalTime(value);
+      }
+    }
+  }, [time, onChange]);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === DATE) {
+      dateInput.current.showPicker();
+    }
+  }, []);
+
+  return (
+    <div className={css.header_date_wrap}>
+      <button
+        type="button"
+        name={DATE}
+        className={css.header_time_btn}
+        onClick={handleClick}
+      >
+        <span>{timeText}</span>
+      </button>
+      <input
+        ref={dateInput}
+        type="datetime-local"
+        name={DATE}
+        value={localTime}
+        className="clip"
+        onChange={handleValueChange}
+      />
+    </div>
+  );
+};
+
+TimePicker.propTypes = {
+  time: PropTypes.string,
+  onChange: PropTypes.func,
+};
+
+TimePicker.defaultProps = {
+  time: '',
+  onChange: null,
+};

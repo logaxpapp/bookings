@@ -401,6 +401,10 @@ export const dateUtils = (() => {
      */
     dateTimeToInputString: (inputDate) => {
       const date = inputDate instanceof Date ? inputDate : new Date(inputDate);
+      if (Number.isNaN(date.getDate())) {
+        return '';
+      }
+
       return `${date.getFullYear()}-${d2(date.getMonth() + 1)}-${d2(date.getDate())}T${d2(date.getHours())}:${d2(date.getMinutes())}`;
     },
     /**
@@ -482,7 +486,7 @@ export const toastOptions = {
 
 export const notification = {
   showError: (msg) => toast(msg, toastOptions.ERROR),
-  showIinfo: (msg) => toast(msg, toastOptions.INFO),
+  showInfo: (msg) => toast(msg, toastOptions.INFO),
   showSuccess: (msg) => toast(msg, toastOptions.SUCCESS),
   showWarning: (msg) => toast(msg, toastOptions.WARNING),
 };
