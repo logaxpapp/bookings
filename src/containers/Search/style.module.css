@@ -386,7 +386,6 @@
 .slot_btn {
   width: 100%;
   padding: 8px 16px;
-  background-color: #b9babb;
   background: linear-gradient(45deg, #df3829, #1454a8);
   color: #fff;
   cursor: pointer;

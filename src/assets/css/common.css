@@ -108,7 +108,7 @@
   background-color: transparent;
 }
 
-.main-aside-link.dialog svg {
+.main-aside-link.overflow-item svg {
   margin: 0;
 }
 
@@ -256,6 +256,16 @@
 
 .card-value {
   flex: 1;
+}
+
+.tab {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.tab:not(.active) {
+  display: none;
 }
 
 @media only screen and (min-width: 576px) {

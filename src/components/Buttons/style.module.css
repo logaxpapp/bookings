@@ -67,8 +67,29 @@
   background-color: #1454a8;
 }
 
-.header_date_btn * {
+.header_time_btn {
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  cursor: pointer;
+}
+
+.header_time_btn:hover {
+  text-decoration: underline;
+}
+
+.header_date_btn *,
+.header_time_btn * {
   pointer-events: none;
+}
+
+.header_time_btn::after {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background-size: 100%;
+  background-image: url(../../assets/images/clock.svg);
 }
 
 .header_calendar_date_icon {

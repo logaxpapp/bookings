@@ -9,7 +9,6 @@ import {
   sendAppointmentMessageReplyAsync,
   updateAppointmentUpdateRequest,
 } from '../../redux/companySlice';
-import { useNotification } from '../../lib/Notification';
 import config from '../../config';
 import { useMessageAlert } from '../MessageAlert';
 import {
@@ -17,7 +16,7 @@ import {
   useAppointmentUpdateRequestAlert,
   useAppointmentUpdateResponseAlert,
 } from '../AppointmentAlert';
-import { dateUtils } from '../../utils';
+import { dateUtils, notification } from '../../utils';
 import routes from '../../routing/routes';
 import { addAppointmentUpdateRequest } from '../../redux/userSlice';
 
@@ -25,7 +24,6 @@ const WebSocketManager = () => {
   const company = useSelector(selectCompany);
   const token = useSelector(selectToken);
   const connected = useRef(false);
-  const notification = useNotification();
   const messageAlert = useMessageAlert();
   const appointmentAlert = useAppointmentAlert();
   const updateRequestAlert = useAppointmentUpdateRequestAlert();

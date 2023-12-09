@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
 import css from './styles.module.css';
-import { useNotification } from '../../../lib/Notification';
+import { notification } from '../../../utils';
 import { SubscriptionPlans } from '../../Pricing/Subscription';
 import {
   selectCompany,
@@ -39,7 +39,6 @@ const InfoDialog = ({
     data: null,
     error: null,
   });
-  const notification = useNotification();
   const dispatch = useDispatch();
 
   const fetchInfo = useCallback(() => {
@@ -207,7 +206,6 @@ const UpdateSubscriptionPage = () => {
   const subscriptions = useSelector(selectSubscriptions);
   const subscription = useSelector(selectSubscription);
   const dispatch = useDispatch();
-  const notification = useNotification();
   const navigate = useNavigate();
   const dialog = useDialog();
 

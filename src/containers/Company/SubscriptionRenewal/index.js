@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useOutletContext } from 'react-router';
 import css from './style.module.css';
-import { useNotification } from '../../../lib/Notification';
+import { notification } from '../../../utils';
 import PaymentMethodSelector from '../../../payments/PaymentMethodSelector';
 import payments from '../../../payments';
 import { Loader } from '../../../components/LoadingSpinner';
@@ -11,7 +11,6 @@ import routes from '../../../routing/routes';
 
 const SubscriptionRenewal = () => {
   const [busy, setBusy] = useState();
-  const notification = useNotification();
   const [company] = useOutletContext();
   const token = useSelector(selectToken);
   const dispatch = useDispatch();

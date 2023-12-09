@@ -4,14 +4,141 @@ import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
 import {
-  clearIpInfo,
   loadSubscriptionPlansAsync,
   selectSubscriptions,
 } from '../../../redux/subscriptionsSlice';
-import { Loader } from '../../../components/LoadingSpinner';
+import { Loader, useBusyDialog } from '../../../components/LoadingSpinner';
 import routes from '../../../routing/routes';
-import { currencyHelper } from '../../../utils';
-import { subscriptionProps } from '../../../utils/propTypes';
+import { currencyHelper, notification } from '../../../utils';
+import { countryProps, subscriptionProps } from '../../../utils/propTypes';
+import { loadCountriesAsync, selectCountries } from '../../../redux/countriesSlice';
+import { SvgButton, colors, paths } from '../../../components/svg';
+import { useDialog } from '../../../lib/Dialog';
+
+const CHANGE_COUNTRY = 'change_country';
+const COUNTRY = 'country';
+const PROCEED = 'proceed';
+
+const CountrySelector = ({ country, onClose, onSelect }) => {
+  const [selectedCountry, setSelectedCountry] = useState(country);
+  const [state, setState] = useState({
+    loading: true,
+    error: null,
+  });
+  const countries = useSelector(selectCountries);
+  const dispatch = useDispatch();
+
+  const loadCountries = useCallback(() => {
+    setState((state) => ({ ...state, loading: true }));
+    dispatch(loadCountriesAsync((err) => {
+      let error = null;
+      if (err) {
+        error = 'Failed to load countries';
+      }
+      setState({ error, loading: false });
+    }));
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (countries) {
+      setState({ loading: false, error: null });
+    } else {
+      loadCountries();
+    }
+  }, []);
+
+  const handleValueChange = useCallback(({ target: { name, value } }) => {
+    if (name === COUNTRY) {
+      setSelectedCountry(
+        countries.find(({ id }) => id === Number.parseInt(value, 10)),
+      );
+    }
+  }, [countries]);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === PROCEED) {
+      if (!selectedCountry) {
+        notification.showIinfo('Please select a country!');
+        return;
+      }
+
+      onSelect(selectedCountry);
+      onClose();
+    }
+  });
+
+  /* eslint-disable no-nested-ternary */
+  return (
+    <div className="modal">
+      <div className="modal-bold-body">
+        {state.loading ? (
+          <div className={css.country_select_loader}>
+            <span className="loader" />
+          </div>
+        ) : state.error ? (
+          <>
+            <p className={css.country_select_intro}>
+              Application encountered an error while loading countries.
+            </p>
+            <button type="button" className={`link ${css.country_select_link}`} onClick={loadCountries}>
+              Please click to reload
+            </button>
+          </>
+        ) : (
+          <>
+            <p className={css.country_select_intro}>
+              Please choose a different country below to proceed.
+            </p>
+            <label htmlFor={COUNTRY} className="bold-select">
+              <select
+                name={COUNTRY}
+                id={COUNTRY}
+                value={(selectedCountry && selectedCountry.id) || ''}
+                onChange={handleValueChange}
+              >
+                <option value="" disabled>Select Country</option>
+                {countries.map((c) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="button"
+              name={PROCEED}
+              className={css.submit_btn}
+              onClick={handleClick}
+            >
+              register in selected country
+            </button>
+          </>
+        )}
+        <SvgButton
+          type="button"
+          title="Close"
+          color={colors.delete}
+          path={paths.close}
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+          }}
+        />
+      </div>
+    </div>
+  );
+  /* eslint-enable no-nested-ternary */
+};
+
+CountrySelector.propTypes = {
+  country: countryProps,
+  onClose: PropTypes.func.isRequired,
+  onSelect: PropTypes.func.isRequired,
+};
+
+CountrySelector.defaultProps = {
+  country: null,
+};
 
 export const starterFeatures = [
   '1 company account', 'Email reminders', 'Accept deposits', 'Zero processing fee',
@@ -40,7 +167,7 @@ const Plan = ({
 
   useEffect(() => {
     setPrice(currencyHelper.toString(plan.price, plan.currencySymbol));
-  }, []);
+  }, [plan]);
 
   const handleClik = useCallback((e) => {
     e.preventDefault();
@@ -189,7 +316,7 @@ export const SubscriptionPlans = ({ subscriptions, onSelect, isUpdate }) => {
 
       setPlans(plans.map((plan, idx) => ({ ...plan, features: features[idx] })));
     }
-  }, [subscriptions, setPlans]);
+  }, [subscriptions]);
 
   if (!plans) {
     return (
@@ -227,8 +354,10 @@ SubscriptionPlans.defaultProps = {
 };
 
 const Subscriptions = ({ showNotice }) => {
-  const [countryName, setCountryName] = useState('');
+  const [country, setCountry] = useState('');
   const subscriptions = useSelector(selectSubscriptions);
+  const busyDialog = useBusyDialog();
+  const dialog = useDialog();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -238,15 +367,36 @@ const Subscriptions = ({ showNotice }) => {
     } else if (showNotice && subscriptions.length) {
       const subscription = subscriptions[0];
       if (subscription.prices && subscription.prices.length) {
-        setCountryName(subscription.prices[0].country.name);
+        setCountry(subscription.prices[0].country);
       }
     }
   }, []);
 
-  const handleClearMemo = useCallback(() => {
-    dispatch(clearIpInfo());
-    window.location.reload();
-  }, []);
+  const changeCountry = useCallback((newCountry) => {
+    if (country && newCountry && newCountry.id === country.id) {
+      return;
+    }
+
+    const popup = busyDialog.show('Loading Subscriptions ...');
+    dispatch(loadSubscriptionPlansAsync(newCountry.code, (err) => {
+      if (err) {
+        notification.showError(`Failed to load subscriptions for ${newCountry.name}!`);
+      } else {
+        setCountry(newCountry);
+      }
+      popup.close();
+    }));
+  }, [country]);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === CHANGE_COUNTRY) {
+      let popup;
+      const handleClose = () => popup.close();
+      popup = dialog.show(
+        <CountrySelector country={country} onSelect={changeCountry} onClose={handleClose} />,
+      );
+    }
+  }, [country, dialog]);
 
   const handleSelection = useCallback((state) => {
     navigate(routes.company.absolute.registration, { state });
@@ -254,26 +404,22 @@ const Subscriptions = ({ showNotice }) => {
 
   return (
     <div>
-      {countryName ? (
+      {country ? (
         <div className={css.country_notice}>
           <span>
-            {`Our System detected that you are in ${countryName}. If this were NOT the case, you may need to disable your VPN (if you are using one) and/or`}
+            {`Your company will be registered in ${country.name}. Note that you are visible only in your country of registration.`}
           </span>
           <button
             type="button"
+            name={CHANGE_COUNTRY}
             className="link compact-link"
             style={{ fontSize: '0.9rem' }}
-            onClick={handleClearMemo}
+            onClick={handleClick}
           >
-            &nbsp;clear&nbsp;
+            &nbsp;Please click to change&nbsp;
           </button>
           <span>
-            your device memoized location before continuing.
-          </span>
-          <br />
-          <span className={`warning bold ${css.discovery_warning}`}>
-            Please NOTE that it is only users searching from your
-            registered location that can discover you services.
+            if this is not your country.
           </span>
         </div>
       ) : null}

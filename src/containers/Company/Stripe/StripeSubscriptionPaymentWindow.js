@@ -14,7 +14,7 @@ import {
 } from '../../../components/stripe';
 import BlankPage from '../../../components/BlankPage';
 import { updateResource } from '../../../api';
-import { useNotification } from '../../../lib/Notification';
+import { notification } from '../../../utils';
 import { Loader } from '../../../components/LoadingSpinner';
 import AlertComponent from '../../../components/AlertComponents';
 import { Ring } from '../../../components/LoadingButton';
@@ -119,7 +119,6 @@ const StripeSubscriptionPaymentWindow = () => {
   });
   const stripe = useStripe();
   const elements = useElements();
-  const notification = useNotification();
   const { intent_id: intentId } = useParams();
   const includeError = useRef(false);
 

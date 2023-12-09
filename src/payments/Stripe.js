@@ -1,6 +1,5 @@
 import { fetchResources, postResource, updateResource } from '../api';
-import { notification } from '../lib/Notification';
-import { windowUtils } from '../utils';
+import { notification, windowUtils } from '../utils';
 import routes from '../routing/routes';
 import config from '../config';
 import AppStorage from '../utils/appStorage';

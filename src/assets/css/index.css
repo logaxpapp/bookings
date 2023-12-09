@@ -18,7 +18,7 @@
   --primary-color: #354764;
   --primary-color-dark: #011c39;
   --color-accent: #fc5546;
-  --neutral-n-90: #8993A4;
+  --neutral-n-90: #8993a4;
 }
 
 body {
@@ -31,6 +31,8 @@ body {
   width: 100%;
   font-size: 16px;
   line-height: 1.2;
+
+  /* background-color: #f0f2f5; */
 }
 
 *,
@@ -283,6 +285,12 @@ a {
   box-shadow: rgba(50, 50, 93, 0.25) 0 2px 5px -1px, rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
 }
 
+.control-btn.bold {
+  font-size: 1.05rem;
+  padding: 10px 20px;
+  border-radius: 4px;
+}
+
 .control-btn.cancel {
   background-color: #9d0606;
 }
@@ -377,6 +385,143 @@ input:-webkit-autofill:active {
   transition: background-color 0s 600000s, color 0s 600000s;
 }
 
-@media only screen and (min-width: 576px) {
+.modal {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: all;
+}
 
+.modal::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-bold-body {
+  position: relative;
+  background-color: #fff;
+  padding: 48px;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  border-radius: 8px;
+}
+
+.bold-select-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bold-select-wrap .label {
+  font-size: 1.3rem;
+  pointer-events: none;
+}
+
+.bold-select {
+  display: block;
+  border: 1px solid #ceebd8;
+  border-radius: 6px;
+  position: relative;
+  cursor: pointer;
+}
+
+.bold-select > select {
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  padding: 16px 26px 16px 16px;
+  margin: 0;
+  width: 100%;
+  font-family: inherit;
+  font-size: 1.1rem;
+  cursor: inherit;
+  line-height: inherit;
+}
+
+.bold-select > select::-ms-expand {
+  display: none;
+}
+
+.loader {
+  width: 215px;
+  height: 215px;
+  display: block;
+  margin: auto;
+  position: relative;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.loader::after {
+  content: '';
+  width: calc(100% - 30px);
+  height: calc(100% - 15px);
+  top: 15px;
+  left: 15px;
+  position: absolute;
+  background-image:
+    linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5) 50%, transparent 100%),
+    linear-gradient(#ddd 100px, transparent 0),
+    linear-gradient(#ddd 16px, transparent 0),
+    linear-gradient(#ddd 50px, transparent 0);
+  background-repeat: no-repeat;
+  background-size: 75px 175px, 100% 100px, 100% 16px, 100% 30px;
+  background-position: -185px 0, center 0, center 115px, center 142px;
+  box-sizing: border-box;
+  animation: animloader 1s linear infinite;
+}
+
+.dialog {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: all;
+}
+
+.dialog::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.bold-dialog-body {
+  position: relative;
+  background-color: #fff;
+  padding: 48px;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  border-radius: 8px;
+}
+
+@keyframes animloader {
+  to {
+    background-position: 185px 0, center 0, center 115px, center 142px;
+  }
 }

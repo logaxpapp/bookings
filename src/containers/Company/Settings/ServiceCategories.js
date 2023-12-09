@@ -4,7 +4,6 @@ import css from './styles.module.css';
 import { SvgButton, colors, paths } from '../../../components/svg';
 import { NewButton } from '../../../components/Buttons';
 import { useConfirmDialog, useTextInputDialog } from '../../../lib/Dialog';
-import { useNotification } from '../../../lib/Notification';
 import {
   createServiceCategoryAsync,
   deleteServiceCategoryAsync,
@@ -13,6 +12,7 @@ import {
 } from '../../../redux/companySlice';
 import { useBusyDialog } from '../../../components/LoadingSpinner';
 import PageHeader from '../../PageHeader';
+import { notification } from '../../../utils';
 
 const NEW = 'new';
 
@@ -22,7 +22,6 @@ const ServiceCategories = () => {
   const inputDialog = useTextInputDialog();
   const busyDialog = useBusyDialog();
   const confirmDialog = useConfirmDialog();
-  const notification = useNotification();
 
   const handleNew = useCallback(() => {
     inputDialog.show('Enter New Name', (name) => {

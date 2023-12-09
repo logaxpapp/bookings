@@ -17,7 +17,7 @@ import { useConfirmDialog, useDialog } from '../../../lib/Dialog';
 import SlideDialog from '../../../components/SlideInDialog';
 import TextBox, { matchesEmail } from '../../../components/TextBox';
 import LoadingButton from '../../../components/LoadingButton';
-import { useNotification } from '../../../lib/Notification';
+import { notification } from '../../../utils';
 
 const CLOSE = 'close';
 const DELETE = 'delete';
@@ -48,7 +48,6 @@ const EmployeeForm = ({ employee, onConfirm }) => {
     email: '',
     password: '',
   });
-  const notification = useNotification();
 
   useEffect(() => setOpen(true), []);
 

@@ -614,7 +614,7 @@
   position: relative;
   width: 280px;
   min-height: 380px;
-  padding: 24px; 
+  padding: 24px;
 }
 
 .upgrade_vertical_spacer {
@@ -659,6 +659,50 @@
 
 .upgrade_btn:hover {
   opacity: 0.8;
+}
+
+.location_dialog_heading {
+  font-size: 1.1rem;
+}
+
+.location_dialog_manual_inputs {
+  display: flex;
+  gap: 12px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s linear;
+}
+
+.location_dialog_manual_inputs.open {
+  max-height: 60px;
+}
+
+.location_confirmation_wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+  padding: 48px;
+}
+
+.location_confirmation_text {
+  margin: 0;
+  flex: 1;
+  overflow: auto;
+  font-size: 18px;
+}
+
+.location_confirmation_controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
 }
 
 @media only screen and (min-width: 576px) {

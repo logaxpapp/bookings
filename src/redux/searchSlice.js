@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { postResource } from '../api';
-import { notification } from '../lib/Notification';
+import { notification } from '../utils';
 
 /* eslint-disable no-param-reassign */
 const slice = createSlice({

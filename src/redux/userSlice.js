@@ -6,11 +6,11 @@ import {
   postResource,
   deleteResource,
 } from '../api';
-import { notification } from '../lib/Notification';
 import {
   camelCase,
   dateUtils,
   LOCAL_TIME_DIFFERENCE,
+  notification,
 } from '../utils';
 
 const ACCESS_MESSAGE = 'You do not have access to requested resource!';

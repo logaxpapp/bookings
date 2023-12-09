@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import css from './style.module.css';
 import { SvgButton, paths } from '../../components/svg';
 
-const faqs = [
+const faqsFull = [
   {
     id: 1,
     q: 'What if I only need an account for a few months out of the year?',
@@ -59,19 +59,12 @@ There are four different staff security levels in LogaXP and they determine diff
   },
   {
     id: 10,
-    q: "What's the difference in features offered in the different versions of LogaXP?",
-    a: `The LogaXP Professional subscription offers core scheduling features such as unlimited appointment booking, an unlimited number of services or classes, 2-way staff calendar sync, and appointment confirmation and reminder emails.
-    The LogaXP Business subscription includes all the features in the Professional plan with some additional advanced functionality, such as full customization of your booking sites, wait lists, courses, custom staff security levels, integration with Salesforce, and more.
-    For a full comparison of the features that are available with each plan, you can check out our Pricing page.`,
-  },
-  {
-    id: 11,
     q: 'How long does it take to get it all setup?',
     a: `The duration of the setup process depends on the size and specific requirements of your business. For an expedited setup, we suggest collaborating with one of our support specialists through personalized one-on-one onboarding sessions.
     Typically, the setup can be finalized within 1 or 2 onboarding sessions. However, if you have a larger account with extensive customization needs, additional sessions may be beneficial. You can schedule a one-on-one onboarding session with our support team here: 'Schedule an Onboarding Call`,
   },
   {
-    id: 12,
+    id: 11,
     q: 'Do you offer any non-profit discounts?',
     a: 'We are passionate about extending LogaXP to non-profit organizations whose missions align with our values and who may benefit from a discounted rate. If you represent a non-profit organization in search of a scheduling solution, please reach out to our team. Share details about your non-profit mission and scheduling requirements, and we will promptly assess the discount we can offer and provide you with the information you need.',
   },
@@ -84,27 +77,28 @@ There are four different staff security levels in LogaXP and they determine diff
   },
 ];
 
+const faqs = [0, 2, 5, 8, 9].map((idx) => faqsFull[idx]);
+
 const QA = ({ qa }) => {
   const [expanded, setExpanded] = useState(false);
 
   const toggleExpanded = useCallback(() => setExpanded((expanded) => !expanded), []);
 
   return (
-    <section className={css.faq_card}>
+    <section className={`${css.faq_card} ${expanded ? css.expanded : ''}`}>
       <header className={css.faq_header}>
         <h1 className={css.faq_heading}>{qa.q}</h1>
         <SvgButton
           type="button"
+          color="#667583"
           title={expanded ? 'Collapse' : 'Expand'}
-          path={expanded ? paths.minus : paths.plus}
+          path={expanded ? paths.chevronUp : paths.chevronDown}
           onClick={toggleExpanded}
         />
       </header>
-      {expanded ? (
-        <p className={css.faq_body}>
-          <pre className={css.pre_wrap}>{qa.a}</pre>
-        </p>
-      ) : null}
+      <div className={`${css.faq_body} ${expanded ? css.expanded : ''}`}>
+        <pre className={css.pre_wrap}>{qa.a}</pre>
+      </div>
     </section>
   );
 };
@@ -118,14 +112,16 @@ QA.propTypes = {
 
 const FrequentQuestions = () => (
   <section className={css.section_row}>
-    <span className={css.section_intro}>LogaXP FAQ</span>
-    <h1 className={`${css.section_heading} ${css.testimonial_heading}`}>
-      Frequently Asked Questions
-    </h1>
-    <div className={css.faqs_panel}>
-      {faqs.map((qa) => (
-        <QA key={qa.id} qa={qa} />
-      ))}
+    <div className={css.faq_section}>
+      <span className={css.section_intro}>LogaXP FAQ</span>
+      <h1 className={`${css.section_heading} ${css.testimonial_heading}`}>
+        Frequently Asked Questions
+      </h1>
+      <div className={css.faqs_panel}>
+        {faqs.map((qa) => (
+          <QA key={qa.id} qa={qa} />
+        ))}
+      </div>
     </div>
   </section>
 );

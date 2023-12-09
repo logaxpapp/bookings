@@ -1,3 +1,5 @@
+/* stylelint-disable font-family-no-missing-generic-family-keyword */
+
 .header {
   position: relative;
   padding: 16px 8px;
@@ -94,6 +96,7 @@
   border-radius: 4px;
   padding: 0.5rem 1rem;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .menu_link.register_menu_item:hover {
@@ -141,7 +144,7 @@
   display: flex;
   justify-content: space-between;
   background-color: #fff;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
 }
 
 .drawer_nav_hamburger_nav .main_nav_brand {
@@ -178,7 +181,6 @@
 .user_menu {
   position: relative;
   padding-right: 12px;
-  cursor: pointer;
   background-color: #fff;
   z-index: 1001;
   transition: all 0.3s linear;
@@ -224,6 +226,56 @@
   border-bottom: 1px dotted #ddd;
 }
 
+.has_sub_menu_d1 {
+  position: relative;
+  padding-right: 24px;
+}
+
+.has_sub_menu_d1::after {
+  content: '';
+  position: absolute;
+  right: 2px;
+  top: 3px;
+  width: 18px;
+  height: 18px;
+  background-color: #333;
+  mask: url(../../assets/images/chevron_down.svg);
+}
+
+.sub_menu_d1 {
+  position: absolute;
+  top: 95%;
+  left: 8px;
+  transform: translateX(-64px);
+  transition: transform 0.1s linear;
+  visibility: hidden;
+  flex-direction: column;
+  padding: 8px;
+  background-color: #fff;
+  box-shadow: rgba(50, 50, 93, 0.25) 0 2px 5px -1px, rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
+  z-index: 1002;
+}
+
+.has_sub_menu_d1:hover .sub_menu_d1 {
+  visibility: visible;
+  transform: translateX(0);
+}
+
+.sub_menu_link {
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  white-space: nowrap;
+  padding: 8px 12px;
+  display: block;
+  width: 100%;
+  line-height: 1;
+}
+
+.sub_menu_link:hover {
+  color: var(--color-accent);
+  background-color: var(--d-2);
+}
+
 @media only screen and (min-width: 650px) {
   .nav {
     display: grid;
@@ -247,3 +299,5 @@
     height: unset;
   }
 }
+
+/* stylelint-enable font-family-no-missing-generic-family-keyword */

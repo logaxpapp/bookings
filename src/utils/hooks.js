@@ -6,14 +6,13 @@ import { performSearchAsync } from '../redux/searchSlice';
 import { selectSearchParams } from '../redux/userPreferences';
 import { searchParamsOptions } from './userPreferences';
 import UserLocation from './userLocation';
-import { useNotification } from '../lib/Notification';
 import { useUserDetailsDialog } from '../components/UserDetailsForm';
 import { postResource } from '../api';
 import BlankPage from '../components/BlankPage';
 import { Loader } from '../components/LoadingSpinner';
 import { useDialog } from '../lib/Dialog';
 import defaultImages from './defaultImages';
-import { currencyHelper } from '.';
+import { currencyHelper, notification } from '.';
 import paystackIcon from '../assets/images/paystack.png';
 import stripeIcon from '../assets/images/stripe-icon.png';
 import { serviceProps } from './propTypes';
@@ -250,7 +249,6 @@ PaymentDialog.defaultProps = {
 export const useSearch = () => {
   const user = useSelector(selectUser);
   const searchParams = useSelector(selectSearchParams);
-  const notification = useNotification();
   const dispatch = useDispatch();
 
   const search = useCallback((term, cityId, forceCurrentLocation) => {
@@ -312,7 +310,6 @@ export const useSearch = () => {
 export const useBook = () => {
   /* eslint-disable-next-line */
   const dialog = useDialog();
-  const notification = useNotification();
   const user = useSelector(selectUser);
   const userDialog = useUserDetailsDialog();
 

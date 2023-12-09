@@ -490,7 +490,7 @@
   top: 0;
   left: 0;
   background-color: #fff;
-  transition:  transform 0.3s linear;
+  transition: transform 0.3s linear;
   transform: translateX(-100%);
   box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
   z-index: 1001;
@@ -666,10 +666,9 @@
 }
 
 .appointments_tab {
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-  overflow: hidden;;
+  overflow: hidden;
 }
 
 .appointments_tab_header {
