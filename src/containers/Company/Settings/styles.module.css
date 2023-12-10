@@ -433,20 +433,20 @@ h1.md {
   padding: 8px;
   background-color: #e7f1f5;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   white-space: pre;
 }
 
 .slot_auto_generate_dates_wrap {
-  width: 100%;
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
 }
 
 .slot_auto_generate_actions_wrap {
-  flex: 1;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -465,7 +465,12 @@ h1.md {
 }
 
 .new_time_slot_auto_overlaps_section {
+  position: absolute;
+  left: -64px;
+  top: -32px;
   min-width: 160px;
+  max-height: 120px;
+  overflow: auto;
   padding: 16px;
   color: #fff;
   background-color: #27282c;
