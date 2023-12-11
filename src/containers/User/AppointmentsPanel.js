@@ -429,7 +429,6 @@ const AppointmentPanel = ({
       company,
       name: serviceName,
       price,
-      minDeposit,
     } = service;
     const {
       country,
@@ -442,8 +441,8 @@ const AppointmentPanel = ({
       companyAddress,
       time: new Date(time).toLocaleString(),
       price: currencyHelper.toString(price, country.currencySymbol),
-      deposit: currencyHelper.toString(minDeposit, country.currencySymbol),
-      balance: currencyHelper.toString(price - minDeposit, country.currencySymbol),
+      deposit: currencyHelper.toString(appointment.deposit, country.currencySymbol),
+      balance: currencyHelper.toString(price - appointment.deposit, country.currencySymbol),
     });
     setRequestCount(appointment.appointmentUpdateRequests.filter((req) => (
       (req.status === 'pending' && req.originator === 'provider')

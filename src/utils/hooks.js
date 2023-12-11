@@ -17,6 +17,7 @@ import paystackIcon from '../assets/images/paystack.png';
 import stripeIcon from '../assets/images/stripe-icon.png';
 import { serviceProps } from './propTypes';
 import payments from '../payments';
+import { loadIPLocationAsync, setLoading } from '../redux/userLocationSlice';
 
 /* eslint-disable no-nested-ternary */
 
@@ -279,7 +280,7 @@ export const useSearch = () => {
         data.type = 'city';
         data.city_id = user.city.id;
       } else if (
-        searchParams === searchParamsOptions.PREFERRED_LOCATION
+        searchParams === searchParamsOptions.HOME_LOCATION
         && userLocation.hasData
       ) {
         data.type = 'location';
@@ -290,6 +291,21 @@ export const useSearch = () => {
 
       if (canDispatch) {
         dispatch(performSearchAsync(data));
+        return;
+      }
+
+      if (searchParams === searchParamsOptions.NETWORK_LOCATION) {
+        dispatch(setLoading(true));
+        loadIPLocationAsync((err, loc) => {
+          if (err) {
+            notification.showError('Error performing search!');
+          } else {
+            data.type = 'location';
+            data.latitude = loc.latitude;
+            data.longitude = loc.longitude;
+            dispatch(performSearchAsync(data));
+          }
+        });
         return;
       }
     }

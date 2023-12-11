@@ -72,7 +72,7 @@
  * @property { number } id
  * @property { User } customer
  * @property { TimeSlot } timeSlot
- * @property { string } deposit
+ * @property { number } deposit
  * @property { string } status
  * @property {Array<Correspondence>} messages
  */

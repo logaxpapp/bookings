@@ -554,18 +554,23 @@
   width: 300px;
 }
 
-/* BEGIN= https://codepen.io/bekoff2002/pen/wvvjyEo */
 .search_box {
-  position: absolute;
   display: flex;
-  top: 0;
-  left: 0;
-  background: #2f3640;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid #bbb;
   border-radius: 40px;
-  height: 44px;
-  padding: 7px;
-  transform: scale(0.8);
+  display: flex;
+  align-items: center;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+}
+
+.search_box::before {
+  content: '';
+  width: 22px;
+  height: 22px;
+  background-image: url(../../assets/images/search.png);
+  background-size: 100%;
 }
 
 .search_btn {
@@ -592,43 +597,10 @@
   padding: 0;
   font-size: 16px;
   transition: 0.6s;
-  color: #d9e1e7;
   font-weight: bold;
   line-height: 30px;
-  width: 0;
-}
-
-.search_prompt {
-  background-color: transparent;
-  color: #879095;
-  font-size: 0.9rem;
-  font-weight: bold;
-  cursor: text;
-  border-bottom: 1px solid #e5ebf1;
-  padding: 0 8px 4px;
-}
-
-.search_form.focused .search_prompt {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.search_form:not(.focused) .search_prompt {
-  transition: opacity 0.3s linear 0.3s;
-}
-
-.search_form.focused .search_input {
   width: 240px;
-  padding: 0 6px;
 }
-
-.search_form.focused .search_btn {
-  background: crimson;
-  color: #fff;
-  box-shadow: 0 5px 20px 0 crimson;
-}
-
-/* END= https://codepen.io/bekoff2002/pen/wvvjyEo */
 
 .tab {
   flex: 1;
@@ -938,6 +910,57 @@
 .appointment_time_slot_sizer {
   width: 280px;
   height: 240px;
+}
+
+.location_dialog_heading {
+  font-size: 1.1rem;
+}
+
+.location_dialog_manual_inputs {
+  display: flex;
+  gap: 12px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s linear;
+}
+
+.location_dialog_manual_inputs.open {
+  max-height: 60px;
+}
+
+.location_confirmation_wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+  padding: 48px;
+}
+
+.location_confirmation_text {
+  margin: 0;
+  flex: 1;
+  overflow: auto;
+  font-size: 18px;
+}
+
+.location_confirmation_controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+}
+
+.email_wrap > input {
+  font-size: 1rem;
+  font-family: inherit;
+  color: inherit;
+  cursor: default;
 }
 
 @keyframes rotation {
