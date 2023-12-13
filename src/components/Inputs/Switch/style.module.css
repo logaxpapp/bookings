@@ -1,28 +1,25 @@
+/* stylelint-disable indentation */
+
 :root {
 	--hue: 223;
 	--hue-success: 103;
-	--bg: hsl(var(--hue),10%,80%);
-	--fg: hsl(var(--hue),10%,10%);
-	--primary: hsl(var(--hue),90%,50%);
-	--primary-t: hsla(var(--hue),90%,50%,0);
+	--bg: hsl(var(--hue), 10%, 80%);
+	--fg: hsl(var(--hue), 10%, 10%);
+	--primary: hsl(var(--hue), 90%, 50%);
+	--primary-t: hsla(var(--hue), 90%, 50%, 0);
 	--trans-dur: 0.3s;
-	--trans-timing: cubic-bezier(0.65,0,0.35,1);
-	font-size: calc(16px + (32 - 16) * (100vw - 320px) / (2560 - 320));
-}
-
-.switch_input {
-	-webkit-tap-highlight-color: transparent;
+	--trans-timing: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 .switch,
-.switch:before,
-.switch:after {
+.switch::before,
+.switch::after {
 	display: block;
 }
 
 .switch {
-	background-image: linear-gradient(hsl(var(--hue),10%,60%),hsl(var(--hue),10%,95%));
-	box-shadow: 0 0 0.125em 0.125em hsl(var(--hue),10%,90%) inset;
+	background-image: linear-gradient(hsl(var(--hue), 10%, 60%), hsl(var(--hue), 10%, 95%));
+	box-shadow: 0 0 0.125em 0.125em hsl(var(--hue), 10%, 90%) inset;
 	border-radius: 1em;
 	flex-shrink: 0;
 	position: relative;
@@ -30,8 +27,8 @@
 	height: 2em;
 }
 
-.switch:before,
-.switch:after {
+.switch::before,
+.switch::after {
 	border-radius: 0.75em;
 	content: "";
 	position: absolute;
@@ -41,12 +38,12 @@
 	height: 1.5em;
 }
 
-.switch:before {
-	background-color: hsl(var(--hue),10%,60%);
+.switch::before {
+	background-color: hsl(var(--hue), 10%, 60%);
 }
 
 .switch::after {
-	box-shadow: 0 0 0.5em hsl(var(--hue),10%,20%) inset;
+	box-shadow: 0 0 0.5em hsl(var(--hue), 10%, 20%) inset;
 	z-index: 1;
 }
 
@@ -63,6 +60,7 @@
 }
 
 .switch_input {
+	-webkit-tap-highlight-color: transparent;
 	border-radius: 1em;
 	box-shadow: 0 0 0 0.125em var(--primary-t);
 	cursor: pointer;
@@ -80,8 +78,8 @@
 	box-shadow: 0 0 0 0.125em var(--primary);
 }
 
-.switch_input:before,
-.switch_input:after {
+.switch_input::before,
+.switch_input::after {
 	border-radius: 50%;
 	content: "";
 	display: block;
@@ -89,19 +87,19 @@
 	transition: transform var(--trans-dur) var(--trans-timing);
 }
 
-.switch_input:before {
-	background-image: linear-gradient(hsl(0,0%,100%),hsl(var(--hue),10%,60%));
+.switch_input::before {
+	background-image: linear-gradient(hsl(0, 0%, 100%), hsl(var(--hue), 10%, 60%));
 	box-shadow:
-		0 0 0.125em 0.0625em hsl(var(--hue),10%,40%),
-		0 0.25em 0.25em hsla(var(--hue),10%,10%,0.4);
+	0 0 0.125em 0.0625em hsl(var(--hue), 10%, 40%),
+	0 0.25em 0.25em hsla(var(--hue), 10%, 10%, 0.4);
 	top: 0.125em;
 	left: 0.125em;
 	width: 1.75em;
 	height: 1.75em;
 }
 
-.switch_input:after {
-	background-image: linear-gradient(hsl(var(--hue),10%,90%),hsl(var(--hue),10%,80%));
+.switch_input::after {
+	background-image: linear-gradient(hsl(var(--hue), 10%, 90%), hsl(var(--hue), 10%, 80%));
 	top: 0.25em;
 	left: 0.25em;
 	width: 1.5em;
@@ -109,8 +107,8 @@
 }
 
 .switch_text {
-	background-color: hsl(var(--hue-success),90%,50%,0.5);
-	color: hsl(var(--hue-success),90%,10%);
+	background-color: hsl(var(--hue-success), 90%, 50%, 0.5);
+	color: hsl(var(--hue-success), 90%, 10%);
 	display: block;
 	font-size: 0.75em;
 	font-weight: 700;
@@ -122,22 +120,22 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	text-shadow: 0 0.0625rem 0 hsl(var(--hue-success),90%,55%);
+	text-shadow: 0 0.0625rem 0 hsl(var(--hue-success), 90%, 55%);
 	transform: translateX(-4.25em);
 	transition: transform var(--trans-dur) var(--trans-timing);
 	z-index: -1;
 }
 
 .switch_text + .switch_text {
-	background-color: hsla(0,0%,0%,0);
-	color: hsl(var(--hue),10%,10%);
-	text-shadow: 0 0.0625rem 0 hsl(var(--hue),10%,75%);
+	background-color: hsla(0, 0%, 0%, 0);
+	color: hsl(var(--hue), 10%, 10%);
+	text-shadow: 0 0.0625rem 0 hsl(var(--hue), 10%, 75%);
 	text-align: right;
 	transform: translateX(0);
 }
 
-.switch_input:checked:before,
-.switch_input:checked:after {
+.switch_input:checked::before,
+.switch_input:checked::after {
 	transform: translateX(3em);
 }
 
@@ -152,52 +150,54 @@
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
 	:root {
-		--bg: hsl(var(--hue),10%,20%);
-		--fg: hsl(var(--hue),10%,90%);
-		--primary: hsl(var(--hue),90%,70%);
-		--primary-t: hsla(var(--hue),90%,70%,0);
+		--bg: hsl(var(--hue), 10%, 20%);
+		--fg: hsl(var(--hue), 10%, 90%);
+		--primary: hsl(var(--hue), 90%, 70%);
+		--primary-t: hsla(var(--hue), 90%, 70%, 0);
 	}
 
 	form {
-		background-color: hsl(var(--hue),10%,30%);
+		background-color: hsl(var(--hue), 10%, 30%);
 	}
 
 	.setting {
 		box-shadow:
-			0 0.125em 0 hsl(var(--hue),10%,40%) inset,
-			0 -0.125em 0 hsl(var(--hue),10%,20%) inset;
+			0 0.125em 0 hsl(var(--hue), 10%, 40%) inset,
+			0 -0.125em 0 hsl(var(--hue), 10%, 20%) inset;
 	}
 
 	.switch {
-		background-image: linear-gradient(hsl(var(--hue),10%,15%),hsl(var(--hue),10%,35%));
-		box-shadow: 0 0 0.125em 0.125em hsl(var(--hue),10%,30%) inset;
+		background-image: linear-gradient(hsl(var(--hue), 10%, 15%), hsl(var(--hue), 10%, 35%));
+		box-shadow: 0 0 0.125em 0.125em hsl(var(--hue), 10%, 30%) inset;
 	}
 
-	.switch:before {
-		background-color: hsl(var(--hue),10%,40%);
+	.switch::before {
+		background-color: hsl(var(--hue), 10%, 40%);
 	}
 
-	.switch:after {
-		box-shadow: 0 0 0.5em hsl(0,0%,0%) inset;
+	.switch::after {
+		box-shadow: 0 0 0.5em hsl(0, 0%, 0%) inset;
 	}
 
-	.switch_input:before {
-		background-image: linear-gradient(hsl(var(--hue),10%,50%),hsl(var(--hue),10%,20%));
+	.switch_input::before {
+		background-image: linear-gradient(hsl(var(--hue), 10%, 50%), hsl(var(--hue), 10%, 20%));
 		box-shadow:
-			0 0 0.125em 0.0625em hsl(var(--hue),10%,10%),
-			0 0.25em 0.25em hsla(var(--hue),10%,10%,0.4);
+			0 0 0.125em 0.0625em hsl(var(--hue), 10%, 10%),
+			0 0.25em 0.25em hsla(var(--hue), 10%, 10%, 0.4);
 	}
 
-	.switch_input:after {
-		background-image: linear-gradient(hsl(var(--hue),10%,40%),hsl(var(--hue),10%,30%));
+	.switch_input::after {
+		background-image: linear-gradient(hsl(var(--hue), 10%, 40%), hsl(var(--hue), 10%, 30%));
 	}
 
 	.switch_text {
-		text-shadow: 0 0.0625rem 0 hsl(var(--hue-success),90%,45%);
+		text-shadow: 0 0.0625rem 0 hsl(var(--hue-success), 90%, 45%);
 	}
 
 	.switch_text + .switch_text {
-		color: hsl(var(--hue),10%,10%);
-		text-shadow: 0 0.0625rem 0 hsl(var(--hue),10%,55%);
+		color: hsl(var(--hue), 10%, 10%);
+		text-shadow: 0 0.0625rem 0 hsl(var(--hue), 10%, 55%);
 	}
 }
+
+/* stylelint-enable indentation */
