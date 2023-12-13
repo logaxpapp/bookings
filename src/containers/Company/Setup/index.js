@@ -28,7 +28,6 @@ import LoadingButton, { Ring } from '../../../components/LoadingButton';
 import { SvgButton, colors, paths } from '../../../components/svg';
 import ResourceLoader from '../../../components/ResourceLoader';
 import {
-  capitalize,
   currencyHelper,
   dateUtils,
   notification,
@@ -36,13 +35,14 @@ import {
 import { isImage, uploadFile } from '../../../lib/CloudinaryUtils';
 import ImageUploader from '../../../components/ImageUploader';
 import defaultImages from '../../../utils/defaultImages';
-import { AccentRadioButton, SimpleCheckBox } from '../../../components/Inputs';
+import { AccentRadioButton, SimpleCheckBox, Switch } from '../../../components/Inputs';
 import GridPanel from '../../../components/GridPanel';
 import routes from '../../../routing/routes';
 import payments from '../../../payments';
 import { useDialog } from '../../../lib/Dialog';
 import TextBox, { isNumber } from '../../../components/TextBox';
 import { getUserLocation, loadIPLocationAsync } from '../../../redux/userLocationSlice';
+import { updateResource } from '../../../api';
 
 const location = UserLocation.getLocation();
 
@@ -81,16 +81,15 @@ const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'];
 const paymentMethods = ['stripe', 'paystack'];
 
 const PaymentsMethodRow = ({ name, company }) => {
-  const [isEnrolled, setEnrolled] = useState(false);
-  const [title, setTitle] = useState('');
   const [busy, setBusy] = useState(false);
   const token = useSelector(selectToken);
+  const [method, setMethod] = useState(null);
+  const busyDialog = useBusyDialog();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setTitle(capitalize(name));
-    setEnrolled(company.enabledPaymentMethods.includes(name));
-  }, [name, company, setEnrolled, setTitle]);
+    setMethod(company.paymentMethods.find((m) => m.name === name));
+  }, [name, company]);
 
   const handleSetupPaymentMethod = useCallback(() => {
     const handler = payments.getHandler(name);
@@ -101,20 +100,64 @@ const PaymentsMethodRow = ({ name, company }) => {
     handler.setupPaymentMethod(token, (update) => {
       setBusy(false);
       if (update) {
-        const methods = company.enabledPaymentMethods || [];
-        if (!methods.includes(name)) {
-          dispatch(setCompany({ ...company, enabledPaymentMethods: [...methods, name] }));
-        }
+        const paymentMethods = company.paymentMethods.map((m) => (
+          m.name === name ? { ...m, isEnabled: true } : m
+        ));
+        dispatch(setCompany({ ...company, paymentMethods }));
       }
     });
-  }, [company, name, setBusy]);
+  }, [company, name]);
+
+  const handleValueChange = useCallback(({ target }) => {
+    const { name } = target;
+    const status = target.checked ? 'active' : 'inactive';
+
+    let path;
+    switch (name) {
+      case 'stripe':
+        path = 'stripe_connected_accounts/update';
+        break;
+      case 'paystack':
+        path = 'paystack_connected_accounts';
+        break;
+      default:
+        break;
+    }
+
+    if (!path) {
+      notification.showError('Application error! Please try again.');
+      return;
+    }
+
+    const popup = busyDialog.show('Updating status ...');
+
+    updateResource(token, path, { status }, true)
+      .then(() => {
+        const paymentMethods = company.paymentMethods.map((m) => (
+          m.name === name ? { ...m, isEnabled: status === 'active' } : m
+        ));
+        dispatch(setCompany({ ...company, paymentMethods }));
+        popup.close();
+      })
+      .catch(() => {
+        notification.showError('Failed to update status!');
+        popup.close();
+      });
+  }, [company, busyDialog]);
 
   return (
     <div className={css.payment_row}>
-      <span className={`${css.payment_row_label} ${isEnrolled ? css.enrolled : ''}`}>
-        {title}
+      <span className={`${css.payment_row_label} ${method ? css.enrolled : ''}`}>
+        {name}
       </span>
-      {isEnrolled ? null : (
+      {method ? (
+        <Switch
+          name={name}
+          value={name}
+          checked={method.isEnabled}
+          onChange={handleValueChange}
+        />
+      ) : (
         <>
           {busy ? (
             <Ring color="#1276f3" size={14} />
@@ -143,7 +186,7 @@ const PaymentsPanel = ({ company }) => {
   const [enrolled, setEnrolled] = useState(false);
 
   useEffect(() => {
-    setEnrolled(!!company.enabledPaymentMethods.length);
+    setEnrolled(!!company.paymentMethods.find(({ isEnabled }) => isEnabled));
   }, [company, setEnrolled]);
 
   return (
@@ -352,7 +395,7 @@ const CityPanel = ({
           <div className={css.city_details_wrap}>
             <div className={css.city_details_row}>
               <span className={css.city_details_label}>Address</span>
-              <span className={css.city_details_value}>{company.address}</span>
+              <span className={`${css.city_details_value} ${css.address}`}>{company.address}</span>
             </div>
             <div className={css.city_details_state_country_row}>
               <div className={css.city_details_row}>

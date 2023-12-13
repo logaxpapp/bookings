@@ -18,6 +18,8 @@ import stripeIcon from '../assets/images/stripe-icon.png';
 import { serviceProps } from './propTypes';
 import payments from '../payments';
 import { loadIPLocationAsync, setLoading } from '../redux/userLocationSlice';
+import { CompanyRefundPolicy } from '../containers/ReturnPolicy';
+import { SvgButton, colors, paths } from '../components/svg';
 
 /* eslint-disable no-nested-ternary */
 
@@ -157,6 +159,9 @@ const PaymentDialog = ({
   onResponse,
 }) => {
   const [busy, setBusy] = useState(true);
+  const [policyMoode, setPolicyMode] = useState(false);
+
+  const togglePolicyMode = useCallback(() => setPolicyMode((mode) => !mode));
 
   const handleClose = useCallback(() => onResponse(new Error('User cancelled action')), []);
 
@@ -181,12 +186,29 @@ const PaymentDialog = ({
   }, []);
 
   useEffect(() => {
-    if (service.company.enabledPaymentMethods.length > 1) {
-      setBusy(false);
-    } else {
-      handleMethodSelected(service.company.enabledPaymentMethods[0]);
-    }
+    setBusy(false);
   }, []);
+
+  if (policyMoode) {
+    return (
+      <>
+        <CompanyRefundPolicy company={service.company} />
+        <SvgButton
+          type="button"
+          title="Close"
+          color={colors.delete}
+          path={paths.close}
+          onClick={togglePolicyMode}
+          style={{
+            position: 'absolute',
+            top: 4,
+            right: 4,
+            pointerEvents: 'all',
+          }}
+        />
+      </>
+    );
+  }
 
   return (
     <BlankPage>
@@ -222,6 +244,12 @@ const PaymentDialog = ({
                 </li>
               ))}
             </ul>
+            <div>
+              <span>By proceeding with this payment, you agree with the company&apos;s&nbsp;</span>
+              <button type="button" className="link compactlink" onClick={togglePolicyMode}>
+                Return Policy
+              </button>
+            </div>
             <div style={styles.controls}>
               <button type="button" className="control-btn cancel" onClick={handleClose}>
                 Cancel

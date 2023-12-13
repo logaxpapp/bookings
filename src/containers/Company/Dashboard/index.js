@@ -555,15 +555,15 @@ const AppointmentRow = ({ appointment, onOpenMessages }) => {
   }, [appointment, setUpdateRequestText]);
 
   useEffect(() => {
-    const { timeSlot: slot } = appointment;
+    const { deposit, timeSlot: slot } = appointment;
     const date = new Date(slot.time);
-    const { price, minDeposit } = slot.service;
+    const { price } = slot.service;
     setDateTime({ date: date.toLocaleDateString(), time: date.toLocaleTimeString() });
     setPayment({
       price: currencyHelper.toString(price, slot.service.company.country.currencySymbol),
-      deposit: currencyHelper.toString(minDeposit, slot.service.company.country.currencySymbol),
+      deposit: currencyHelper.toString(deposit, slot.service.company.country.currencySymbol),
       balance: currencyHelper.toString(
-        price - minDeposit,
+        price - deposit,
         slot.service.company.country.currencySymbol,
       ),
     });
