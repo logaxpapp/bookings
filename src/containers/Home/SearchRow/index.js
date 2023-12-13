@@ -359,50 +359,49 @@ const CitySelect = ({
   }, [term, onSearch]);
 
   return (
-    <div role="dialog" className={css.city_select_dialog}>
-      <section className={css.city_select_body}>
+    <div role="dialog" className="modal">
+      <section className="modal-bold-body">
         {mode === searchModes.city ? (
           <>
-            <label htmlFor={COUNTRY} className={css.city_select_wrap}>
-              <span className={css.label}>Select Country</span>
-              <div className={css.city_select}>
+            <label htmlFor={COUNTRY} className="bold-select-wrap">
+              <span className="label">Select Country</span>
+              <div className="bold-select">
                 <select
                   name={COUNTRY}
                   value={(selectedCountry && selectedCountry.id) || ''}
-                  className={css.select}
                   onChange={handleValueChange}
                 >
-                  <option value="">Select Country</option>
+                  <option value="" disabled>-- Select Country --</option>
                   {countries ? countries.map((country) => (
                     <option value={country.id} key={country.id}>{country.name}</option>
                   )) : null}
                 </select>
               </div>
             </label>
-            <label htmlFor={STATE} className={css.city_select_wrap}>
-              <span className={css.label}>Select State</span>
-              <div className={css.city_select}>
+            <label htmlFor={STATE} className="bold-select-wrap">
+              <span className="label">Select State</span>
+              <div className="bold-select">
                 <select
                   name={STATE}
                   value={(selectedState && selectedState.id) || ''}
                   onChange={handleValueChange}
                 >
-                  <option value="">Select State</option>
+                  <option value="" disabled>-- Select State --</option>
                   {selectedCountry ? selectedCountry.states.map((state) => (
                     <option value={state.id} key={state.id}>{state.name}</option>
                   )) : null}
                 </select>
               </div>
             </label>
-            <label htmlFor={CITY} className={css.city_select_wrap}>
-              <span className={css.label}>Select City</span>
-              <div className={css.city_select}>
+            <label htmlFor={CITY} className="bold-select-wrap">
+              <span className="label">Select City</span>
+              <div className="bold-select">
                 <select
                   name={CITY}
                   value={(selectedCity && selectedCity.id) || ''}
                   onChange={handleValueChange}
                 >
-                  <option value="">Select City</option>
+                  <option value="" disabled>-- Select City --</option>
                   {selectedState ? selectedState.cities.map((city) => (
                     <option value={city.id} key={city.id}>{city.name}</option>
                   )) : null}
@@ -528,13 +527,13 @@ const CitySearchPanelEx = ({
     }
   }, [city, location, countries]);
 
-  useEffect(() => setSearchCity(city), [city]);
+  useEffect(() => {
+    setSearchCity(city);
+  }, [city]);
 
   const handleSearch = useCallback((term) => {
-    if (city) {
-      onSearch(term);
-    }
-  }, [city, onSearch]);
+    onSearch(term);
+  }, [onSearch]);
 
   const handleLocationChange = useCallback((city, state, country) => {
     setCity(city);
@@ -815,7 +814,9 @@ export const SearchEx = () => {
     }
   }, [city]);
 
-  const handleCommonTermClick = useCallback(({ target: { name } }) => handleSearch(name), []);
+  const handleCommonTermClick = useCallback(({ target: { name } }) => {
+    handleSearch(name);
+  }, [handleSearch]);
 
   const handleScan = useCallback(() => {
     setScanning(true);

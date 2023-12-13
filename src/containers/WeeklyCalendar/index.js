@@ -89,11 +89,11 @@ const EventPanel = ({ eventWrapper, onClose }) => {
         appointment.timeSlot.service.company.country.currencySymbol,
       ),
       deposit: currencyHelper.toString(
-        appointment.timeSlot.service.minDeposit,
+        appointment.deposit,
         appointment.timeSlot.service.company.country.currencySymbol,
       ),
       balance: currencyHelper.toString(
-        appointment.timeSlot.service.price - appointment.timeSlot.service.minDeposit,
+        appointment.timeSlot.service.price - appointment.deposit,
         appointment.timeSlot.service.company.country.currencySymbol,
       ),
     });

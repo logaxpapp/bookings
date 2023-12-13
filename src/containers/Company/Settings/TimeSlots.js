@@ -27,6 +27,7 @@ import {
   getTimeSlotsAsync,
   loadTimeSlotsAsync,
   selectCompany,
+  selectEmployees,
   selectServiceCategories,
   selectTimeSlots,
   updateTimeSlotAsync,
@@ -38,9 +39,12 @@ import AlertComponent from '../../../components/AlertComponents';
 import { useOnHoverContextMenu } from '../../../components/ContextMenu';
 import PageHeader from '../../PageHeader';
 import GridPanel from '../../../components/GridPanel';
+import { useHover } from '../../../lib/hooks';
+import { FieldEditor } from '../../../components/TextBox';
 
 const AUTO = 'auto';
 const CATEGORY = 'category';
+const CLEAR = 'clear';
 const CLOSE = 'close';
 const DATE = 'date';
 const DELETE = 'delete';
@@ -49,6 +53,7 @@ const END_DATE = 'end_date';
 const GENERATE = 'generate';
 const LOAD = 'load';
 const NEW = 'new';
+const REPEATS = 'repeats';
 const SAVE = 'save';
 const SERVICE = 'service';
 const START_DATE = 'start_date';
@@ -352,23 +357,25 @@ const AutoTimeSlotCard = ({
   const timeSlots = useSelector(selectTimeSlots);
   const timeInput = useRef();
   const overlapIcon = useRef();
-  const hoverContext = useOnHoverContextMenu();
   const dispatch = useDispatch();
+  const hovered = useHover(overlapIcon);
 
   useEffect(() => {
     const date = new Date(slot.time);
     const time = 3600 * date.getHours() + 60 * date.getMinutes();
+    const timeParts = date.toLocaleTimeString().split(':');
+    const mer = timeParts.pop().split(' ').pop();
 
     setDateTime({
       date: date.toLocaleDateString(),
       time: date.toLocaleTimeString(),
-      text: `${slot.weekday} ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`,
+      text: `${slot.weekday} ${date.toLocaleDateString()} ${timeParts.join(':')} ${mer}`,
       slotDate: dateUtils.toNormalizedString(date),
       overlapStart: (time - service.duration) / 60,
       overlapEnd: (time + service.duration) / 60,
       overlapTime: time / 60,
     });
-  }, [slot, service, setDateTime]);
+  }, [slot, service]);
 
   useEffect(() => {
     const slotsForDate = timeSlots[datetime.slotDate];
@@ -390,7 +397,7 @@ const AutoTimeSlotCard = ({
         )
         : null,
     );
-  }, [service, datetime, timeSlots, setOverlaps]);
+  }, [service, datetime, timeSlots]);
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === TIME) {
@@ -446,12 +453,12 @@ const AutoTimeSlotCard = ({
             <span
               style={{
                 position: 'absolute',
-                top: 2,
-                right: 12,
+                top: -6,
+                right: -6,
                 display: 'block',
                 padding: 4,
                 color: '#fff',
-                backgroundColor: '#2ec4b6',
+                backgroundColor: colors.delete,
                 borderRadius: '50%',
                 lineHeight: 0.6,
                 fontSize: '0.6rem',
@@ -461,7 +468,7 @@ const AutoTimeSlotCard = ({
               {overlaps.length}
             </span>
           ) : null}
-          <hoverContext.Menu refElement={overlapIcon}>
+          {hovered ? (
             <section className={css.new_time_slot_auto_overlaps_section}>
               <h1 className={`${css.h1} ${css.sm}`}>
                 Overlaps
@@ -477,8 +484,8 @@ const AutoTimeSlotCard = ({
                       }}
                     >
                       {overlaps.map((slot) => (
-                        <span key={slot.id}>
-                          {`Time: ${dateUtils.toTimeFormat(60 * slot.time)}`}
+                        <span key={slot.id} style={{ whiteSpace: 'nowrap' }}>
+                          {new Date(slot.time).toLocaleString()}
                         </span>
                       ))}
                     </div>
@@ -513,7 +520,7 @@ const AutoTimeSlotCard = ({
                 </div>
               )}
             </section>
-          </hoverContext.Menu>
+          ) : null}
         </div>
       </footer>
     </article>
@@ -539,15 +546,25 @@ const AutoGeneratePanel = ({ service }) => {
   const [setupCompleted, setSetupCompleted] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [repeats, setRepeats] = useState(1);
   const company = useSelector(selectCompany);
+  const employees = useSelector(selectEmployees);
   const startDateRef = useRef();
   const endDateRef = useRef();
   const busyDialog = useBusyDialog();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setSetupCompleted(company.officeHours && company.openDays);
-  }, [company, setSetupCompleted]);
+    if (company) {
+      setSetupCompleted(company.officeHours && company.openDays);
+    }
+  }, [company]);
+
+  useEffect(() => {
+    if (employees) {
+      setRepeats(employees.length);
+    }
+  }, [employees]);
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === START_DATE) {
@@ -568,13 +585,14 @@ const AutoGeneratePanel = ({ service }) => {
       const date = new Date(startDate);
       const lastDate = new Date(endDate || date);
       const start = company.officeHours ? company.officeHours.start : 32400; // 9:00AM
-      const end = company.officeHours ? company.officeHours.end : 61200; //  5:00PM
+      const end = (company.officeHours ? company.officeHours.end : 61200) - service.duration;
 
       const includeDate = company.openDays
         ? (date) => company.openDays.includes(date.getDay())
         : () => true;
 
       const slots = [];
+      let slot;
       let id = 1;
       while (date <= lastDate) {
         if (includeDate(date)) {
@@ -583,12 +601,16 @@ const AutoGeneratePanel = ({ service }) => {
           while (time < end) {
             lDate.setHours(Math.floor(time / 3600));
             lDate.setMinutes(Math.floor((time % 3600) / 60));
-            slots.push({
+            slot = {
               id,
               time: lDate.toUTCString(),
               serviceId: service.id,
               weekday: dateUtils.getWeekday(date.getDay(), true),
-            });
+            };
+
+            for (let i = 0; i < repeats; i += 1) {
+              slots.push({ ...slot });
+            }
 
             id += 1;
             time += service.duration;
@@ -624,8 +646,10 @@ const AutoGeneratePanel = ({ service }) => {
           }
         }
       }));
+    } else if (name === CLEAR) {
+      setSlots([]);
     }
-  }, [company, startDate, endDate, service, slots, setSlots]);
+  }, [company, startDate, endDate, repeats, service, slots]);
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === START_DATE) {
@@ -642,6 +666,11 @@ const AutoGeneratePanel = ({ service }) => {
   const handleDelete = useCallback((slot) => setSlots(
     slots.filter((item) => item.id !== slot.id),
   ), [slots, setSlots]);
+
+  const handleFieldValueChange = useCallback((name, value, callback) => {
+    setRepeats(value);
+    callback();
+  }, []);
 
   return (
     <section className={css.auto_generate_panel}>
@@ -727,6 +756,17 @@ const AutoGeneratePanel = ({ service }) => {
               onChange={handleValueChange}
             />
           </div>
+          <FieldEditor
+            type="text"
+            name={REPEATS}
+            label="Repeats"
+            initialValue={repeats}
+            onSave={handleFieldValueChange}
+            style={{ display: 'flex', alignItems: 'center' }}
+            inputStyle={{ width: 60 }}
+            isInteger
+            transparent
+          />
         </div>
         <div className={css.slot_auto_generate_actions_wrap}>
           <button
@@ -738,14 +778,24 @@ const AutoGeneratePanel = ({ service }) => {
             Generate
           </button>
           {slots.length ? (
-            <button
-              type="button"
-              name={SAVE}
-              className={`control-btn green ${css.control_btn}`}
-              onClick={handleClick}
-            >
-              Save
-            </button>
+            <>
+              <button
+                type="button"
+                name={SAVE}
+                className={`control-btn green ${css.control_btn}`}
+                onClick={handleClick}
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                name={CLEAR}
+                className={`control-btn cancel ${css.control_btn}`}
+                onClick={handleClick}
+              >
+                Clear
+              </button>
+            </>
           ) : null}
         </div>
       </div>

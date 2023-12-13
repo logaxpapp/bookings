@@ -454,13 +454,17 @@ const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
   useEffect(() => {
     if (term) {
       setSearchTerm(term);
-      search(term, cityId, forceCurrentLocation);
     }
-  }, [term, cityId, forceCurrentLocation, search, setSearchTerm]);
+  }, [term]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      search(searchTerm, cityId, forceCurrentLocation);
+    }
+  }, [searchTerm, cityId, forceCurrentLocation, search]);
 
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);
-    search(term);
   }, []);
 
   /* eslint-disable no-nested-ternary */

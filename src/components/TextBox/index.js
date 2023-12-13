@@ -167,6 +167,8 @@ const TextBox = forwardRef(function TextBox({
   tabIndex,
   options,
   placeholder,
+  title,
+  readOnly,
   hideErrorOnNull,
 }, ref) {
   return (
@@ -190,7 +192,9 @@ const TextBox = forwardRef(function TextBox({
           onChange={onChange}
           tabIndex={tabIndex}
           placeholder={placeholder}
+          title={title}
           list={options ? options.listId : null}
+          readOnly={readOnly}
         />
       </div>
       <ErrorComponent error={error} hideErrorOnNull={hideErrorOnNull} />
@@ -221,11 +225,13 @@ TextBox.propTypes = {
   onChange: PropTypes.func,
   tabIndex: PropTypes.number,
   placeholder: PropTypes.string,
+  title: PropTypes.string,
   options: PropTypes.shape({
     listId: PropTypes.string,
     list: PropTypes.arrayOf(PropTypes.string),
   }),
   hideErrorOnNull: PropTypes.bool,
+  readOnly: PropTypes.bool,
 };
 
 TextBox.defaultProps = {
@@ -240,8 +246,10 @@ TextBox.defaultProps = {
   onChange: null,
   tabIndex: 0,
   placeholder: '',
+  title: null,
   options: null,
   hideErrorOnNull: false,
+  readOnly: false,
 };
 
 /**

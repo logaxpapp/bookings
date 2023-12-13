@@ -78,8 +78,9 @@ const Preferences = {
 };
 
 export const searchParamsOptions = {
-  CURRENT_LOCATION: 'current_location',
-  PREFERRED_LOCATION: 'preferred_location',
+  DEVICE_LOCATION: 'current_location',
+  HOME_LOCATION: 'home_location',
+  NETWORK_LOCATION: 'network_location',
   User_CITY: 'user_city',
 };
 

@@ -153,7 +153,7 @@ const HoverDialog = ({
   top,
   width,
   height,
-  onClose,
+  onHover,
   children,
 }) => {
   const [menuStyle, setMenuStyle] = useState({
@@ -166,7 +166,8 @@ const HoverDialog = ({
   const screenSize = useWindowSize();
 
   useEffect(() => {
-    wrapper.current.addEventListener('mouseleave', onClose);
+    wrapper.current.addEventListener('mouseenter', () => onHover(true));
+    wrapper.current.addEventListener('mouseleave', () => onHover(false));
   }, []);
 
   useEffect(() => {
@@ -229,7 +230,7 @@ HoverDialog.propTypes = {
   top: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  onClose: PropTypes.func.isRequired,
+  onHover: PropTypes.func.isRequired,
   children: childrenProps.isRequired,
 };
 
@@ -238,7 +239,11 @@ export const useOnHoverContextMenu = () => ({
     refElement,
     children,
   }) => {
-    const handleMouseEnter = useCallback(() => {
+    const [isOpen, setOpen] = useState(false);
+    const [refHovered, setRefHovered] = useState(false);
+    const [dialogHovered, setDialogHovered] = useState(false);
+
+    const openDialog = useCallback(() => {
       /** @type {DOMRect} */
       const rect = refElement.current.getBoundingClientRect();
 
@@ -250,7 +255,7 @@ export const useOnHoverContextMenu = () => ({
           top={rect.top}
           width={rect.width}
           height={rect.height}
-          onClose={manager.clear}
+          onHover={setDialogHovered}
         >
           {children}
         </HoverDialog>,
@@ -258,8 +263,21 @@ export const useOnHoverContextMenu = () => ({
     }, []);
 
     useEffect(() => {
-      refElement.current.addEventListener('mouseenter', handleMouseEnter);
+      refElement.current.addEventListener('mouseenter', setRefHovered(true));
+      refElement.current.addEventListener('mouseleave', () => setRefHovered(false));
     }, []);
+
+    useEffect(() => {
+      setOpen(refHovered || dialogHovered);
+    }, [refHovered, dialogHovered]);
+
+    useEffect(() => {
+      if (isOpen) {
+        manager.clear();
+      } else {
+        openDialog();
+      }
+    }, [isOpen]);
 
     return null;
   },

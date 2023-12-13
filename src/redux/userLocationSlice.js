@@ -128,8 +128,13 @@ export const loadIPLocationAsync = (callback) => (dispatch, getState) => {
 
   fetchResources('user_locations', null, true)
     .then((location) => {
-      dispatch(setLocation(location));
-      callback(null, location);
+      const loc = { ...location };
+      if (loc.loc && !loc.latitude) {
+        [loc.latitude, loc.longitude] = loc.loc.split(',').map((p) => p.trim());
+      }
+
+      dispatch(setLocation(loc));
+      callback(null, loc);
     })
     .catch((err) => {
       notification.showError('Failed to load location!');

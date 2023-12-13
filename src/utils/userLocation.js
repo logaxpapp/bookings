@@ -4,6 +4,12 @@
  */
 
 /**
+ * @callback SaveFunction
+ * @param {number} latitude
+ * @param {number} longitude
+ */
+
+/**
  * @typedef {Object} Location
  * @property {boolean} isFromLocalStorage
  * @property {boolean} isAvailable
@@ -14,6 +20,7 @@
  * @property {number} error
  * @property {AsyncReload} reload
  * @property {AsyncReload} getCurrentLocation
+ * @property {SaveFunction} save
  */
 
 export const locationErrorTypes = {
@@ -91,6 +98,17 @@ const init = (
       resolve({ latitude, longitude });
     }, (err) => reject(err));
   });
+
+  instance.save = (latitude, longitude) => {
+    storage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        latitude,
+        longitude,
+        lastSaved: new Date().toISOString(),
+      }),
+    );
+  };
 
   const raw = storage.getItem(STORAGE_KEY);
   if (raw) {

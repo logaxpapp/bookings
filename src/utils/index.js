@@ -217,17 +217,18 @@ export const camelCase = (str) => {
 
 export const LOCAL_TIME_DIFFERENCE = (() => {
   const date = new Date();
-  const localHour = date.getHours();
-  const utcHour = parseInt(date.toISOString().match(/T(.*):/)[1], 10);
-  return localHour - utcHour;
+  return date.getTimezoneOffset() / -60;
+  // const localHour = date.getHours();
+  // const utcHour = parseInt(date.toISOString().match(/T(.*):/)[1], 10);
+  // return localHour - utcHour;
 })();
 
 export const TIMEZONE = (() => {
   let timezone = 'GMT';
   if (LOCAL_TIME_DIFFERENCE > 0) {
-    timezone = `${timezone} + ${LOCAL_TIME_DIFFERENCE}`;
+    timezone = `${timezone} + ${d2(LOCAL_TIME_DIFFERENCE)}`;
   } else if (LOCAL_TIME_DIFFERENCE < 0) {
-    timezone = `${timezone} - ${LOCAL_TIME_DIFFERENCE}`;
+    timezone = `${timezone} - ${d2(-1 * LOCAL_TIME_DIFFERENCE)}`;
   }
 
   return timezone;

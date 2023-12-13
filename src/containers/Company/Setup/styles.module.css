@@ -190,6 +190,10 @@
   padding-left: 4px;
 }
 
+.city_details_value.address {
+  font-size: 0.7rem;
+}
+
 .city_details_label::before {
   content: '';
   position: absolute;
@@ -587,15 +591,14 @@
 
 .payment_row_label {
   position: relative;
-  padding-left: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   font-size: 0.8rem;
 }
 
 .payment_row_label::before {
   content: '';
-  position: absolute;
-  left: 0;
-  top: 4px;
   width: 8px;
   height: 8px;
   background-color: #7e0404;

@@ -8,8 +8,22 @@ import Header from './Header';
 import Error404 from './Error404';
 import { Loader } from '../components/LoadingSpinner';
 import { getProviderAsync } from '../redux/serviceProvidersSlice';
+import { companyProps } from '../utils/propTypes';
 
 const styles = {
+  scaler: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    width: '100%',
+    height: '100%',
+    overflow: 'hidden',
+    transform: 'scale(0)',
+    backgroundColor: '#fff',
+    padding: 24,
+    pointerEvents: 'all',
+    transition: 'transform 0.3s linear',
+  },
   container: {
     width: '100%',
     height: '100%',
@@ -278,6 +292,39 @@ ReturnPolicy.defaultProps = {
   refundDelay: 2,
   email: 'enquiries@logaxp.com',
   phoneNumber: '+1 (615) 930-6090 | +1 (832) 946-5563 | +2348031332801',
+};
+
+export const CompanyRefundPolicy = ({ company }) => {
+  const [style, setStyle] = useState(styles.scaler);
+
+  useEffect(() => {
+    setTimeout(() => setStyle({ ...styles.scaler, transform: 'scale(1)' }));
+  }, []);
+
+  if (company.returnPolicy) {
+    return (
+      <div style={style}>
+        <ReturnPolicyComponent
+          effectiveDate={new Date(company.returnPolicy.updatedAt).toLocaleDateString()}
+          minNoticeTime={company.returnPolicy.minNoticeTime}
+          refundPercent={company.returnPolicy.refundPercent}
+          refundDelay={company.returnPolicy.refundDelay}
+          email={company.email}
+          phoneNumber={company.phoneNumber}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div style={style}>
+      <ReturnPolicyComponent email={company.email} phoneNumber={company.phoneNumber} />
+    </div>
+  );
+};
+
+CompanyRefundPolicy.propTypes = {
+  company: companyProps.isRequired,
 };
 
 export const ProviderRefundPolicy = () => {

@@ -41,7 +41,7 @@ import LoadingButton from '../../components/LoadingButton';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import AlertComponent from '../../components/AlertComponents';
 import { AccentRadioButton } from '../../components/Inputs';
-import { FieldEditor } from '../../components/TextBox';
+import TextBox, { FieldEditor, isNumber } from '../../components/TextBox';
 import { useDialog } from '../../lib/Dialog';
 import {
   deleteBookmarkedCompany,
@@ -56,19 +56,31 @@ import MessagePanel from '../../components/MessagePanel';
 import AppointmentsPanel from './AppointmentsPanel';
 import PasswordEditor from '../PasswordEditor';
 import WebSocketManager from './WebSockManager';
+import { getUserLocation, loadIPLocationAsync } from '../../redux/userLocationSlice';
 
 const APPOINTMENTS = 'appointments';
 const BOOKMARKS = 'Bookmarks';
+const CANCEL = 'cancel';
 const CITY = 'city';
+const CONFIRM_LOCATION = 'confirm_location';
 const COUNTRY = 'country';
+const LATITUDE = 'latitude';
+const LONGITUDE = 'longitude';
+const MODE = 'mode';
+const OPEN_CITY_DIALOG = 'open_city_dialog';
 const OPEN_PASSWORD_EDITOR = 'open_password_editor';
 const REFRESH_LOCATION = 'refresh_location';
+const SAVE = 'save';
 const SEARCH_TERM = 'search_term';
 const SETTINGS = 'Settings';
 const STATE = 'state';
-const TOGGLE_CITY_FORM = 'open_city_form';
+const UPDATE_CITY = 'update_city';
 
-const stopPropagation = (e) => e.stopPropagation();
+const locationModes = {
+  device: 'device',
+  network: 'network',
+  manual: 'manual',
+};
 
 const tabs = [
   {
@@ -132,8 +144,212 @@ UserMessagePanel.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
+const LocationEditor = ({ onClose }) => {
+  const [busy, setBusy] = useState(false);
+  const [mode, setMode] = useState(locationModes.device);
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [data, setData] = useState({
+    latitude: '',
+    longitude: '',
+    confirmMessage: '',
+  });
+  const dispatch = useDispatch();
+
+  const handleValueChange = useCallback(({ target: { name, value } }) => {
+    if (name === MODE) {
+      setMode(value);
+    } else if (name === LATITUDE) {
+      if (value === '' || isNumber(value)) {
+        setLatitude(value);
+      }
+    } else if (name === LONGITUDE) {
+      if (value === '' || isNumber(value)) {
+        setLongitude(value);
+      }
+    }
+  }, []);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === SAVE) {
+      if (mode === locationModes.device) {
+        setBusy(true);
+        getUserLocation()
+          .then((location) => {
+            const confirmMessage = `Your Device Location\n\nLatitude: ${location.latitude}.\nLongitude: ${location.longitude}\n\nClick confirm to update.`;
+            setData({ ...location, confirmMessage });
+            setBusy(false);
+          })
+          .catch(() => {
+            notification.showError(
+              'Error determining your location. Please ensure that location is enabled for this page, then try again!',
+            );
+            setBusy(false);
+          });
+      } else if (mode === locationModes.network) {
+        setBusy(true);
+        dispatch(loadIPLocationAsync((err, location) => {
+          if (!err) {
+            const confirmMessage = `Your Network Determined Location\n\nLatitude: ${location.latitude}\nLongitude: ${location.longitude}\nCity: ${location.city}\nState: ${location.region}\nCountry: ${location.country}\n\nClick confirm to update.`;
+            setData({ ...location, confirmMessage });
+          } else {
+            notification.showError(
+              'Error determining your location. Please try again!',
+            );
+          }
+          setBusy(false);
+        }));
+      } else if (mode === locationModes.manual) {
+        if (!(latitude && longitude)) {
+          notification.showError('Please enter both latitude and longitude!');
+          return;
+        }
+
+        setData({
+          latitude,
+          longitude,
+          confirmMessage: `Manually Entered Location\n\nLatitude: ${latitude}\nLongitude: ${longitude}\n\nClick confirm to update.`,
+        });
+      }
+    } else if (name === CANCEL) {
+      setData((data) => ({ ...data, confirmMessage: '' }));
+    } else if (name === CONFIRM_LOCATION) {
+      setData((data) => ({ ...data, confirmMessage: '' }));
+      const { longitude, latitude } = data;
+      UserLocation.getLocation().save(latitude, longitude);
+      onClose(latitude, longitude);
+    }
+  }, [data, mode, latitude, longitude, onClose]);
+
+  return (
+    <div className="dialog">
+      <section className="bold-dialog-body">
+        <h1 className={css.location_dialog_heading}>
+          Please select a method below to update your location.
+        </h1>
+        <AccentRadioButton
+          name={MODE}
+          value={locationModes.device}
+          radioSize={28}
+          checked={mode === locationModes.device}
+          label="Device Location. (Please allow Location Access if prompted)"
+          onChange={handleValueChange}
+          style={{
+            fontSize: '1.05rem',
+            cursor: 'pointer',
+          }}
+        />
+        <AccentRadioButton
+          name={MODE}
+          value={locationModes.network}
+          radioSize={28}
+          checked={mode === locationModes.network}
+          label="Server Provided Location"
+          onChange={handleValueChange}
+          style={{
+            fontSize: '1.05rem',
+            cursor: 'pointer',
+          }}
+        />
+        <AccentRadioButton
+          name={MODE}
+          value={locationModes.manual}
+          radioSize={28}
+          checked={mode === locationModes.manual}
+          label="Manual Input. (Please use ONLY if you know what you are doing)"
+          onChange={handleValueChange}
+          style={{
+            fontSize: '1.05rem',
+            cursor: 'pointer',
+          }}
+        />
+        <div
+          className={`${css.location_dialog_manual_inputs} ${mode === locationModes.manual ? css.open : ''}`}
+        >
+          <TextBox
+            type="text"
+            name={LATITUDE}
+            id={LATITUDE}
+            value={latitude}
+            label="Latitude"
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: 4,
+            }}
+            onChange={handleValueChange}
+            hideErrorOnNull
+          />
+          <TextBox
+            type="text"
+            name={LONGITUDE}
+            id={LONGITUDE}
+            value={longitude}
+            label="Longitude"
+            style={{
+              border: '1px solid #ccc',
+              borderRadius: 4,
+            }}
+            onChange={handleValueChange}
+            hideErrorOnNull
+          />
+        </div>
+        <LoadingButton
+          type="button"
+          name={SAVE}
+          loading={busy}
+          label="Update Location"
+          onClick={handleClick}
+          styles={{
+            fontSize: 14,
+            marginTop: 0,
+          }}
+        />
+        <SvgButton
+          title="Close"
+          color={colors.delete}
+          path={paths.close}
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            right: 4,
+            top: 4,
+          }}
+        />
+        {data.confirmMessage ? (
+          <div className={css.location_confirmation_wrap}>
+            <pre className={css.location_confirmation_text}>{data.confirmMessage}</pre>
+            <div className={css.location_confirmation_controls}>
+              <button
+                type="button"
+                name={CONFIRM_LOCATION}
+                className="control-btn bold"
+                onClick={handleClick}
+              >
+                Confirm
+              </button>
+              <button
+                type="button"
+                name={CANCEL}
+                className="control-btn bold cancel"
+                onClick={handleClick}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </section>
+    </div>
+  );
+};
+
+LocationEditor.propTypes = {
+  onClose: PropTypes.func.isRequired,
+};
+
 const Location = ({ onChange }) => {
   const [location, setLocation] = useState({ latitude: '', longitude: '' });
+  const dialog = useDialog();
 
   useEffect(() => {
     const userLocation = UserLocation.getLocation();
@@ -153,22 +369,24 @@ const Location = ({ onChange }) => {
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === REFRESH_LOCATION) {
-      UserLocation.getLocation().reload()
-        .then((location) => {
-          setLocation(location);
-          if (onChange) {
-            onChange(location);
-          }
-        })
-        .catch(({ message }) => notification.showError(message));
+      let popup;
+      const handleClose = (latitude = null, longitude = null) => {
+        const type = typeof latitude;
+        if (type === 'number' || type === 'string') {
+          setLocation({ latitude, longitude });
+        }
+        popup.close();
+      };
+
+      popup = dialog.show(<LocationEditor onClose={handleClose} />);
     }
-  }, [onChange]);
+  }, [dialog]);
 
   return (
     <section className={css.settings_section}>
       <header className={css.settings_header}>
         <h1 className={css.settings_heading}>
-          Preferred Location
+          Home Location
         </h1>
         <div className={css.controls}>
           <div className={css.preferred_location_explanation}>
@@ -224,7 +442,7 @@ Location.defaultProps = {
   onChange: null,
 };
 
-const CityEditor = ({ user }) => {
+const CityEditor = ({ user, onClose }) => {
   const [country, setCountry] = useState(null);
   const [state, setState] = useState(null);
   const [city, setCity] = useState(null);
@@ -242,6 +460,11 @@ const CityEditor = ({ user }) => {
     }));
   }, []);
 
+  const updateState = useCallback((state) => {
+    setState(state);
+    setCity(state ? state.cities[0] : null);
+  }, []);
+
   useEffect(() => {
     if (!countries) {
       reload();
@@ -250,21 +473,29 @@ const CityEditor = ({ user }) => {
 
   useEffect(() => {
     if (user.city && countries) {
-      setCountry(countries.find((c) => c.id === user.city.state.country.id));
+      const country = countries.find((c) => c.id === user.city.state.country.id);
+      setCountry(country);
+      if (country) {
+        const state = country.states.find(({ id }) => id === user.city.state.id);
+        setState(state);
+        if (state) {
+          setCity(state.cities.find(({ id }) => id === user.city.id));
+        }
+      }
     }
-  }, [user, countries, setCountry]);
-
-  useEffect(() => setState(country ? country.states[0] : null), [country, setState]);
-
-  useEffect(() => setCity(state ? state.cities[0] : null), [state, setCity]);
+  }, [user, countries]);
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === COUNTRY) {
-      setCountry(countries.find((c) => c.id === Number.parseInt(value, 10)));
+      const country = countries.find((c) => c.id === Number.parseInt(value, 10));
+      setCountry(country);
+      if (country) {
+        updateState(country.states[0]);
+      }
     } else if (name === STATE) {
-      setState((country && country.states.find(
+      updateState((country && country.states.find(
         (s) => s.id === Number.parseInt(value, 10),
-      )) || null);
+      )));
     } else if (name === CITY) {
       setCity((state && state.cities.find((c) => c.id === Number.parseInt(value, 10))) || null);
     }
@@ -272,125 +503,126 @@ const CityEditor = ({ user }) => {
 
   const handleUpdate = useCallback(() => {
     if (!city) {
+      notification.showError('Please select a city');
       return;
     }
 
     setBusy(true);
     dispatch(updateUserCityAsync(city, state, country, () => {
       setBusy(false);
+      onClose();
     }));
-  }, [city, state, country, setBusy]);
+  }, [city, state, country, onClose]);
 
-  if (!countries) {
-    return <></>;
-  }
-
-  if (loading) {
-    return (
-      <LoadingSpinner>
-        <span>Loading ...</span>
-      </LoadingSpinner>
-    );
-  }
-
-  if (loadError) {
-    return (
-      <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
-        <span>Application encountered an error while loading Countries. Please Click</span>
-        <button type="button" className="link" onClick={reload}>here</button>
-        <span>to reload</span>
-      </div>
-    );
-  }
+  /* eslint-disable no-nested-ternary */
 
   return (
-    <section className={css.city_editor_section}>
-      <div className={css.city_editor}>
-        <h1 className={css.city_editor_heading}>Update Your City</h1>
-        <div className={css.city_editor_selects_wrap}>
-          <div className={css.city_editor_select_wrap}>
-            <label className={`select ${css.city_editor_select}`} htmlFor={COUNTRY}>
-              <select
-                id={COUNTRY}
-                name={COUNTRY}
-                value={(country && country.id) || ''}
-                onChange={handleValueChange}
-                title={country && country.name}
-              >
-                <option value="" disabled>Select Country</option>
-                {countries.map((country) => (
-                  <option key={country.id} value={country.id}>{country.name}</option>
-                ))}
-              </select>
-            </label>
+    <div role="dialog" className="modal">
+      <section className="modal-bold-body">
+        {!countries ? null : loading ? (
+          <LoadingSpinner>
+            <span>Loading ...</span>
+          </LoadingSpinner>
+        ) : loadError ? (
+          <div style={{ display: 'flex', gap: 8, textAlign: 'center' }}>
+            <span>Application encountered an error while loading Countries. Please Click</span>
+            <button type="button" className="link" onClick={reload}>here</button>
+            <span>to reload</span>
           </div>
-          <div className={css.city_editor_select_wrap}>
-            <label className={`select ${css.city_editor_select}`} htmlFor={STATE}>
-              <select
-                id={STATE}
-                name={STATE}
-                value={(state && state.id) || ''}
-                onChange={handleValueChange}
-                title={state && state.name}
-              >
-                <option value="" disabled>Select State</option>
-                {country ? country.states.map((state) => (
-                  <option key={state.id} value={state.id}>{state.name}</option>
-                )) : null}
-              </select>
+        ) : (
+          <>
+            <label htmlFor={COUNTRY} className="bold-select-wrap">
+              <span className="label">Select Country</span>
+              <div className="bold-select">
+                <select
+                  name={COUNTRY}
+                  value={(country && country.id) || ''}
+                  className={css.select}
+                  onChange={handleValueChange}
+                >
+                  <option value="" disabled>-- Select Country --</option>
+                  {countries ? countries.map((country) => (
+                    <option value={country.id} key={country.id}>{country.name}</option>
+                  )) : null}
+                </select>
+              </div>
             </label>
-          </div>
-          <div className={css.city_editor_select_wrap}>
-            <label className={`select ${css.city_editor_select}`} htmlFor={CITY}>
-              <select
-                id={CITY}
-                name={CITY}
-                value={(city && city.id) || ''}
-                onChange={handleValueChange}
-                title={city && city.name}
-              >
-                <option value="" disabled>Select City</option>
-                {state && state.cities ? state.cities.map((city) => (
-                  <option key={city.id} value={city.id}>{city.name}</option>
-                )) : null}
-              </select>
+            <label htmlFor={STATE} className="bold-select-wrap">
+              <span className="label">Select State</span>
+              <div className="bold-select">
+                <select
+                  name={STATE}
+                  value={(state && state.id) || ''}
+                  onChange={handleValueChange}
+                >
+                  <option value="" disabled>-- Select State --</option>
+                  {country ? country.states.map((state) => (
+                    <option value={state.id} key={state.id}>{state.name}</option>
+                  )) : null}
+                </select>
+              </div>
             </label>
-          </div>
-        </div>
-        <LoadingButton
+            <label htmlFor={CITY} className="bold-select-wrap">
+              <span className="label">Select City</span>
+              <div className="bold-select">
+                <select
+                  name={CITY}
+                  value={(city && city.id) || ''}
+                  onChange={handleValueChange}
+                >
+                  <option value="" disabled>-- Select City --</option>
+                  {state ? state.cities.map((city) => (
+                    <option value={city.id} key={city.id}>{city.name}</option>
+                  )) : null}
+                </select>
+              </div>
+            </label>
+            <LoadingButton
+              type="button"
+              name={UPDATE_CITY}
+              label="Update City"
+              loading={busy}
+              onClick={handleUpdate}
+              styles={{
+                fontSize: '1rem',
+              }}
+            />
+          </>
+        )}
+        <SvgButton
           type="button"
-          label="Update"
-          loading={busy}
-          onClick={handleUpdate}
-          styles={{
-            fontSize: 16,
-            padding: 10,
-            marginTop: 16,
+          title="Close"
+          color={colors.delete}
+          path={paths.close}
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
           }}
         />
-      </div>
-    </section>
+      </section>
+    </div>
   );
+
+  /* eslint-disable no-nested-ternary */
 };
 
 CityEditor.propTypes = {
   user: userProps.isRequired,
+  onClose: PropTypes.string.isRequired,
 };
 
 const City = ({ user }) => {
-  const [formOpen, setFormOpen] = useState(true);
-
-  useEffect(() => {
-    if (user.city) {
-      setFormOpen(false);
-    }
-  }, [user, setFormOpen]);
+  const dialog = useDialog();
 
   const handleClick = useCallback(({ target: { name } }) => {
-    if (name === TOGGLE_CITY_FORM) {
-      setFormOpen(!formOpen);
+    if (name === OPEN_CITY_DIALOG) {
+      let popup;
+      const handleClose = () => popup.close();
+      popup = dialog.show(<CityEditor user={user} onClose={handleClose} />);
     }
-  }, [user, formOpen, setFormOpen]);
+  }, [user, dialog]);
 
   return (
     <section className={css.settings_section}>
@@ -400,17 +632,16 @@ const City = ({ user }) => {
         </h1>
         <SvgButton
           type="button"
-          name={TOGGLE_CITY_FORM}
-          title="Refresh"
-          path={paths.chevronUp}
+          name={OPEN_CITY_DIALOG}
+          title="Edit"
+          path={paths.pencil}
           onClick={handleClick}
-          className={`${css.direction_btn} ${formOpen ? css.up : ''}`}
           sm
         />
       </header>
       <div className={css.settings_body}>
         <div
-          className={`${css.city_wrap} ${user.city ? '' : css.empty} ${formOpen ? css.open : ''}`}
+          className={`${css.city_wrap} ${user.city ? '' : css.empty}`}
         >
           {user.city ? (
             <>
@@ -428,9 +659,6 @@ const City = ({ user }) => {
               </div>
             </>
           ) : null}
-          <div className={`${css.city_editor_wrap} ${formOpen ? css.open : ''}`}>
-            <CityEditor user={user} />
-          </div>
           {user.city ? null : (
             <AlertComponent
               type="error"
@@ -471,12 +699,12 @@ const Preferences = ({ user }) => {
 
   useEffect(() => {
     const hasPreferredLocation = UserLocation.getLocation().hasData;
-    if (hasPreferredLocation && savedSearhParams === searchParamsOptions.PREFERRED_LOCATION) {
-      setSearchParam(searchParamsOptions.PREFERRED_LOCATION);
+    if (hasPreferredLocation && savedSearhParams === searchParamsOptions.HOME_LOCATION) {
+      setSearchParam(searchParamsOptions.HOME_LOCATION);
     } else if (savedSearhParams === searchParamsOptions.User_CITY && user.city) {
       setSearchParam(searchParamsOptions.User_CITY);
     } else {
-      setSearchParam(searchParamsOptions.CURRENT_LOCATION);
+      setSearchParam(searchParamsOptions.DEVICE_LOCATION);
     }
     setHasPreferredLocation(hasPreferredLocation);
   }, [savedSearhParams]);
@@ -499,19 +727,27 @@ const Preferences = ({ user }) => {
       <div className={css.settings_body}>
         <div className={css.stack_panel}>
           <AccentRadioButton
-            id={searchParamsOptions.PREFERRED_LOCATION}
-            name={searchParamsOptions.PREFERRED_LOCATION}
+            id={searchParamsOptions.HOME_LOCATION}
+            name={searchParamsOptions.HOME_LOCATION}
             disabled={!hasPreferredLocation}
-            checked={searchParam === searchParamsOptions.PREFERRED_LOCATION}
-            label="Use My Preferred Location"
+            checked={searchParam === searchParamsOptions.HOME_LOCATION}
+            label="Use My Home Location"
             onChange={handleRadioCheck}
             labelStyle={{ fontSize: '0.8rem' }}
           />
           <AccentRadioButton
-            id={searchParamsOptions.CURRENT_LOCATION}
-            name={searchParamsOptions.CURRENT_LOCATION}
-            checked={searchParam === searchParamsOptions.CURRENT_LOCATION}
-            label="Use My Current Location"
+            id={searchParamsOptions.DEVICE_LOCATION}
+            name={searchParamsOptions.DEVICE_LOCATION}
+            checked={searchParam === searchParamsOptions.DEVICE_LOCATION}
+            label="Use My Device Location"
+            onChange={handleRadioCheck}
+            labelStyle={{ fontSize: '0.8rem' }}
+          />
+          <AccentRadioButton
+            id={searchParamsOptions.NETWORK_LOCATION}
+            name={searchParamsOptions.NETWORK_LOCATION}
+            checked={searchParam === searchParamsOptions.NETWORK_LOCATION}
+            label="Use Network Provided Location"
             onChange={handleRadioCheck}
             labelStyle={{ fontSize: '0.8rem' }}
           />
@@ -569,6 +805,21 @@ const Details = ({ user }) => {
       </header>
       <div className={css.settings_body}>
         <div className={css.stack_panel}>
+          <TextBox
+            name="email"
+            id="email"
+            label="Email"
+            value={user.email}
+            title={user.email}
+            className={css.email_wrap}
+            containerStyle={{ marginBottom: 0 }}
+            style={{
+              backgroundColor: '#eef3f3',
+              paddingLeft: 8,
+            }}
+            hideErrorOnNull
+            readOnly
+          />
           <FieldEditor
             type="text"
             name="firstname"
@@ -602,23 +853,8 @@ Details.propTypes = {
 
 const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchFocused, setSearchFocused] = useState(false);
   const navigate = useNavigate();
-  const searchInput = useRef(null);
   const form = useRef(null);
-  const searchBtn = useRef(null);
-
-  const blurSearchInput = useCallback(() => {
-    document.removeEventListener('mousedown', blurSearchInput);
-    setSearchFocused(false);
-  }, []);
-
-  const focusSearchInput = useCallback(() => {
-    searchInput.current.focus();
-    setSearchFocused(true);
-    form.current.addEventListener('mousedown', stopPropagation);
-    document.addEventListener('mousedown', blurSearchInput);
-  }, []);
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === SEARCH_TERM) {
@@ -628,27 +864,20 @@ const SearchBar = () => {
 
   const handleSubmit = useCallback((e) => {
     e.preventDefault();
-    if (!searchFocused) {
-      focusSearchInput();
-      return;
-    }
     if (searchTerm) {
       setSearchTerm('');
-      setSearchFocused(false);
       navigate(`${routes.user.dashboard.absolute.search}?term=${searchTerm}`);
     }
-  }, [searchTerm, searchFocused, setSearchFocused, setSearchTerm, focusSearchInput]);
+  }, [searchTerm]);
 
   return (
     <div className={css.search_form_wrap}>
       <form
         ref={form}
         onSubmit={handleSubmit}
-        className={`${css.search_form} ${searchFocused ? css.focused : ''}`}
       >
-        <div className={css.search_box}>
+        <label htmlFor={SEARCH_TERM} className={css.search_box}>
           <input
-            ref={searchInput}
             type="search"
             id={SEARCH_TERM}
             name={SEARCH_TERM}
@@ -657,27 +886,7 @@ const SearchBar = () => {
             placeholder="What are you looking for?"
             onChange={handleValueChange}
           />
-          <button ref={searchBtn} type="submit" className={css.search_btn}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className={`${css.feather} ${css.feather_search}`}
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </button>
-        </div>
-        <button type="button" className={css.search_prompt} onClick={focusSearchInput}>
-          What are you looking for?
-        </button>
+        </label>
       </form>
     </div>
   );

@@ -50,8 +50,8 @@ export const cityProps = PropTypes.shape({
 });
 
 export const locationProps = PropTypes.shape({
-  latitude: PropTypes.number,
-  longitude: PropTypes.number,
+  latitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  longitude: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 });
 
 export const timeSlotProps = PropTypes.shape({
@@ -151,6 +151,6 @@ export const appointmentProps = PropTypes.shape({
   customer: userProps,
   timeSlot: timeSlotPropsEx,
   status: PropTypes.string,
-  deposit: PropTypes.string,
+  deposit: PropTypes.number,
   messages: PropTypes.arrayOf(correspondenceProps),
 });
