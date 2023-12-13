@@ -527,13 +527,13 @@ const CitySearchPanelEx = ({
     }
   }, [city, location, countries]);
 
-  useEffect(() => setSearchCity(city), [city]);
+  useEffect(() => {
+    setSearchCity(city);
+  }, [city]);
 
   const handleSearch = useCallback((term) => {
-    if (city) {
-      onSearch(term);
-    }
-  }, [city, onSearch]);
+    onSearch(term);
+  }, [onSearch]);
 
   const handleLocationChange = useCallback((city, state, country) => {
     setCity(city);
@@ -814,7 +814,9 @@ export const SearchEx = () => {
     }
   }, [city]);
 
-  const handleCommonTermClick = useCallback(({ target: { name } }) => handleSearch(name), []);
+  const handleCommonTermClick = useCallback(({ target: { name } }) => {
+    handleSearch(name);
+  }, [handleSearch]);
 
   const handleScan = useCallback(() => {
     setScanning(true);
