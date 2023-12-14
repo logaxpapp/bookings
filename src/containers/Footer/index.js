@@ -5,6 +5,7 @@ import { Ring } from '../../components/LoadingButton';
 import { notification } from '../../utils';
 import { postResource } from '../../api';
 import { matchesEmail } from '../../components/TextBox';
+import routes from '../../routing/routes';
 
 const EMAIL = 'email';
 
@@ -250,11 +251,12 @@ const Footer = () => (
         <a
           href="https://logaxp.com/privacy-policy"
           target="_blank"
-          className={css.terms_link}
+          className={`${css.terms_link} ${css.privacy_link}`}
           rel="noreferrer"
         >
           Privacy & Security
         </a>
+        <Link className={css.terms_link} to={routes.returnPolicy}>Return Policy</Link>
       </div>
     </div>
   </footer>

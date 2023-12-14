@@ -516,7 +516,7 @@
 
   .service_row .img {
     flex: 1;
-    max-height: 360px;
+    max-height: 480px;
     width: calc(100% - 400px);
   }
 
