@@ -472,7 +472,11 @@
   .section_row {
     margin: auto;
     padding: 32px;
-    max-width: 960px;
+    max-width: 1140px;
+  }
+
+  .section_row.footer {
+    max-width: 1400px;
   }
 
   .steps_body {

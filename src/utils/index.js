@@ -288,7 +288,7 @@ export const imageColors = (() => {
   const canvas = document.createElement('canvas');
   canvas.style.width = '1000px';
   canvas.style.height = '1000px';
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
   const x = 10;
   const y = 10;
 
