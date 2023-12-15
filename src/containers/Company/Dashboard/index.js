@@ -6,6 +6,7 @@ import {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
+import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import css from './styles.module.css';
 import {
@@ -33,6 +34,7 @@ import { DateButton } from '../../../components/Buttons';
 import { Ring } from '../../../components/LoadingButton';
 import { AccentRadioButton } from '../../../components/Inputs';
 import { LoadingBar } from '../../../components/LoadingSpinner';
+import routes from '../../../routing/routes';
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
@@ -741,13 +743,21 @@ const Dashboard = () => {
         <section className={css.incomplete_setup_message_wrap}>
           <AlertComponent
             type="error"
-            message={incompleteSetupMessage}
-            style={{
-              padding: '4px 24px 4px 8px',
-              margin: 0,
-              textAlign: 'left',
-            }}
-          />
+          >
+            <div
+              className="link-wrapper"
+              style={{
+                padding: '4px 24px 4px 8px',
+                margin: 0,
+                textAlign: 'left',
+              }}
+            >
+              <span>{incompleteSetupMessage}</span>
+              <span>&nbsp;</span>
+              <Link to={routes.company.absolute.setup} className="link">Click</Link>
+              <span>&nbsp;to complete your setup.</span>
+            </div>
+          </AlertComponent>
           <SvgButton
             type="button"
             name={CLOSE_SETUP_MESSAGE}
