@@ -21,7 +21,7 @@ export const stripeHelpers = {
       if (data) {
         const excluded = exclude || [];
         const props = ['clientSecret', 'connectedAccountId', 'publishableKey', 'ticketId', 'token'];
-        for (let i = 0; i < props.length; i += props.length) {
+        for (let i = 0; i < props.length; i += 1) {
           if (!data[props[i]] && excluded.indexOf(props[i]) < 0) {
             data.hasError = true;
           }
@@ -64,7 +64,7 @@ export const paystackStorageHelpers = {
       if (data) {
         const excluded = exclude || [];
         const props = ['intentId', 'connectedAccountId', 'ticketId', 'token'];
-        for (let i = 0; i < props.length; i += props.length) {
+        for (let i = 0; i < props.length; i += 1) {
           if (!data[props[i]] && excluded.indexOf(props[i]) < 0) {
             data.hasError = true;
           }
