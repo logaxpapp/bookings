@@ -105,9 +105,9 @@ export const UserDetailsForm = ({ onSubmit }) => {
       firstname,
       lastname,
       email,
-      phoneNumber,
+      phone_number: phoneNumber,
     }, () => setBusy(false));
-  }, [firstname, lastname, email, phoneNumber, onSubmit, setErrors, setBusy]);
+  }, [firstname, lastname, email, phoneNumber, onSubmit]);
 
   return (
     <section style={styles.container}>

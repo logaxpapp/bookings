@@ -484,10 +484,10 @@ const createIntent = (
       }, 120000);
 
       storage.set(reference, JSON.stringify({
-        ...response,
         ...extraPopupData,
         token,
         type,
+        ...response,
       }));
 
       windowUtils.open(authorizationUrl);

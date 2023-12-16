@@ -132,7 +132,7 @@ const createIntent = (
       }, 120000);
 
       storage.set(`${type}_payment_intent_${intentId}`, JSON.stringify({
-        ...response, ...extraPopupData, token,
+        ...extraPopupData, token, ...response,
       }));
 
       windowUtils.open(popupRouteProvider(intentId));
@@ -193,6 +193,7 @@ const setupPaymentMethod = (token, callback) => fetchResources(
     }
 
     windowUtils.open(url);
+
     const interval = setInterval(() => {
       fetchResources('stripe_connected_accounts/status', token, true)
         .then(({ status, hasActiveLink }) => {

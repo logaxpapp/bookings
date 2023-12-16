@@ -159,7 +159,7 @@ const PaymentDialog = ({
   onResponse,
 }) => {
   const [busy, setBusy] = useState(true);
-  const [policyMoode, setPolicyMode] = useState(false);
+  const [policyMode, setPolicyMode] = useState(false);
 
   const togglePolicyMode = useCallback(() => setPolicyMode((mode) => !mode));
 
@@ -189,7 +189,7 @@ const PaymentDialog = ({
     setBusy(false);
   }, []);
 
-  if (policyMoode) {
+  if (policyMode) {
     return (
       <>
         <CompanyRefundPolicy company={service.company} />
