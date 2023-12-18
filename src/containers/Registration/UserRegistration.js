@@ -10,6 +10,7 @@ import LoadingButton from '../../components/LoadingButton';
 import TextBox, {
   matchesEmail,
   matchesPhoneNumber,
+  validatePassword,
 } from '../../components/TextBox';
 import { registerUser } from '../../api';
 import routes from '../../routing/routes';
@@ -55,6 +56,14 @@ const UserRegistration = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [passwordRepeat, setPasswordRepeat] = useState('');
+  const [passwordCriteria, setPasswordCriteria] = useState({
+    hasLowerCase: false,
+    hasUpperCase: false,
+    hasDigit: false,
+    hasSpecialCharacter: false,
+    satisfiesMinLength: false,
+    isValid: false,
+  });
   const [errors, setErrors] = useState({
     firstname: '',
     lastname: '',
@@ -79,6 +88,7 @@ const UserRegistration = () => {
       setPhoneNumber(value);
     } else if (name === PASSWORD) {
       setPassword(value);
+      setPasswordCriteria(validatePassword(value));
     } else if (name === PASSWORD_REPEAT) {
       setPasswordRepeat(value);
     }
@@ -105,8 +115,8 @@ const UserRegistration = () => {
       errors.phoneNumber = 'Invalid Phone Number!';
     }
 
-    if (!password || password.length < 6) {
-      errors.password = 'Password MUST be at least 6 characters long!';
+    if (!passwordCriteria.isValid) {
+      errors.password = 'Password does NOT meet criteria!';
     }
 
     if (passwordRepeat !== password) {
@@ -139,8 +149,7 @@ const UserRegistration = () => {
       });
   }, [
     firstname, lastname, email, phoneNumber,
-    password, passwordRepeat,
-    setErrors, setBusy,
+    password, passwordRepeat, passwordCriteria,
   ]);
 
   return (
@@ -202,6 +211,7 @@ const UserRegistration = () => {
               error={errors.password}
               className={textboxCss.password}
               style={{ backgroundColor: '#efefef', borderRadius: 4 }}
+              containerStyle={{ marginBottom: 0 }}
               onChange={handleValueChange}
             />
             <TextBox
@@ -213,8 +223,32 @@ const UserRegistration = () => {
               error={errors.passwordRepeat}
               className={textboxCss.password}
               style={{ backgroundColor: '#efefef', borderRadius: 4 }}
+              containerStyle={{ marginBottom: 0 }}
               onChange={handleValueChange}
             />
+          </div>
+          <div className={css.password_criteria_wrap}>
+            <span className={`${css.password_criteria} ${css.header}`}>
+              Password MUST contain at least&nbsp;
+            </span>
+            <span className={`${css.password_criteria} ${passwordCriteria.hasLowerCase ? css.satisfied : ''}`}>
+              1 lowercase character,&nbsp;
+            </span>
+            <span className={`${css.password_criteria} ${passwordCriteria.hasUpperCase ? css.satisfied : ''}`}>
+              1 uppercase character,&nbsp;
+            </span>
+            <span className={`${css.password_criteria} ${passwordCriteria.hasDigit ? css.satisfied : ''}`}>
+              1 digit,&nbsp;
+            </span>
+            <span className={`${css.password_criteria} ${passwordCriteria.hasSpecialCharacter ? css.satisfied : ''}`}>
+              1 special character,&nbsp;
+            </span>
+            <span className={`${css.password_criteria} ${css.header}`}>
+              and MUST be&nbsp;
+            </span>
+            <span className={`${css.password_criteria} ${passwordCriteria.satisfiesMinLength ? css.satisfied : ''}`}>
+              at least 8 characters long
+            </span>
           </div>
           <div className={css.consent_row}>
             <span>

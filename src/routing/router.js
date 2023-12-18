@@ -51,6 +51,7 @@ import CardEditor from '../containers/Company/CardEditor';
 import ReturnPolicy from '../containers/ReturnPolicy';
 import CompanyReturnPolicy from '../containers/Company/ReturnPolicy';
 import { PrivacyPolicy, TermsAndConditions } from '../containers/TermsAndPrivacy';
+import InvalidLink from '../containers/InvalidLink';
 
 const router = createBrowserRouter([
   {
@@ -254,6 +255,10 @@ const router = createBrowserRouter([
   {
     path: routes.paystack.payment(':type'),
     element: <PaystackIntentCallbackWindow />,
+  },
+  {
+    path: routes.invalidLink,
+    element: <InvalidLink />,
   },
   {
     path: '*',

@@ -35,7 +35,7 @@ import {
 import { isImage, uploadFile } from '../../../lib/CloudinaryUtils';
 import ImageUploader from '../../../components/ImageUploader';
 import defaultImages from '../../../utils/defaultImages';
-import { AccentRadioButton, SimpleCheckBox, Switch } from '../../../components/Inputs';
+import { AccentRadioButton, Switch } from '../../../components/Inputs';
 import GridPanel from '../../../components/GridPanel';
 import routes from '../../../routing/routes';
 import payments from '../../../payments';
@@ -457,11 +457,19 @@ const OpenHoursPanel = ({ company }) => {
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === OFFICE_CLOSE_TIME) {
+      if (start && dateUtils.fromTimeFormat(start) >= dateUtils.fromTimeFormat(value)) {
+        notification.showError('End Time MUST be greater than Start Time!');
+        return;
+      }
       setEnd(value);
     } else if (name === OFFICE_START_TIME) {
+      if (end && dateUtils.fromTimeFormat(value) >= dateUtils.fromTimeFormat(end)) {
+        notification.showError('End Time MUST be greater than Start Time!');
+        return;
+      }
       setStart(value);
     }
-  }, []);
+  }, [start, end]);
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === SAVE) {
@@ -525,7 +533,7 @@ const OpenHoursPanel = ({ company }) => {
 
   return (
     <section className={`${css.card} ${css.section} ${css.location_section}`}>
-      <div className={css.section_header_wrap}>
+      <div className={`${css.section_header_wrap} ${css.open_hours_header_wrap}`}>
         <header
           className={`${css.section_header} ${css.open_hours_header}`}
         >
@@ -540,44 +548,49 @@ const OpenHoursPanel = ({ company }) => {
           </AlertComponent>
         )}
       </div>
-      <div className={css.section_body}>
-        <div className={css.open_days_grid}>
-          {weekdays.map((day, idx) => (
-            <SimpleCheckBox
-              key={day}
-              label={day}
-              id={day}
-              name={idx}
-              onChange={handleCheckBtnClick}
-              checked={openDays.includes(idx)}
-              labelStyle={{
-                fontSize: '0.7rem',
-              }}
-            />
-          ))}
-        </div>
-        <div className={css.open_hours_wrap}>
-          <label className={css.open_time_wrap} htmlFor={OFFICE_START_TIME}>
-            <span className={css.open_time_label}>Start Time</span>
-            <input
-              type="time"
-              id={OFFICE_START_TIME}
-              name={OFFICE_START_TIME}
-              value={start}
-              onChange={handleValueChange}
-            />
-          </label>
-          <label className={css.open_time_wrap} htmlFor={OFFICE_CLOSE_TIME}>
-            <span className={css.open_time_label}>Close Time</span>
-            <input
-              type="time"
-              id={OFFICE_CLOSE_TIME}
-              name={OFFICE_CLOSE_TIME}
-              value={end}
-              onChange={handleValueChange}
-            />
-          </label>
-        </div>
+      <div className={`${css.section_body} ${css.open_hours_body}`}>
+        <fieldset className={css.open_days_set}>
+          <legend>Business Open Days</legend>
+          <div className={css.open_days_grid}>
+            {weekdays.map((day, idx) => (
+              <label className={css.open_day_label} key={day} htmlFor={day}>
+                <input
+                  type="checkbox"
+                  id={day}
+                  name={idx}
+                  onChange={handleCheckBtnClick}
+                  checked={openDays.includes(idx)}
+                />
+                <span>{day}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset className={css.open_days_set}>
+          <legend>Business Open Hours</legend>
+          <div className={css.open_hours_wrap}>
+            <label className={css.open_time_wrap} htmlFor={OFFICE_START_TIME}>
+              <span className={css.open_time_label}>Start Time</span>
+              <input
+                type="time"
+                id={OFFICE_START_TIME}
+                name={OFFICE_START_TIME}
+                value={start}
+                onChange={handleValueChange}
+              />
+            </label>
+            <label className={css.open_time_wrap} htmlFor={OFFICE_CLOSE_TIME}>
+              <span className={css.open_time_label}>Close Time</span>
+              <input
+                type="time"
+                id={OFFICE_CLOSE_TIME}
+                name={OFFICE_CLOSE_TIME}
+                value={end}
+                onChange={handleValueChange}
+              />
+            </label>
+          </div>
+        </fieldset>
       </div>
       <div className={css.section_footer}>
         <SvgButton
@@ -1183,9 +1196,6 @@ const Setup = () => {
           <div className={css.setup_container}>
             <GridPanel minimumChildWidth={280} maxColumns={4}>
               <div className={css.section_wrap}>
-                <PaymentsPanel company={company} />
-              </div>
-              <div className={css.section_wrap}>
                 <CityPanel company={company} countries={countries} />
               </div>
               <div className={css.section_wrap}>
@@ -1196,6 +1206,9 @@ const Setup = () => {
               </div>
               <div className={css.section_wrap}>
                 <SubscriptionPanel />
+              </div>
+              <div className={css.section_wrap}>
+                <PaymentsPanel company={company} />
               </div>
               <div className={css.section_wrap}>
                 <ProfilePicturePanel company={company} />

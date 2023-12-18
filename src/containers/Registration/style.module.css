@@ -100,6 +100,27 @@
   gap: 32px;
 }
 
+.password_criteria_wrap {
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+.password_criteria {
+  color: #ff1414;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.password_criteria.header {
+  color: inherit;
+}
+
+.password_criteria.satisfied {
+  color: #1fd735;
+}
+
 .google_btn_wrap {
   padding-bottom: 24px;
 }

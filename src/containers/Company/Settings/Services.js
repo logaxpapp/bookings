@@ -59,6 +59,11 @@ const getAmount = (str) => {
   if (!str) {
     return 0;
   }
+
+  if (typeof str === 'number') {
+    return str;
+  }
+
   const parts = str.split('.').map((p) => (Number.isNaN(p) ? 0 : Number.parseInt(p, 10)));
   if (!parts.length) {
     return 0;
@@ -80,16 +85,36 @@ const getDuration = (str) => {
     return 0;
   }
   if (typeof str === 'number') {
-    return 60 * str;
+    return 3600 * str;
   }
   const parts = str.split(':').map((p) => (Number.isNaN(p) ? 0 : Number.parseInt(p, 10)));
   if (!parts.length) {
     return 0;
   }
 
-  let duration = 60 * parts[0];
+  let duration = 3600 * parts[0];
   if (parts.length > 1) {
-    duration += parts[1];
+    duration += 60 * parts[1];
+  }
+  if (parts.length > 2) {
+    duration += parts[2];
+  }
+
+  return duration;
+};
+
+const getDurationText = (num) => {
+  let number = Number.parseInt(num, 10);
+  let duration = '0:';
+  if (number >= 3600) {
+    duration = `${Math.floor(number / 3600)}:`;
+    number %= 3600;
+  }
+
+  duration = `${duration}${Math.floor(number / 60)}`;
+  number %= 60;
+  if (number) {
+    duration = `${duration}:${number}`;
   }
 
   return duration;
@@ -282,11 +307,11 @@ const ServiceEditor = ({ service, category, onClose }) => {
   useEffect(() => {
     if (service) {
       setName(service.name);
-      setPrice(service.price);
-      setDuration(service.duration);
-      setDeposit(service.minDeposit);
+      setPrice(currencyHelper.fromDecimal(service.price / 100));
+      setDuration(getDurationText(service.duration));
+      setDeposit(currencyHelper.fromDecimal(service.minDeposit / 100));
     }
-  }, [service, setName, setPrice, setDuration, setDeposit]);
+  }, [service]);
 
   useEffect(() => setOpen(true), []);
 
@@ -401,7 +426,6 @@ const ServiceEditor = ({ service, category, onClose }) => {
     dispatch(updateServiceAsync(data, service, category, completedHandler));
   }, [
     service, category, categories, name, price, duration, deposit, categoryId,
-    setNameError, setPriceError, setDurationError,
   ]);
 
   return (

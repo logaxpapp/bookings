@@ -15,6 +15,11 @@ const EDIT = 'edit';
 const SAVE = 'save';
 const VALUE = 'value';
 
+const digits = '0123456789';
+const lowerCases = 'abcdefghijklmnopqrstuvwxyz';
+const upperCases = lowerCases.toUpperCase();
+const specialCharacters = ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~';
+
 export const matchesEmail = (email) => /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/.test(email);
 
 export const matchesPhoneNumber = (number) => (
@@ -22,6 +27,48 @@ export const matchesPhoneNumber = (number) => (
 );
 
 export const isNumber = (number) => /^-?\d*\.?\d*$/.test(number);
+
+/**
+ * @param {string} password
+ */
+export const validatePassword = (password) => {
+  const criteria = {
+    hasLowerCase: false,
+    hasUpperCase: false,
+    hasDigit: false,
+    hasSpecialCharacter: false,
+    satisfiesMinLength: false,
+    isValid: false,
+  };
+
+  if (!password) {
+    return criteria;
+  }
+
+  if (password.length >= 8) {
+    criteria.satisfiesMinLength = true;
+  }
+
+  password.split('').forEach((c) => {
+    if (lowerCases.indexOf(c) > -1) {
+      criteria.hasLowerCase = true;
+    } else if (upperCases.indexOf(c) > -1) {
+      criteria.hasUpperCase = true;
+    } else if (digits.indexOf(c) > -1) {
+      criteria.hasDigit = true;
+    } else if (specialCharacters.indexOf(c) > -1) {
+      criteria.hasSpecialCharacter = true;
+    }
+  });
+
+  criteria.isValid = criteria.hasDigit
+    && criteria.hasLowerCase
+    && criteria.hasUpperCase
+    && criteria.hasSpecialCharacter
+    && criteria.satisfiesMinLength;
+
+  return criteria;
+};
 
 export const parseIntegerInput = (text) => {
   if (!text) {
