@@ -431,12 +431,12 @@ const ProviderPage = ({ provider }) => {
 
   useEffect(() => {
     setMini(container.current.clientWidth < 530);
-  }, [width, setMini]);
+  }, [width]);
 
   useEffect(() => {
     setServices(category ? category.services : null);
     setServiceRoute({ service: null, mode: serviceDisplayModes.none });
-  }, [category, setServices]);
+  }, [category]);
 
   const showServiceTimeSlots = useCallback((service) => setServiceRoute({
     service,
@@ -611,14 +611,17 @@ export const CompanyPage = () => {
 
   useEffect(() => {
     const { code } = params;
-    if (!(code && code.match(/^A[0-9]+$/))) {
-      setBusy(false);
-      return;
+    let id;
+    if (code) {
+      if (code.match(/^[0-9]+$/)) {
+        id = Number.parseInt(code, 10);
+      } else if (code.match(/^A[0-9]+$/)) {
+        // Our codes is generated from ids by adding 1000 - we want our codes to start from 1001
+        id = Number.parseInt(code.substring(1), 10) - 1000;
+      }
     }
 
-    // Our codes is generated from ids by adding 1000 - we want our codes to start from 1001
-    const id = Number.parseInt(code.substring(1), 10) - 1000;
-    if (id <= 0) {
+    if (!id || id <= 0) {
       setBusy(false);
       return;
     }

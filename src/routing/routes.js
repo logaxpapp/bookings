@@ -98,6 +98,7 @@ const routes = {
     payment: (type) => `/paystack-payment-callback/type/${type}`,
   },
   search: '/search',
+  invalidLink: 'invalid-link',
 };
 
 export default routes;

@@ -51,7 +51,7 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 8px 2px;
+  padding: 16px 2px;
 }
 
 .card {
@@ -355,16 +355,38 @@
   padding: 8px 0 0 8px;
 }
 
+.open_hours_header_wrap {
+  height: auto;
+}
+
 .open_hours_header {
   background-image: url(../../../assets/images/shop_open.jpg);
+  flex: 0;
+}
+
+.open_hours_body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .open_days_grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 16px;
   font-size: 0.8rem;
   padding: 12px;
+}
+
+.open_days_set {
+  border-color: #fff;
+}
+
+.open_day_label {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px;
 }
 
 .open_hours_wrap {

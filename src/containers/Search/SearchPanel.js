@@ -323,7 +323,7 @@ const ServicePanel = ({ service }) => {
           </div>
           <Link
             className={css.service_provider_link}
-            to={routes.user.dashboard.absolute.providers(service.company.id)}
+            to={routes.providerPage(service.company.id)}
           >
             <div className={css.service_provider_profile_wrap}>
               <img src={profilePicture} alt={service.company.name} />

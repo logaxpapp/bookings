@@ -264,7 +264,7 @@ const Header = ({ transparent }) => {
     <header className={`${css.header} ${transparent ? css.transparent : ''}`}>
       {transparent ? <div className={css.dimmer} /> : null}
       <nav className={css.nav}>
-        <Link className={css.main_nav_brand} to={routes.company.absolute.dashboard}>
+        <Link className={css.main_nav_brand} to={routes.home}>
           <img src={lx} alt="logo" className={css.logo} />
           <div className={css.nav_brand_wrap}>
             <span className={css.loga}>Loga</span>
