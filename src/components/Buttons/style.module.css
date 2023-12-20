@@ -50,6 +50,7 @@
 
 .header_date_wrap {
   position: relative;
+  width: max-content;
 }
 
 .header_date_btn {

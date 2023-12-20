@@ -1,12 +1,12 @@
 import {
-  useCallback,
+  useCallback, useEffect, useState,
 } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useOutletContext } from 'react-router';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Navigate, Outlet } from 'react-router-dom';
 import css from './styles.module.css';
 import { FieldEditor } from '../../../components/TextBox';
-import { updateCompanyAsync } from '../../../redux/companySlice';
+import { selectPermissions, updateCompanyAsync } from '../../../redux/companySlice';
 import routes from '../../../routing/routes';
 import { capitalize } from '../../../utils';
 
@@ -35,11 +35,16 @@ const menus = [
 
 export const CompanyDetailsSettings = () => {
   const [company] = useOutletContext();
+  const permissions = useSelector(selectPermissions);
   const dispatch = useDispatch();
 
   const handleUpdate = useCallback((name, value, callback) => (
     dispatch(updateCompanyAsync({ [name]: value }, callback))
   ), []);
+
+  if (!permissions.isAdmin) {
+    return <Navigate to={routes.company.absolute.settings.serviceCategories} replace />;
+  }
 
   return (
     <section className={css.content}>
@@ -83,13 +88,23 @@ export const CompanyDetailsSettings = () => {
 };
 
 const CompanySettings = () => {
+  const [links, setLinks] = useState([]);
   const [company] = useOutletContext();
   const { pathname } = useLocation();
+  const permissions = useSelector(selectPermissions);
+
+  useEffect(() => {
+    if (permissions.isAdmin) {
+      setLinks([menus]);
+    } else {
+      setLinks(menus.filter(({ to }) => to !== routes.company.absolute.settings.details));
+    }
+  }, []);
 
   return (
     <main className={css.main}>
       <nav className={css.nav}>
-        {menus.map((menu) => (
+        {links.map((menu) => (
           <Link
             key={menu.title}
             className={`main-aside-link ${css.link} ${menu.isActive(pathname) ? `active ${css.active}` : ''}`}

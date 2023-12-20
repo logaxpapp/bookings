@@ -600,8 +600,8 @@ const AppointmentRow = ({ appointment, onOpenMessages }) => {
       </td>
       <td>{datetime.date}</td>
       <td>{datetime.time}</td>
-      <td>{appointment.timeSlot.service.name}</td>
-      <td>{appointment.customer.firstname}</td>
+      <td className="capitalize">{appointment.timeSlot.service.name}</td>
+      <td className="capitalize">{appointment.customer.firstname}</td>
       <td>{payment.price}</td>
       <td>{payment.deposit}</td>
       <td>{payment.balance}</td>

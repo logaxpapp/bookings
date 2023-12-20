@@ -24,10 +24,12 @@ import { useConfirmDialog, useDialog } from '../../../lib/Dialog';
 import {
   createTimeSlotsAsync,
   deleteTimeSlotAsync,
+  deleteTimeSlotsAsync,
   getTimeSlotsAsync,
   loadTimeSlotsAsync,
   selectCompany,
   selectEmployees,
+  selectPermissions,
   selectServiceCategories,
   selectTimeSlots,
   updateTimeSlotAsync,
@@ -44,10 +46,13 @@ import { FieldEditor } from '../../../components/TextBox';
 
 const AUTO = 'auto';
 const CATEGORY = 'category';
+const CHECK_ALL_SLOTS = 'check_all_slots';
+const CHECK_SLOT = 'check_slot';
 const CLEAR = 'clear';
 const CLOSE = 'close';
 const DATE = 'date';
 const DELETE = 'delete';
+const DELETE_TIMESLOTS = 'delete_timeslots';
 const EDIT = 'edit';
 const END_DATE = 'end_date';
 const GENERATE = 'generate';
@@ -62,8 +67,10 @@ const UPDATE = 'update';
 
 const TimeSlotRow = ({
   slot,
+  checked,
   onEdit,
   onDelete,
+  onCheckedChanged,
   excludeActions,
 }) => {
   const [datetime, setDateTime] = useState({ date: '', time: '' });
@@ -83,7 +90,18 @@ const TimeSlotRow = ({
 
   return (
     <>
-      <td>{datetime.date}</td>
+      <td className={css.timeslots_date_column}>
+        {onCheckedChanged ? (
+          <input
+            type="checkbox"
+            name={CHECK_SLOT}
+            value={slot.id}
+            checked={checked}
+            onChange={onCheckedChanged}
+          />
+        ) : null}
+        <span>{datetime.date}</span>
+      </td>
       <td>{datetime.time}</td>
       {excludeActions ? null : (
         <>
@@ -120,15 +138,19 @@ TimeSlotRow.propTypes = {
     time: PropTypes.string,
     serviceId: PropTypes.number,
   }).isRequired,
+  checked: PropTypes.bool,
   onEdit: PropTypes.func,
   onDelete: PropTypes.func,
+  onCheckedChanged: PropTypes.func,
   excludeActions: PropTypes.bool,
 };
 
 TimeSlotRow.defaultProps = {
+  checked: false,
   excludeActions: false,
   onEdit: null,
   onDelete: null,
+  onCheckedChanged: null,
 };
 
 const AutoTimeSlotRow = ({
@@ -549,6 +571,7 @@ const AutoGeneratePanel = ({ service }) => {
   const [repeats, setRepeats] = useState(1);
   const company = useSelector(selectCompany);
   const employees = useSelector(selectEmployees);
+  const permissions = useSelector(selectPermissions);
   const startDateRef = useRef();
   const endDateRef = useRef();
   const busyDialog = useBusyDialog();
@@ -584,6 +607,16 @@ const AutoGeneratePanel = ({ service }) => {
 
       const date = new Date(startDate);
       const lastDate = new Date(endDate || date);
+
+      const numberOfDays = (lastDate.getTime() - date.getTime()) / 86400000;
+
+      if (numberOfDays > permissions.maxAutoTimeslotDays) {
+        notification.showError(`You can only generate timeslots for up to ${permissions.maxAutoTimeslotDays} days!`);
+        return;
+      }
+
+      const popup = busyDialog.show('Generating Timeslots ...');
+
       const start = company.officeHours ? company.officeHours.start : 32400; // 9:00AM
       const end = (company.officeHours ? company.officeHours.end : 61200) - service.duration;
 
@@ -620,6 +653,7 @@ const AutoGeneratePanel = ({ service }) => {
       }
 
       setSlots(slots);
+      popup.close();
     } else if (name === SAVE) {
       if (!(slots && slots.length)) {
         notification.showError('There are no time slots to save!');
@@ -649,7 +683,7 @@ const AutoGeneratePanel = ({ service }) => {
     } else if (name === CLEAR) {
       setSlots([]);
     }
-  }, [company, startDate, endDate, repeats, service, slots]);
+  }, [company, startDate, endDate, repeats, service, slots, permissions]);
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === START_DATE) {
@@ -1071,7 +1105,9 @@ export const NewTimeSlot = () => {
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [service, setService] = useState();
   const [time, setTime] = useState(dateUtils.dateTimeToInputString(new Date()));
+  const company = useSelector(selectCompany);
   const busyDialog = useBusyDialog();
+  const confirmDialog = useConfirmDialog();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -1104,6 +1140,36 @@ export const NewTimeSlot = () => {
         return;
       }
 
+      if (company.officeHours && company.officeHours.end) {
+        const date = new Date(time);
+        const end = 3600 * date.getHours()
+          + 60 * date.getMinutes()
+          + date.getSeconds()
+          + service.duration;
+
+        if (end > company.officeHours.end) {
+          confirmDialog.show(
+            'The time entered falls outside your office hours',
+            'Do you wish to continue?',
+            (confirmed) => {
+              if (confirmed) {
+                const popup = busyDialog.show('Creating TimeSlot ...');
+                dispatch(createTimeSlotsAsync(
+                  {
+                    time: new Date(time).toUTCString(),
+                  },
+                  service.id,
+                  false,
+                  popup.close,
+                ));
+              }
+            },
+          );
+
+          return;
+        }
+      }
+
       const popup = busyDialog.show('Creating TimeSlot ...');
       dispatch(createTimeSlotsAsync(
         {
@@ -1114,7 +1180,7 @@ export const NewTimeSlot = () => {
         popup.close,
       ));
     }
-  }, [service, time]);
+  }, [service, time, company, confirmDialog]);
 
   return (
     <section className={`${css.content} ${css.overflow_hidden}`}>
@@ -1184,6 +1250,7 @@ const TimeSlots = () => {
   const categories = useSelector(selectServiceCategories);
   const [slots, setSlots] = useState([]);
   const [filteredSlots, setFilteredSlots] = useState([]);
+  const [checkedSlots, setCheckedSlots] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [selectedService, setSelectedService] = useState(null);
   const [date, setDate] = useState(dateToNormalizedString(new Date()));
@@ -1205,7 +1272,7 @@ const TimeSlots = () => {
         popup.close();
       }));
     }
-  }, [date, timeSlots, setSlots]);
+  }, [date, timeSlots]);
 
   useEffect(() => {
     if (selectedService) {
@@ -1220,7 +1287,8 @@ const TimeSlots = () => {
     }
   }, [selectedCategory, setSelectedService]);
 
-  const handleValueChange = useCallback(({ target: { name, value } }) => {
+  const handleValueChange = useCallback(({ target }) => {
+    const { name, value } = target;
     if (name === CATEGORY) {
       const category = categories.find((cat) => cat.id === Number.parseInt(value, 10));
       if (category) {
@@ -1235,8 +1303,26 @@ const TimeSlots = () => {
       }
     } else if (name === DATE) {
       setDate(value);
+    } else if (name === CHECK_ALL_SLOTS) {
+      if (target.checked) {
+        setCheckedSlots(filteredSlots.map(({ id }) => id));
+      } else {
+        setCheckedSlots([]);
+      }
+    } else if (name === CHECK_SLOT) {
+      const id = Number.parseInt(value, 10);
+      if (target.checked) {
+        setCheckedSlots((slots) => {
+          if (!slots.find((slot) => slot.id === id)) {
+            return [...slots, id];
+          }
+          return slots;
+        });
+      } else {
+        setCheckedSlots((slots) => slots.filter((slod) => slod.id !== id));
+      }
     }
-  }, [categories, selectedCategory, setSelectedCategory, setSelectedService]);
+  }, [categories, selectedCategory, filteredSlots]);
 
   const handleEdit = useCallback((slot) => {
     let popup;
@@ -1256,6 +1342,23 @@ const TimeSlots = () => {
       },
     );
   }, []);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === DELETE_TIMESLOTS) {
+      if (checkedSlots.length) {
+        confirmDialog.show(
+          `${checkedSlots.length} timeslots will be permanently deleted! Please NOTE that it is only appointments that are NOT booked or locked for booking that will be deleted. Please refresh your browser after deleting to see the timeslots that were NOT deleted.`,
+          'Do you wish to continue?',
+          (confirmed) => {
+            if (confirmed) {
+              const popup = busyDialog.show('Deleting Time Slots ...');
+              dispatch(deleteTimeSlotsAsync(checkedSlots, date, popup.close));
+            }
+          },
+        );
+      }
+    }
+  }, [checkedSlots, date, confirmDialog]);
 
   return (
     <section className={`${css.content} ${css.overflow_hidden}`}>
@@ -1310,27 +1413,51 @@ const TimeSlots = () => {
                     No time slots found!
                   </div>
                 ) : (
-                  <div className="table-card">
-                    <table className="table">
-                      <thead>
-                        <tr>
-                          <th>Date</th>
-                          <th>Time</th>
-                          <th colSpan={2}>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredSlots.map((slot) => (
-                          <tr key={slot.id}>
-                            <TimeSlotRow
-                              slot={slot}
-                              onEdit={handleEdit}
-                              onDelete={handleDelete}
-                            />
+                  <div className={css.slots_table_wrap}>
+                    <div className={css.slots_table_header}>
+                      <input
+                        type="checkbox"
+                        name={CHECK_ALL_SLOTS}
+                        checked={checkedSlots.length}
+                        onChange={handleValueChange}
+                      />
+                      {checkedSlots.length ? (
+                        <SvgButton
+                          type="button"
+                          name={DELETE_TIMESLOTS}
+                          title="Delete Timeslots"
+                          color={colors.delete}
+                          path={paths.delete}
+                          onClick={handleClick}
+                          style={{ minWidth: 18 }}
+                          sm
+                        />
+                      ) : null}
+                    </div>
+                    <div className={`table-card ${css.slots_table}`}>
+                      <table className="table">
+                        <thead>
+                          <tr>
+                            <th className={css.slots_date_header}>Date</th>
+                            <th>Time</th>
+                            <th colSpan={2}>Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody>
+                          {filteredSlots.map((slot) => (
+                            <tr key={slot.id}>
+                              <TimeSlotRow
+                                slot={slot}
+                                checked={!!checkedSlots.find((id) => id === slot.id)}
+                                onEdit={handleEdit}
+                                onDelete={handleDelete}
+                                onCheckedChanged={handleValueChange}
+                              />
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
               </div>

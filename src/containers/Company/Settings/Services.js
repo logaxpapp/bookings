@@ -37,11 +37,13 @@ import routes from '../../../routing/routes';
 import { useWindowSize } from '../../../lib/hooks';
 import GridPanel from '../../../components/GridPanel';
 import PageHeader from '../../PageHeader';
+import { serviceProps } from '../../../utils/propTypes';
 
 const BASE = 'base';
 const CATEGORY = 'category';
 const DELETE = 'delete';
 const DEPOSIT = 'deposit';
+const DESCRIPTION = 'description';
 const DURATION = 'duration';
 const EDIT = 'edit';
 const HOURS = 'hours';
@@ -50,7 +52,9 @@ const NAME = 'name';
 const NEW = 'new';
 const PRICE = 'price';
 const SECONDS = 'seconds';
+const SHOW_DETAILS = 'show_details';
 const SUB = 'sub';
+const MAXIMUM_DESCRIPTION_LENGTH = 100;
 
 /**
  * @param {string} str
@@ -284,6 +288,7 @@ const ServiceEditor = ({ service, category, onClose }) => {
   const [isOpen, setOpen] = useState(false);
   const [isEdit, setEdit] = useState(false);
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [duration, setDuration] = useState('');
   const [deposit, setDeposit] = useState('');
@@ -291,6 +296,7 @@ const ServiceEditor = ({ service, category, onClose }) => {
   const [priceError, setPriceError] = useState('');
   const [durationError, setDurationError] = useState('');
   const [categoryId, setCategoryId] = useState();
+  const [hasDescriptionError, setHasDescriptionError] = useState(false);
   const categories = useSelector(selectServiceCategories);
   const busyDialog = useBusyDialog();
   const dispatch = useDispatch();
@@ -326,6 +332,13 @@ const ServiceEditor = ({ service, category, onClose }) => {
       setDuration(parseDuration(value));
     } else if (name === CATEGORY) {
       setCategoryId(Number.parseInt(value, 10));
+    } else if (name === DESCRIPTION) {
+      if (value.length > MAXIMUM_DESCRIPTION_LENGTH) {
+        setHasDescriptionError(true);
+      } else {
+        setDescription(value);
+        setHasDescriptionError(false);
+      }
     }
   }, []);
 
@@ -385,6 +398,10 @@ const ServiceEditor = ({ service, category, onClose }) => {
         category_id: categoryId,
       };
 
+      if (description) {
+        data.description = description;
+      }
+
       popup = busyDialog.show('Creating Service ...');
       completedHandler = (err) => {
         popup.close();
@@ -409,6 +426,9 @@ const ServiceEditor = ({ service, category, onClose }) => {
     if (minDeposit !== service.minDeposit) {
       data.min_deposit = minDeposit;
     }
+    if (description !== service.description) {
+      data.description = description;
+    }
 
     if (!Object.keys(data).length) {
       notification.showInfo('You have NOT made any changes!');
@@ -425,7 +445,8 @@ const ServiceEditor = ({ service, category, onClose }) => {
 
     dispatch(updateServiceAsync(data, service, category, completedHandler));
   }, [
-    service, category, categories, name, price, duration, deposit, categoryId,
+    service, category, categories, name, price, duration,
+    deposit, categoryId, description,
   ]);
 
   return (
@@ -498,6 +519,22 @@ const ServiceEditor = ({ service, category, onClose }) => {
               onChange={handleValueChange}
             />
           </div>
+          <label className={`input-label ${css.description_wrap}`} htmlFor={DESCRIPTION}>
+            <span className="input-label-text">Description</span>
+            <textarea
+              name={DESCRIPTION}
+              id={DESCRIPTION}
+              value={description}
+              className={css.description}
+              onChange={handleValueChange}
+              placeholder={`Enter optional description. Maximum length is ${MAXIMUM_DESCRIPTION_LENGTH} characters ...`}
+            />
+            {hasDescriptionError ? (
+              <span className="input-error">
+                {`Maximum allowed length is ${MAXIMUM_DESCRIPTION_LENGTH}.`}
+              </span>
+            ) : null}
+          </label>
           <div className="form-controls pad">
             <button type="submit" className="control-btn">
               {service ? 'Update' : 'Save'}
@@ -522,13 +559,7 @@ const ServiceEditor = ({ service, category, onClose }) => {
 };
 
 ServiceEditor.propTypes = {
-  service: PropTypes.shape({
-    id: PropTypes.number,
-    name: PropTypes.string,
-    price: PropTypes.number,
-    duration: PropTypes.number,
-    minDeposit: PropTypes.number,
-  }),
+  service: serviceProps,
   category: PropTypes.shape({
     id: PropTypes.number,
   }),
@@ -553,6 +584,8 @@ const ServiceRow = ({
     deposit: '',
   });
 
+  const dialog = useDialog();
+
   useEffect(() => {
     const price = currencyHelper.toString(service.price, currencySymbol);
     const duration = toDuration(service.duration);
@@ -565,8 +598,28 @@ const ServiceRow = ({
       onEdit(service, category);
     } else if (name === DELETE) {
       onDelete(service, category);
+    } else if (name === SHOW_DETAILS) {
+      let popup;
+      const handleClose = () => popup.close();
+      popup = dialog.show(
+        <div className="dialog">
+          <section className="bold-dialog-body">
+            <span>{service.description || 'You have not added any description.'}</span>
+            <SvgButton
+              color={colors.delete}
+              path={paths.close}
+              onClick={handleClose}
+              style={{
+                position: 'absolute',
+                top: 4,
+                right: 4,
+              }}
+            />
+          </section>
+        </div>,
+      );
     }
-  }, [service, category, onEdit, onDelete]);
+  }, [service, category, onEdit, onDelete, dialog]);
 
   return (
     <tr>
@@ -574,6 +627,16 @@ const ServiceRow = ({
       <td>{params.price}</td>
       <td>{params.duration}</td>
       <td>{params.deposit}</td>
+      <td className="control">
+        <SvgButton
+          type="button"
+          name={SHOW_DETAILS}
+          path={paths.details}
+          title="Description"
+          onClick={handleClick}
+          sm
+        />
+      </td>
       <td className="control">
         <SvgButton
           type="button"
@@ -608,13 +671,7 @@ const ServiceRow = ({
 };
 
 ServiceRow.propTypes = {
-  service: PropTypes.shape({
-    id: PropTypes.number,
-    name: PropTypes.string,
-    price: PropTypes.number,
-    duration: PropTypes.number,
-    minDeposit: PropTypes.number,
-  }).isRequired,
+  service: serviceProps.isRequired,
   category: PropTypes.shape({
     id: PropTypes.number,
   }).isRequired,
@@ -636,6 +693,8 @@ const ServiceCard = ({
     deposit: '',
   });
 
+  const dialog = useDialog();
+
   useEffect(() => {
     const price = currencyHelper.toString(service.price, currencySymbol);
     const duration = toDuration(service.duration);
@@ -648,8 +707,28 @@ const ServiceCard = ({
       onEdit(service, category);
     } else if (name === DELETE) {
       onDelete(service, category);
+    } else if (name === SHOW_DETAILS) {
+      let popup;
+      const handleClose = () => popup.close();
+      popup = dialog.show(
+        <div className="dialog">
+          <section className="bold-dialog-body">
+            <span>{service.description || 'You have not added any description.'}</span>
+            <SvgButton
+              color={colors.delete}
+              path={paths.close}
+              onClick={handleClose}
+              style={{
+                position: 'absolute',
+                top: 4,
+                right: 4,
+              }}
+            />
+          </section>
+        </div>,
+      );
     }
-  }, [service, category, onEdit, onDelete]);
+  }, [service, category, onEdit, onDelete, dialog]);
 
   return (
     <section className={`card ${css.service_card}`}>
@@ -682,6 +761,14 @@ const ServiceCard = ({
       <div className="card-footer">
         <SvgButton
           type="button"
+          name={SHOW_DETAILS}
+          path={paths.details}
+          title="Description"
+          onClick={handleClick}
+          sm
+        />
+        <SvgButton
+          type="button"
           name={EDIT}
           path={paths.pencil}
           title="Edit"
@@ -709,13 +796,7 @@ const ServiceCard = ({
 };
 
 ServiceCard.propTypes = {
-  service: PropTypes.shape({
-    id: PropTypes.number,
-    name: PropTypes.string,
-    price: PropTypes.number,
-    duration: PropTypes.number,
-    minDeposit: PropTypes.number,
-  }).isRequired,
+  service: serviceProps.isRequired,
   category: PropTypes.shape({
     id: PropTypes.number,
   }).isRequired,
@@ -738,7 +819,7 @@ const ServicesTable = ({
           <th>Price</th>
           <th>Duration</th>
           <th>Minimum Deposit</th>
-          <th colSpan={3}>Actions</th>
+          <th colSpan={4}>Actions</th>
         </tr>
       </thead>
       {categories.map((cat) => (
@@ -860,7 +941,7 @@ const Services = () => {
 
   const handleDelete = useCallback((service, category) => {
     confirmDialog.show(
-      `The service '${service.nae}' will be permanently deleted.`,
+      `The service '${service.name}' will be permanently deleted.`,
       'Do you wish to continue?',
       (confirmed) => {
         if (confirmed) {

@@ -17,11 +17,12 @@ import routes from '../../../routing/routes';
 import AlertComponent from '../../../components/AlertComponents';
 import { NewButton } from '../../../components/Buttons';
 import { useImageUploadDialog } from '../../../components/ImageUploader';
-import { isImage, uploadFile } from '../../../lib/CloudinaryUtils';
+import { fileSize, isImage, uploadFile } from '../../../lib/CloudinaryUtils';
 import { useConfirmDialog } from '../../../lib/Dialog';
 import { useBusyDialog } from '../../../components/LoadingSpinner';
 
-const MAX_IMAGES = 5;
+const MAX_IMAGES = 2;
+const MAX_IMAGE_SIZE = 100000;
 // Careful we are using starts with to test DELETE_IMAGE
 const DELETE_IMAGE = 'delete image';
 const NEW = 'new';
@@ -64,6 +65,13 @@ const ServiceImages = () => {
   }, [categories, setService, setCategory]);
 
   const validateFile = useCallback((file, callback) => {
+    if (file.size > MAX_IMAGE_SIZE) {
+      callback(
+        `The selected image size [${fileSize(file.size)}] is greater than the maximum allowed size [${fileSize(MAX_IMAGE_SIZE)}]`,
+      );
+      return;
+    }
+
     isImage(file)
       .then((isImage) => callback(isImage ? undefined : 'File type NOT supported!'))
       .catch(() => callback('File type NOT supported!'));
