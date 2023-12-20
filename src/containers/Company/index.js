@@ -9,6 +9,7 @@ import {
   closeAppointmentMessage,
   selectCompany,
   selectOpenMessages,
+  selectPermissions,
   sendAppointmentMessageAsync,
   setMaxOpenMessages,
 } from '../../redux/companySlice';
@@ -192,7 +193,9 @@ CompanyMessagePanel.propTypes = {
 
 const RestrictedCompany = ({ company, pathname }) => {
   const [overflowOpen, setOverflowOpen] = useState(false);
+  const [menus, setMenus] = useState([]);
   const openMessages = useSelector(selectOpenMessages);
+  const permissions = useSelector(selectPermissions);
   const { width: screenWidth } = useWindowSize();
   const dispatch = useDispatch();
 
@@ -201,6 +204,14 @@ const RestrictedCompany = ({ company, pathname }) => {
   useEffect(() => {
     dispatch(setMaxOpenMessages(Math.floor(screenWidth / 240) || 1));
   }, [screenWidth, setMaxOpenMessages]);
+
+  useEffect(() => {
+    if (permissions.isAdmin) {
+      setMenus(links);
+    } else {
+      setMenus(links.filter(({ route }) => route !== routes.company.absolute.setup));
+    }
+  }, [permissions]);
 
   const handleCloseMessages = useCallback((appointment) => {
     dispatch(closeAppointmentMessage(appointment));
@@ -216,7 +227,7 @@ const RestrictedCompany = ({ company, pathname }) => {
             <span>{TIMEZONE}</span>
           </div>
           <nav className="aside-nav">
-            {links.map((link) => (
+            {menus.map((link) => (
               <Link
                 key={link.title}
                 to={link.route}

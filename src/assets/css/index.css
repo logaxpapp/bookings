@@ -23,7 +23,7 @@
 
 body {
   margin: 0;
-  font-family: Inter, Roboto, Arial, Helvetica, sans-serif;
+  font-family: Roboto, Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;
@@ -109,6 +109,10 @@ a {
 
 .bold {
   font-weight: bold;
+}
+
+.capitalize {
+  text-transform: capitalize;
 }
 
 .ellipsis {
@@ -383,6 +387,26 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   transition: background-color 0s 600000s, color 0s 600000s;
+}
+
+.input-error {
+  font-size: 0.6rem;
+  font-weight: bold;
+  color: #c51306;
+  height: 12px;
+}
+
+.input-label {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+.input-label-text {
+  font-weight: bold;
+  font-size: 0.8rem;
 }
 
 .modal {

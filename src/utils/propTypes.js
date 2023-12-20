@@ -68,6 +68,7 @@ export const imageProps = PropTypes.shape({
 export const serviceProps = PropTypes.shape({
   id: PropTypes.number,
   name: PropTypes.string,
+  description: PropTypes.string,
   price: PropTypes.number,
   duration: PropTypes.number,
   minDeposit: PropTypes.number,

@@ -93,11 +93,12 @@ const slice = createSlice({
             state.timeSlots[date].push(slot);
           }
         });
-      } else if (state.timeSlots[payload.date]) {
-        const date = dateUtils.toNormalizedString(payload.time);
-        if (state.timeSlots[date]) {
-          state.timeSlots[date].push(payload);
-        }
+        return;
+      }
+
+      const date = dateUtils.toNormalizedString(payload.time);
+      if (state.timeSlots[date]) {
+        state.timeSlots[date].push(payload);
       }
     },
     updateTimeSlot: (state, { payload: { newSlot, oldSlot } }) => {
@@ -128,6 +129,11 @@ const slice = createSlice({
         state.timeSlots[date] = state.timeSlots[date].filter(
           (slot) => slot.id !== payload.id,
         );
+      }
+    },
+    deleteTimeSlots: (state, { payload }) => {
+      if (state.timeSlots[payload]) {
+        state.timeSlots[payload] = [];
       }
     },
     setAppointments: (state, { payload }) => {
@@ -380,6 +386,7 @@ export const {
   addTimeSlotsForDate,
   addTimeSlot,
   deleteTimeSlot,
+  deleteTimeSlots,
   updateTimeSlot,
   setAppointments,
   addAppointmentsForDate,
@@ -723,7 +730,7 @@ export const updateServiceAsync = (data, service, category, callback) => (dispat
 
   updateResource(token, `services/${service.id}`, data, true)
     .then(() => {
-      const newService = { ...service };
+      const newService = { ...service, description: data.description || '' };
       if (data.name) {
         newService.name = data.name;
       }
@@ -1004,6 +1011,26 @@ export const deleteTimeSlotAsync = (slot, callback) => (dispatch, getState) => {
     })
     .catch(({ message }) => {
       notification.showError(message);
+      callback(message);
+    });
+};
+
+export const deleteTimeSlotsAsync = (ids, date, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    callback({ message: 'UnAuthorized!' });
+    return;
+  }
+
+  postResource(token, 'time_slots/delete-slots', { ids }, true)
+    .then(() => {
+      dispatch(deleteTimeSlots(date));
+      notification.showSuccess('Time Slots deleted!');
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError('Failed to delete timeslots!');
       callback(message);
     });
 };

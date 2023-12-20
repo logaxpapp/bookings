@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useOutletContext } from 'react-router';
+import { Navigate, useOutletContext } from 'react-router';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import css from './styles.module.css';
@@ -16,6 +16,7 @@ import {
   updateCompanyAsync,
   selectToken,
   setCompany,
+  selectPermissions,
 } from '../../../redux/companySlice';
 import {
   companyProps,
@@ -1170,6 +1171,7 @@ CoverImagePanel.propTypes = {
 const Setup = () => {
   const countries = useSelector(selectCountries);
   const [company] = useOutletContext();
+  const permissions = useSelector(selectPermissions);
   const busyDialog = useBusyDialog();
   const dispatch = useDispatch();
 
@@ -1183,6 +1185,10 @@ const Setup = () => {
       loadCountries();
     }
   }, []);
+
+  if (!permissions.isAdmin) {
+    return <Navigate to={routes.company.absolute.dashboard} replace />;
+  }
 
   return (
     <main className={css.main}>

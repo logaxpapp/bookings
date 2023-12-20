@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import css from './style.module.css';
 import { useDialog } from '../../lib/Dialog';
+import { SvgButton, colors, paths } from '../../components/svg';
 
 const stopPropagation = (e) => e.stopPropagation();
 
@@ -14,6 +15,18 @@ const ChooserDialog = ({ onCompanySelected, onUserSelected, onClose }) => (
       <button type="button" className={css.link} onClick={onCompanySelected}>
         I am a service provider
       </button>
+      <SvgButton
+        type="button"
+        title="Close"
+        color={colors.delete}
+        path={paths.close}
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          right: 6,
+          top: 6,
+        }}
+      />
     </div>
   </div>
 );

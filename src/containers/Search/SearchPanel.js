@@ -15,8 +15,14 @@ import {
 } from '../../redux/searchSlice';
 import { SvgButton, colors, paths } from '../../components/svg';
 import defaultImages from '../../utils/defaultImages';
-import LoadingSpinner, { Loader } from '../../components/LoadingSpinner';
-import { currencyHelper, dateUtils, notification } from '../../utils';
+import LoadingSpinner, { Loader, useBusyDialog } from '../../components/LoadingSpinner';
+import {
+  currencyHelper,
+  d2,
+  dateUtils,
+  notification,
+  toDuration,
+} from '../../utils';
 import Bookmark from '../Bookmark';
 import routes from '../../routing/routes';
 import { useBook, useSearch } from '../../utils/hooks';
@@ -26,7 +32,10 @@ import bg2 from '../../assets/images/rinse.jpg';
 import bg3 from '../../assets/images/hair-spies-2.jpg';
 import bg4 from '../../assets/images/manicure.jpg';
 import { Ring } from '../../components/LoadingButton';
-import GridPanel from '../../components/GridPanel';
+import { useDialog } from '../../lib/Dialog';
+import DatePicker from '../../components/DatePicker';
+import { timeSlotProps } from '../../utils/propTypes';
+import { AccentRadioButton } from '../../components/Inputs';
 
 const BOOK = 'book';
 const CLOSE_SLOTS = 'close_slots';
@@ -39,9 +48,24 @@ const TERM = 'term';
 
 const slides = [bg1, bg2, bg3, bg4];
 
+const companyProps = PropTypes.shape({
+  id: PropTypes.number,
+  name: PropTypes.string,
+  address: PropTypes.string,
+  profilePicture: PropTypes.string,
+  country: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    code: PropTypes.string,
+    currency: PropTypes.string,
+    currencySymbol: PropTypes.string,
+  }),
+});
+
 const serviceProps = PropTypes.shape({
   id: PropTypes.number,
   name: PropTypes.string,
+  description: PropTypes.string,
   price: PropTypes.number,
   duration: PropTypes.number,
   minDeposit: PropTypes.number,
@@ -49,19 +73,7 @@ const serviceProps = PropTypes.shape({
     id: PropTypes.number,
     url: PropTypes.string,
   })),
-  company: PropTypes.shape({
-    id: PropTypes.number,
-    name: PropTypes.string,
-    address: PropTypes.string,
-    profilePicture: PropTypes.string,
-    country: PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-      code: PropTypes.string,
-      currency: PropTypes.string,
-      currencySymbol: PropTypes.string,
-    }),
-  }),
+  company: companyProps,
 });
 
 const TimeSlotRow = ({ slot, activeSlot, onBook }) => {
@@ -240,6 +252,180 @@ TimeSlotsPanel.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
+const TimeSlotRadio = ({
+  slot,
+  duration,
+  checked,
+  onCheck,
+}) => {
+  const [label, setLabel] = useState('');
+
+  useEffect(() => {
+    const date = new Date(slot.time);
+    let pa = date.getHours() < 12 ? 'AM' : 'PM';
+    const time = `${date.toLocaleTimeString().split(':').filter(
+      (p, idx) => idx < 2,
+    ).map((p) => d2(p))
+      .join(':')}${pa}`;
+    date.setSeconds(date.getSeconds() + duration);
+    pa = date.getHours() < 12 ? 'AM' : 'PM';
+    setLabel(`${time} - ${date.toLocaleTimeString().split(':').filter(
+      (p, idx) => idx < 2,
+    ).map((p) => d2(p))
+      .join(':')}${pa}`);
+  }, [slot, duration]);
+
+  const handleValueChange = useCallback(({ target }) => {
+    if (target.checked) {
+      onCheck(slot);
+    }
+  }, [slot, onCheck]);
+
+  return (
+    <AccentRadioButton
+      name={slot.id}
+      id={slot.id}
+      onChange={handleValueChange}
+      radioSize={20}
+      label={label}
+      checked={checked}
+      style={{
+        gap: 12,
+        fontSize: 16,
+        cursor: 'pointer',
+      }}
+    />
+  );
+};
+
+TimeSlotRadio.propTypes = {
+  slot: timeSlotProps.isRequired,
+  duration: PropTypes.number.isRequired,
+  checked: PropTypes.bool.isRequired,
+  onCheck: PropTypes.func.isRequired,
+};
+
+const TimeSlotsDialog = ({ service, onSlotSelected }) => {
+  const [date, setDate] = useState(dateUtils.toNormalizedString(new Date()));
+  const [slots, setSlots] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const dispatch = useDispatch();
+
+  const loadSlots = useCallback(() => {
+    setBusy(true);
+    dispatch(getServiceTimeSlotsAsync(service.id, date, (err, slots) => {
+      if (err) {
+        setSlots([]);
+      } else {
+        setSlots(slots);
+      }
+      setBusy(false);
+    }));
+  }, [date, service]);
+
+  useEffect(() => {
+    loadSlots();
+  }, [date, loadSlots]);
+
+  useEffect(() => {
+    setSelectedSlot(null);
+  }, []);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === BOOK) {
+      if (selectedSlot) {
+        onSlotSelected(selectedSlot);
+      } else {
+        notification.showError('Please select a timeslot');
+      }
+    }
+  }, [selectedSlot]);
+
+  return (
+    <div className={css.timeslots_panel_wrap}>
+      <DatePicker initialDate={new Date()} onDateChange={setDate} />
+      <section className={css.timeslots_panel}>
+        <h1 className={css.time_slot_heading}>Please Select A Timeslot</h1>
+        {slots.length ? (
+          <>
+            <div className={css.timeslots_inner_panel}>
+              {slots.map((slot) => (
+                <TimeSlotRadio
+                  key={slot.id}
+                  slot={slot}
+                  duration={service.duration}
+                  checked={selectedSlot === slot}
+                  onCheck={setSelectedSlot}
+                />
+              ))}
+            </div>
+            <div className={css.timeslots_controls}>
+              <button
+                type="button"
+                name={BOOK}
+                className={css.book_btn}
+                onClick={handleClick}
+              >
+                Book
+              </button>
+            </div>
+          </>
+        ) : (
+          <span className={`${css.empty_notice} ${css.sm} ${css.center}`}>
+            No  free Timeslots found for date!
+          </span>
+        )}
+      </section>
+      {busy ? (
+        <LoadingSpinner>
+          <span>Loading ...</span>
+        </LoadingSpinner>
+      ) : null}
+    </div>
+  );
+};
+
+TimeSlotsDialog.propTypes = {
+  service: serviceProps.isRequired,
+  onSlotSelected: PropTypes.func.isRequired,
+};
+
+const useTimeSlotsDialog = () => {
+  const dialog = useDialog();
+
+  return {
+    show: (service, callback) => {
+      let popup;
+      const handleClose = () => popup.close();
+
+      popup = dialog.show(
+        <div className="dialog">
+          <div className="bold-dialog-body">
+            <TimeSlotsDialog service={service} onSlotSelected={callback} />
+            <SvgButton
+              type="button"
+              title="Close"
+              color={colors.delete}
+              path={paths.close}
+              onClick={handleClose}
+              style={{
+                position: 'absolute',
+                right: 6,
+                top: 6,
+              }}
+            />
+          </div>
+        </div>,
+      );
+
+      return {
+        close: handleClose,
+      };
+    },
+  };
+};
+
 const ServicePanel = ({ service }) => {
   const [index, setIndex] = useState(0);
   const [images, setImages] = useState([{
@@ -372,6 +558,128 @@ ServicePanel.propTypes = {
   service: serviceProps.isRequired,
 };
 
+const ServiceCard = ({ service, onBook }) => {
+  const [price, setPrice] = useState('');
+  const [deposit, setDeposit] = useState('');
+  const [duration, setDuration] = useState('');
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    setPrice(currencyHelper.toString(service.price, service.company.country.currencySymbol));
+    if (service.minDeposit) {
+      setDeposit(currencyHelper.toString(
+        service.minDeposit, service.company.country.currencySymbol,
+      ));
+    }
+    setDuration(toDuration(service.duration));
+    setImages(service.images.filter((img, idx) => idx < 2));
+  }, []);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === BOOK) {
+      onBook(service);
+    }
+  }, [service]);
+
+  return (
+    <section className={css.service_card}>
+      <header>
+        <h1 className={css.service_name}>{service.name}</h1>
+        <p className={css.service_description}>{service.description || ''}</p>
+      </header>
+      <div className={css.service_details}>
+        <div className={css.service_detail_wrap}>
+          <span className={`${css.service_detail_label} ${css.cash}`}>Price</span>
+          <span className={`${css.service_value} ${css.bold}`}>{price}</span>
+        </div>
+        <div className={`${css.service_detail_wrap} ${css.duration}`}>
+          <span className={`${css.service_detail_label} ${css.duration}`}>Duration</span>
+          <span className={`${css.service_value} ${css.thin}`}>{duration}</span>
+        </div>
+        <div className={css.service_detail_wrap}>
+          <span className={`${css.service_detail_label} ${css.cash}`}>Deposit</span>
+          <span className={css.service_value}>{deposit}</span>
+        </div>
+      </div>
+      <div className={css.service_card_controls}>
+        <div className={css.service_image_wrap}>
+          {images.length ? images.map((image) => (
+            <img src={image.url} key={image.id} alt="p" className={css.service_image} />
+          )) : null}
+        </div>
+        <div className={css.book_btn_wrap}>
+          <button type="button" className={css.book_btn} name={BOOK} onClick={handleClick}>
+            Book
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+ServiceCard.propTypes = {
+  service: serviceProps.isRequired,
+  onBook: PropTypes.func.isRequired,
+};
+
+const CompanyServicesPanel = ({ companyServices }) => {
+  const [profilePicture, setProfilePicture] = useState('');
+  const busyDialog = useBusyDialog();
+  const slotsDialog = useTimeSlotsDialog();
+  const book = useBook();
+
+  useEffect(() => {
+    setProfilePicture(companyServices.company.profilePicture || defaultImages.profile);
+  }, [companyServices]);
+
+  const handleBook = useCallback((service) => {
+    const popup = slotsDialog.show(service, (slot) => {
+      const busyPopup = busyDialog.show('Waiting for payment completion ...');
+      book(slot, service, (err) => {
+        if (!err) {
+          popup.close();
+        }
+        busyPopup.close();
+      });
+    });
+  }, [book, busyDialog]);
+
+  return (
+    <section className={css.company_services_panel}>
+      <header className={css.company_services_header}>
+        <Link
+          to={routes.providerPage(companyServices.company.id)}
+          title={companyServices.company.name}
+        >
+          <div className={css.company_picture_wrap}>
+            <img
+              src={profilePicture}
+              alt={companyServices.company.name}
+              className={css.company_services_picture}
+            />
+          </div>
+          <h1 className={css.company_services_heading}>{companyServices.company.name}</h1>
+          <p className={css.company_address}>
+            <span>{companyServices.company.address}</span>
+          </p>
+        </Link>
+      </header>
+      <div className={css.company_services}>
+        {companyServices.services.map((service) => (
+          <ServiceCard key={service.id} service={service} onBook={handleBook} />
+        ))}
+      </div>
+    </section>
+  );
+};
+
+CompanyServicesPanel.propTypes = {
+  companyServices: PropTypes.shape({
+    company: companyProps,
+    services: PropTypes.arrayOf(serviceProps),
+  }).isRequired,
+};
+
 const PlaceHolder = ({ initialTerm, onSearch }) => {
   const [term, setTerm] = useState(initialTerm);
   const [index, setIndex] = useState(0);
@@ -446,6 +754,7 @@ PlaceHolder.defaultProps = {
 
 const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [services, setServices] = useState([]);
   const results = useSelector(selectSearchResults);
   const error = useSelector(selectSearchError);
   const loading = useSelector(selectSearching);
@@ -463,6 +772,20 @@ const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
     }
   }, [searchTerm, cityId, forceCurrentLocation, search]);
 
+  useEffect(() => {
+    const services = results.reduce((memo, item) => {
+      const service = memo.find((s) => s.company.id === item.company.id);
+      if (service) {
+        return memo.map((s) => (
+          s.company.id === item.company.id ? { ...s, services: [...s.services, item] } : s
+        ));
+      }
+      return [...memo, { company: item.company, services: [item] }];
+    }, []);
+
+    setServices(services);
+  }, [results]);
+
   const handleSearch = useCallback((term) => {
     setSearchTerm(term);
   }, []);
@@ -478,14 +801,12 @@ const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
         </Loader>
       ) : error || !searchTerm ? (
         <PlaceHolder initialTerm={term} error={error} onSearch={handleSearch} />
-      ) : results.length ? (
-        <GridPanel minimumChildWidth={240}>
-          {results.map((service) => (
-            <div key={service.id} className={css.result_wrap}>
-              <ServicePanel service={service} />
-            </div>
+      ) : services.length ? (
+        <div className={css.search_results}>
+          {services.map((service) => (
+            <CompanyServicesPanel key={service.company.id} companyServices={service} />
           ))}
-        </GridPanel>
+        </div>
       ) : (
         <p className={`${css.empty_notice} ${css.pad_top} ${css.empty_search_results}`}>
           <span>We couldn&apos;t find any services that matched your search parameters.</span>

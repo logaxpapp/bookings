@@ -620,6 +620,38 @@ h1.md {
   display: block;
 }
 
+.description {
+  resize: none;
+  border: 1px solid #ededed;
+  height: 80px;
+  padding: 12px;
+}
+
+.slots_table_wrap {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.slots_table_wrap table th.slots_date_header:first-child {
+  padding-left: 36px;
+}
+
+.slots_table_header {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.timeslots_date_column {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 @media only screen and (min-width: 576px) {
   .nav {
     padding-left: 2px;

@@ -15,6 +15,7 @@
 }
 
 .links_wrap {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 48px;
