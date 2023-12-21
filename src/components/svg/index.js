@@ -227,6 +227,35 @@ SvgButton.defaultProps = {
   xxsm: false,
 };
 
+export const CloseSvgButton = ({ name, onClick, sm }) => (
+  <SvgButton
+    type="button"
+    name={name}
+    title="Close"
+    color={colors.delete}
+    path={paths.close}
+    style={{
+      position: 'absolute',
+      right: 6,
+      top: 6,
+    }}
+    onClick={onClick}
+    sm={sm}
+  />
+);
+
+CloseSvgButton.propTypes = {
+  name: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onClick: PropTypes.func,
+  sm: PropTypes.bool,
+};
+
+CloseSvgButton.defaultProps = {
+  name: null,
+  onClick: null,
+  sm: false,
+};
+
 /**
  * @param {Object} props
  * @param {string} props.path

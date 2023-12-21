@@ -578,9 +578,41 @@
   margin-top: 16px;
 }
 
-.service_image {
+.service_image_btn {
   width: 32px;
   height: 32px;
+  padding: 0;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.service_image {
+  width: 100%;
+  height: 100%;
+}
+
+.popup_service_image_wrap {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  display: flex;
+  justify-content: center;
+}
+
+.popup_service_image {
+  width: 400px;
+  max-height: 400px;
+}
+
+.service_image_popup_nav {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .timeslots_panel_wrap {
