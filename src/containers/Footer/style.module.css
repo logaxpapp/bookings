@@ -39,7 +39,6 @@
 .footer_address_col_text {
   margin: 0;
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -117,7 +116,6 @@
 }
 
 .footer_col_heading {
-  font-family: Inter;
   font-size: 12px;
   font-style: normal;
   font-weight: 600;
@@ -133,7 +131,6 @@
 }
 
 .footer_col_link {
-  font-family: Inter;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -160,7 +157,6 @@ a.footer_col_link:hover {
   justify-content: space-between;
   padding: 64px 0 16px;
   color: var(--neutral-n-300, #5d6b82);
-  font-family: Inter;
   font-size: 11px;
   font-style: normal;
   font-weight: 400;
@@ -200,7 +196,6 @@ a.footer_col_link:hover {
 
 .subscription_heading {
   color: var(--shades-white, #fff);
-  font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 600;
@@ -210,7 +205,6 @@ a.footer_col_link:hover {
 
 .subscription_text {
   color: var(--color-text, rgba(255, 255, 255, 0.8));
-  font-family: Inter;
   font-size: 11px;
   font-style: normal;
   font-weight: 400;
@@ -252,7 +246,6 @@ a.footer_col_link:hover {
 .subscription_submit_btn {
   color: var(--neutral-n-900, #011c39);
   text-align: center;
-  font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;

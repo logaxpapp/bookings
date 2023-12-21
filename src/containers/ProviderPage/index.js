@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -8,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
-import { currencyHelper, dateUtils } from '../../utils';
+import { currencyHelper, d2, dateUtils } from '../../utils';
 import {
   companyProps,
   serviceProps,
@@ -27,15 +28,38 @@ import GridPanel from '../../components/GridPanel';
 import { useWindowSize } from '../../lib/hooks';
 import { DateButton } from '../../components/Buttons';
 import Header from '../Header';
+import Footer from '../Footer';
 import Error404 from '../Error404';
 import { ReturnPolicyComponent } from '../ReturnPolicy';
 import { useDialog } from '../../lib/Dialog';
+import { ServiceCard, useTimeSlotsDialog } from '../Search/SearchPanel';
 
 const CLOSE_WINDOW = 'close window';
 const CATEGORY = 'category';
 const RETURN_POLICY = 'return_policy';
+const SEARCH = 'search';
 const VIEW_IMAGES = 'view images';
 const VIEW_SLOTS = 'view slots';
+
+const weekDays = [
+  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+];
+
+const officeHour = (secs) => {
+  let mins = Math.floor(secs / 60);
+  let hrs = Math.floor(mins / 60);
+  let ap = 'AM';
+  mins %= 60;
+  if (hrs >= 12) {
+    ap = 'PM';
+
+    if (hrs > 12) {
+      hrs %= 12;
+    }
+  }
+
+  return `${d2(hrs)}:${d2(mins)}${ap}`;
+};
 
 const ProviderReturnPolicy = ({ provider, onClose }) => {
   const [scaled, setSacled] = useState(false);
@@ -336,7 +360,7 @@ ImagesViewer.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-const ServiceCard = ({
+const ServiceCard2 = ({
   service,
   symbol,
   onViewImage,
@@ -410,14 +434,14 @@ const ServiceCard = ({
   );
 };
 
-ServiceCard.propTypes = {
+ServiceCard2.propTypes = {
   service: serviceProps.isRequired,
   symbol: PropTypes.string.isRequired,
   onViewImage: PropTypes.func.isRequired,
   onViewSlots: PropTypes.func.isRequired,
 };
 
-const ProviderPage = ({ provider }) => {
+const ProviderPage2 = ({ provider }) => {
   const [mini, setMini] = useState(false);
   const [category, setCategory] = useState(provider.serviceCategories[0]);
   const [services, setServices] = useState(null);
@@ -565,7 +589,7 @@ const ProviderPage = ({ provider }) => {
                     <div className={`${css.card_list_wrap} ${css.pad_bottom}`}>
                       <GridPanel minimumChildWidth={240}>
                         {services.map((service) => (
-                          <ServiceCard
+                          <ServiceCard2
                             key={service.id}
                             service={service}
                             symbol={provider.country.currencySymbol}
@@ -599,8 +623,194 @@ const ProviderPage = ({ provider }) => {
   );
 };
 
+ProviderPage2.propTypes = {
+  provider: companyProps.isRequired,
+};
+
+const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
+  const profilePicture = useMemo(() => (
+    provider.profilePicture || defaultImages.profile
+  ), [provider]);
+  const aboutUs = useMemo(() => {
+    if (provider.aboutUs) {
+      return provider.aboutUs;
+    }
+
+    return `Welcome to ${provider.name}, where excellence meets innovation. Established with a passion for quality, we take pride in delivering top-notch services that exceed expectations and redefine industry standards. At ${provider.name}. We are committed to providing our clients with excellent services that make a lasting impact. With a team of dedicated professionals, we strive for excellence in every aspect of our operations.`;
+  }, [provider]);
+  const businessHours = useMemo(() => {
+    if (provider.officeHours && provider.openDays) {
+      const text = `${officeHour(provider.officeHours.start)} - ${officeHour(provider.officeHours.start)}`;
+      return weekDays.map((d, idx) => (provider.openDays.indexOf(idx) >= 0 ? text : 'Closed'));
+    }
+
+    return weekDays.map(() => 'Not Set');
+  }, [provider]);
+  const [category, setCategory] = useState(provider.serviceCategories[0]);
+  const [services, setServices] = useState(null);
+  const [term, setTerm] = useState('');
+  const busyDialog = useBusyDialog();
+  const slotsDialog = useTimeSlotsDialog();
+  const book = useBook();
+
+  useEffect(() => {
+    if (!category) {
+      setServices(null);
+      return;
+    }
+
+    let services = category.services.map((s) => ({ ...s, company: provider }));
+    if (term) {
+      const termL = term.toLowerCase();
+      services = services.filter((s) => s.name.toLowerCase().indexOf(termL) >= 0);
+    }
+    setServices(services);
+  }, [category, term, provider]);
+
+  const handleValueChange = useCallback(({ target: { name, value } }) => {
+    if (name === SEARCH) {
+      setTerm(value);
+    }
+  }, []);
+
+  const handleCategoryChange = useCallback(({ target: { name } }) => {
+    const id = Number.parseInt(name, 10);
+    setCategory(
+      provider.serviceCategories.find((cat) => cat.id === id),
+    );
+  }, [provider, setCategory]);
+
+  const handleBook = useCallback((service) => {
+    const popup = slotsDialog.show(service, (slot) => {
+      const busyPopup = busyDialog.show('Waiting for payment completion ...');
+      book(slot, service, (err) => {
+        if (!err) {
+          popup.close();
+        }
+        busyPopup.close();
+      });
+    });
+  }, [book, busyDialog, slotsDialog]);
+
+  return (
+    <>
+      <div>
+        {includeHeader ? <Header /> : null}
+        <section className={css.hero}>
+          <div className={css.hero_profile_picture_wrap}>
+            <img
+              src={profilePicture}
+              alt={provider.name}
+              className={css.hero_profile_picture}
+            />
+          </div>
+          <div className={css.hero_text_wrap}>
+            <h1 className={css.heading}>{provider.name}</h1>
+            <p className={css.hero_about_us}>{aboutUs}</p>
+            <fieldset className={css.provider_contacts}>
+              <legend>Contact Info</legend>
+              <div className={css.contacts_wrap}>
+                <div className={`${css.contact_row} ${css.address}`}>{provider.address}</div>
+                <div className={`${css.contact_row} ${css.phone}`}>{provider.phoneNumber}</div>
+              </div>
+            </fieldset>
+          </div>
+        </section>
+      </div>
+      <div className={css.body}>
+        <aside className={css.body_aside}>
+          <section>
+            <h1 className={css.aside_heading}>Service Categories</h1>
+            {provider.serviceCategories.length ? (
+              <nav>
+                <ul className={css.categories_list}>
+                  {provider.serviceCategories.map((cat) => (
+                    <li key={cat.id}>
+                      <button
+                        type="button"
+                        name={cat.id}
+                        className={`${css.category_btn} ${category && category.id === cat.id ? css.active : ''}`}
+                        onClick={handleCategoryChange}
+                      >
+                        {cat.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ) : (
+              <div className={`${css.empty_notice} ${css.center}`}>
+                No Service Categories found!
+              </div>
+            )}
+          </section>
+          <section>
+            <h1 className={css.aside_heading}>Business Hours</h1>
+            <div className={css.business_hours_panel}>
+              {weekDays.map((d, idx) => (
+                <div key={d} className={css.business_hour_row}>
+                  <span className={css.label}>{d}</span>
+                  <span>{businessHours[idx]}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </aside>
+        <section className={css.body_content}>
+          <header className={css.body_header}>
+            <h1 className={css.services_heading}>Services</h1>
+            <label className={css.search_wrap} htmlFor={SEARCH}>
+              <input
+                type="search"
+                name={SEARCH}
+                id={SEARCH}
+                className="transparent"
+                placeholder="Search Services"
+                onChange={handleValueChange}
+              />
+            </label>
+          </header>
+          {services ? (
+            <>
+              {services.length ? (
+                <div className={css.services_panel}>
+                  {services.map((service) => (
+                    <ServiceCard
+                      key={service.id}
+                      service={service}
+                      onBook={handleBook}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className={`${css.empty_notice} ${css.center}`}>
+                  No Services found!
+                </div>
+              )}
+            </>
+          ) : (
+            <div className={`${css.empty_notice} ${css.center}`}>
+              No Category Selected!
+            </div>
+          )}
+        </section>
+      </div>
+      {includeFooter ? (
+        <Footer />
+      ) : null}
+    </>
+  );
+};
+
 ProviderPage.propTypes = {
   provider: companyProps.isRequired,
+  includeHeader: PropTypes.bool,
+  includeFooter: PropTypes.bool,
+};
+
+ProviderPage.defaultProps = {
+  includeHeader: false,
+  includeFooter: false,
 };
 
 export const CompanyPage = () => {
@@ -648,14 +858,7 @@ export const CompanyPage = () => {
   }
 
   if (provider) {
-    return (
-      <div className="container">
-        <Header />
-        <div className="relative panel">
-          <ProviderPage provider={provider} />
-        </div>
-      </div>
-    );
+    return <ProviderPage provider={provider} includeHeader includeFooter />;
   }
 
   return <Error404 />;

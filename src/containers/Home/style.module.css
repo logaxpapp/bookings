@@ -55,7 +55,6 @@
 
 .trusted_by_text {
   color: var(--neutral-n-900, #011c39);
-  font-family: Inter;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
@@ -107,7 +106,6 @@
   border-radius: 8px 8px 0 0;
   margin: 0;
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 13px;
   font-style: normal;
   font-weight: 400;
@@ -150,7 +148,6 @@
 
 .steps_article_heading {
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
@@ -162,7 +159,6 @@
 .steps_article_text {
   margin: 0;
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 13px;
   font-style: normal;
   font-weight: 400;
@@ -217,7 +213,6 @@
 
 .service_row .heading {
   color: var(--neutral-n-900, #011c39);
-  font-family: Inter;
   font-size: 28px;
   font-style: normal;
   font-weight: 700;
@@ -229,7 +224,6 @@
 .service_row .text_body {
   flex: 1;
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -296,7 +290,6 @@
 .reason_heading {
   margin-bottom: 0;
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 18px;
   font-style: normal;
   font-weight: 700;
@@ -308,7 +301,6 @@
 .reason_text {
   margin: 0;
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 13px;
   font-style: normal;
   font-weight: 400;
@@ -352,7 +344,6 @@
 .testimonial_text {
   margin: 0 0 16px;
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
@@ -363,7 +354,6 @@
 .testimonial_name {
   margin-bottom: 0;
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 600;
@@ -373,7 +363,6 @@
 
 .testimonial_designation {
   color: var(--neutral-n-300, #5d6b82);
-  font-family: Inter;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -386,7 +375,6 @@
   gap: 8px;
   align-items: center;
   color: var(--neutral-n-300, #5d6b82);
-  font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -425,7 +413,6 @@
 
 .faq_heading {
   color: var(--neutral-n-600, #354764);
-  font-family: Inter;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -454,7 +441,6 @@
 
 .pre_wrap {
   white-space: pre-wrap;
-  font-family: Inter;
   line-height: 1.8;
 }
 

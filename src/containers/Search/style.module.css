@@ -549,8 +549,8 @@
 }
 
 .service_value.thin {
-  font-weight: 600;
-  font-size: 0.9rem;
+  font-weight: 400;
+  color: #666;
 }
 
 .book_btn_wrap {

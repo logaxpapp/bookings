@@ -457,7 +457,7 @@ TimeSlotsDialog.propTypes = {
   onSlotSelected: PropTypes.func.isRequired,
 };
 
-const useTimeSlotsDialog = () => {
+export const useTimeSlotsDialog = () => {
   const dialog = useDialog();
 
   return {
@@ -624,7 +624,7 @@ ServicePanel.propTypes = {
   service: serviceProps.isRequired,
 };
 
-const ServiceCard = ({ service, onBook }) => {
+export const ServiceCard = ({ service, onBook }) => {
   const [price, setPrice] = useState('');
   const [deposit, setDeposit] = useState('');
   const [duration, setDuration] = useState('');

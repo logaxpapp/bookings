@@ -52,7 +52,6 @@
 
 .plan_heading {
   color: var(--gray-500, #2b343e);
-  font-family: Inter;
   font-size: 13px;
   font-style: normal;
   font-weight: 600;
@@ -70,7 +69,6 @@
 
 .price {
   color: var(--gray-500, #2b343e);
-  font-family: Inter;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
@@ -80,7 +78,6 @@
 
 .periodicity {
   color: var(--neutral-n-90, #8993a4);
-  font-family: Inter;
   font-size: 12px;
   font-style: normal;
   font-weight: 400;
@@ -99,7 +96,6 @@
   position: relative;
   padding-left: 24px;
   color: var(--gray-400, #555c64);
-  font-family: Inter;
   font-size: 13px;
   font-style: normal;
   font-weight: 400;
@@ -136,7 +132,6 @@
 .most_popular {
   background: var(--primary-300, #89e101);
   color: var(--neutrals-white, #fff);
-  font-family: Inter;
   font-size: 12px;
   font-style: normal;
   font-weight: 700;
@@ -202,7 +197,6 @@
   background: var(--neutral-n-900, #011c39);
   color: var(--neutrals-white, #fff);
   text-align: center;
-  font-family: Inter;
   font-size: 12px;
   font-style: normal;
   font-weight: 700;
