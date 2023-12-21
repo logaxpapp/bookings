@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -13,7 +14,12 @@ import {
   selectSearchResults,
   selectSearching,
 } from '../../redux/searchSlice';
-import { SvgButton, colors, paths } from '../../components/svg';
+import {
+  CloseSvgButton,
+  SvgButton,
+  colors,
+  paths,
+} from '../../components/svg';
 import defaultImages from '../../utils/defaultImages';
 import LoadingSpinner, { Loader, useBusyDialog } from '../../components/LoadingSpinner';
 import {
@@ -34,7 +40,7 @@ import bg4 from '../../assets/images/manicure.jpg';
 import { Ring } from '../../components/LoadingButton';
 import { useDialog } from '../../lib/Dialog';
 import DatePicker from '../../components/DatePicker';
-import { timeSlotProps } from '../../utils/propTypes';
+import { imageProps, timeSlotProps } from '../../utils/propTypes';
 import { AccentRadioButton } from '../../components/Inputs';
 
 const BOOK = 'book';
@@ -75,6 +81,66 @@ const serviceProps = PropTypes.shape({
   })),
   company: companyProps,
 });
+
+const ServiceImagePopup = ({ images, index, onClose }) => {
+  const [idx, setIdx] = useState(index || 0);
+  const maxIndex = useMemo(() => images.length - 1, []);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === INCREMENT) {
+      setIdx((idx) => {
+        const nIdx = idx + 1;
+        if (nIdx <= maxIndex) {
+          return nIdx;
+        }
+        return idx;
+      });
+    } else if (name === DECREMENT) {
+      setIdx((idx) => {
+        const nIdx = idx - 1;
+        if (nIdx >= 0) {
+          return nIdx;
+        }
+        return idx;
+      });
+    }
+  }, [maxIndex]);
+
+  return (
+    <div className="dialog">
+      <div className="bold-dialog-body">
+        <div className={css.popup_service_image_wrap}>
+          <img className={css.popup_service_image} src={images[idx].url} alt="service" />
+          <nav className={css.service_image_popup_nav}>
+            <SvgButton
+              name={DECREMENT}
+              path={paths.chevronLeft}
+              style={{ width: 48, height: 48, visibility: idx > 0 ? 'visible' : 'hidden' }}
+              onClick={handleClick}
+            />
+            <SvgButton
+              name={INCREMENT}
+              path={paths.chevronRight}
+              style={{ width: 48, height: 48, visibility: idx < maxIndex ? 'visible' : 'hidden' }}
+              onClick={handleClick}
+            />
+          </nav>
+        </div>
+        <CloseSvgButton onClick={onClose} />
+      </div>
+    </div>
+  );
+};
+
+ServiceImagePopup.propTypes = {
+  images: PropTypes.arrayOf(imageProps).isRequired,
+  onClose: PropTypes.func.isRequired,
+  index: PropTypes.number,
+};
+
+ServiceImagePopup.defaultProps = {
+  index: 0,
+};
 
 const TimeSlotRow = ({ slot, activeSlot, onBook }) => {
   const [datetime, setDateTime] = useState({ date: '', time: '' });
@@ -391,7 +457,7 @@ TimeSlotsDialog.propTypes = {
   onSlotSelected: PropTypes.func.isRequired,
 };
 
-const useTimeSlotsDialog = () => {
+export const useTimeSlotsDialog = () => {
   const dialog = useDialog();
 
   return {
@@ -558,11 +624,12 @@ ServicePanel.propTypes = {
   service: serviceProps.isRequired,
 };
 
-const ServiceCard = ({ service, onBook }) => {
+export const ServiceCard = ({ service, onBook }) => {
   const [price, setPrice] = useState('');
   const [deposit, setDeposit] = useState('');
   const [duration, setDuration] = useState('');
   const [images, setImages] = useState([]);
+  const dialog = useDialog();
 
   useEffect(() => {
     setPrice(currencyHelper.toString(service.price, service.company.country.currencySymbol));
@@ -580,6 +647,18 @@ const ServiceCard = ({ service, onBook }) => {
       onBook(service);
     }
   }, [service]);
+
+  const handleImageClick = useCallback(({ target: { name } }) => {
+    let popup;
+    const handleClose = () => popup.close();
+    popup = dialog.show(
+      <ServiceImagePopup
+        images={service.images}
+        onClose={handleClose}
+        index={Number.parseInt(name, 10)}
+      />,
+    );
+  }, [dialog]);
 
   return (
     <section className={css.service_card}>
@@ -603,8 +682,16 @@ const ServiceCard = ({ service, onBook }) => {
       </div>
       <div className={css.service_card_controls}>
         <div className={css.service_image_wrap}>
-          {images.length ? images.map((image) => (
-            <img src={image.url} key={image.id} alt="p" className={css.service_image} />
+          {images.length ? images.map((image, idx) => (
+            <button
+              type="button"
+              key={image.id}
+              className={css.service_image_btn}
+              name={idx}
+              onClick={handleImageClick}
+            >
+              <img src={image.url} alt="p" className={css.service_image} />
+            </button>
           )) : null}
         </div>
         <div className={css.book_btn_wrap}>

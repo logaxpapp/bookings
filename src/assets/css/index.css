@@ -382,6 +382,10 @@ a {
   pointer-events: none;
 }
 
+input.transparent {
+  background-color: transparent;
+}
+
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
