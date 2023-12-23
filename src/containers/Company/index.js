@@ -3,17 +3,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import css from './styles.module.css';
 import routes from '../../routing/routes';
 import Header from '../Header';
 import {
   closeAppointmentMessage,
   selectCompany,
+  selectEmployee,
   selectOpenMessages,
   selectPermissions,
   sendAppointmentMessageAsync,
   setMaxOpenMessages,
 } from '../../redux/companySlice';
-import { TIMEZONE } from '../../utils';
+import { TIMEZONE, capitalize } from '../../utils';
 import { paths } from '../../components/svg';
 import { appointmentProps } from '../../utils/propTypes';
 import MessagePanel from '../../components/MessagePanel';
@@ -194,6 +196,7 @@ CompanyMessagePanel.propTypes = {
 const RestrictedCompany = ({ company, pathname }) => {
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [menus, setMenus] = useState([]);
+  const employee = useSelector(selectEmployee);
   const openMessages = useSelector(selectOpenMessages);
   const permissions = useSelector(selectPermissions);
   const { width: screenWidth } = useWindowSize();
@@ -225,6 +228,9 @@ const RestrictedCompany = ({ company, pathname }) => {
           <div className="timezone">
             <span className="timezone-label">Timezone:</span>
             <span>{TIMEZONE}</span>
+          </div>
+          <div className={css.employee_name}>
+            <span>{`Signed In as ${capitalize(employee.firstname)}`}</span>
           </div>
           <nav className="aside-nav">
             {menus.map((link) => (

@@ -1,0 +1,21 @@
+.employee_name {
+  padding: 8px;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #ededed;
+}
+
+.employee_name::before {
+  content: '';
+  width: 22px;
+  height: 22px;
+  background-color: #bfc6cc;
+  mask: url(../../assets/images/account.svg);
+}
+
+@media only screen and (min-width: 576px) {
+  .employee_name {
+    display: flex;
+  }
+}

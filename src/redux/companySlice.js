@@ -1578,6 +1578,8 @@ export const selectWeeklyAppointments = (state) => state.company.weeklyAppointme
 
 export const selectSubscription = (state) => state.company.subscription;
 
+export const selectEmployee = (state) => state.company.employee;
+
 export const selectEmployees = (state) => state.company.employees;
 
 export const selectPermissions = (state) => state.company.permissions;
