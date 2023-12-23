@@ -652,6 +652,44 @@ h1.md {
   gap: 8px;
 }
 
+.about_us_wrap {
+  width: 100%;
+  max-width: 480px;
+}
+
+.about_us_label {
+  margin-bottom: 0;
+}
+
+.about_us {
+  width: 100%;
+  height: 120px;
+  border: 1px solid;
+  border-color: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  resize: none;
+}
+
+.about_us_controls {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+}
+
+.accent_btn {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #fff;
+  background-color: var(--color-accent);
+}
+
+.accent_btn:hover {
+  background-color: #da2919;
+}
+
 @media only screen and (min-width: 576px) {
   .nav {
     padding-left: 2px;

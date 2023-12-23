@@ -368,7 +368,7 @@ export const FieldEditor = ({
           className={css.field_row}
           style={{ backgroundColor: transparent ? 'transparent' : '#eef3f3' }}
         >
-          <span className={css.field_value} title={value}>{value}</span>
+          <span style={inputStyle} className={css.field_value} title={value}>{value}</span>
           <SvgButton
             type="button"
             name={EDIT}

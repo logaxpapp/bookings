@@ -9,6 +9,10 @@ import { FieldEditor } from '../../../components/TextBox';
 import { selectPermissions, updateCompanyAsync } from '../../../redux/companySlice';
 import routes from '../../../routing/routes';
 import { capitalize } from '../../../utils';
+import { Ring } from '../../../components/LoadingButton';
+
+const ABOUT_US = 'about_us';
+const SAVE = 'save';
 
 const menus = [
   {
@@ -35,12 +39,29 @@ const menus = [
 
 export const CompanyDetailsSettings = () => {
   const [company] = useOutletContext();
+  const [aboutUs, setAboutUs] = useState(company.aboutUs || '');
+  const [updatingAboutUs, setUpdatingAboutUs] = useState(false);
   const permissions = useSelector(selectPermissions);
   const dispatch = useDispatch();
 
   const handleUpdate = useCallback((name, value, callback) => (
     dispatch(updateCompanyAsync({ [name]: value }, callback))
   ), []);
+
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === SAVE) {
+      setUpdatingAboutUs(true);
+      handleUpdate('about_us', aboutUs, () => {
+        setUpdatingAboutUs(false);
+      });
+    }
+  }, [aboutUs, handleUpdate]);
+
+  const handleValueChange = useCallback(({ target: { name, value } }) => {
+    if (name === ABOUT_US) {
+      setAboutUs(value);
+    }
+  }, []);
 
   if (!permissions.isAdmin) {
     return <Navigate to={routes.company.absolute.settings.serviceCategories} replace />;
@@ -82,6 +103,42 @@ export const CompanyDetailsSettings = () => {
             onSave={handleUpdate}
           />
         </div>
+        <div className={css.details_row}>
+          <FieldEditor
+            type="text"
+            name="slogan"
+            initialValue={company.slogan || ''}
+            label="Slogan"
+            onSave={handleUpdate}
+            inputStyle={{ height: 40 }}
+          />
+        </div>
+        <div className={css.about_us_wrap}>
+          <label className={`input-label ${css.about_us_label}`} htmlFor={ABOUT_US}>
+            <span className="input-label-text">About Us</span>
+            <textarea
+              name={ABOUT_US}
+              id={ABOUT_US}
+              value={aboutUs}
+              className={css.about_us}
+              onChange={handleValueChange}
+            />
+          </label>
+          <div className={css.about_us_controls}>
+            {updatingAboutUs ? (
+              <Ring size={18} />
+            ) : (
+              <button
+                type="button"
+                name={SAVE}
+                className={css.accent_btn}
+                onClick={handleClick}
+              >
+                Save
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -95,7 +152,7 @@ const CompanySettings = () => {
 
   useEffect(() => {
     if (permissions.isAdmin) {
-      setLinks([menus]);
+      setLinks(menus);
     } else {
       setLinks(menus.filter(({ to }) => to !== routes.company.absolute.settings.details));
     }
