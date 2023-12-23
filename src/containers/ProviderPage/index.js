@@ -77,7 +77,7 @@ const GoogleMap = ({ latitude, longitude }) => {
       // eslint-disable-next-line
       const map = new Map(container.current, {
         center: position,
-        zoom: 4,
+        zoom: 10,
         mapId: 'providerLocation',
       });
 
@@ -799,13 +799,6 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
           <div className={css.hero_text_wrap}>
             <h1 className={css.heading}>{provider.name}</h1>
             <p className={css.hero_about_us}>{aboutUs}</p>
-            <fieldset className={css.provider_contacts}>
-              <legend>Contact Info</legend>
-              <div className={css.contacts_wrap}>
-                <div className={`${css.contact_row} ${css.address}`}>{provider.address}</div>
-                <div className={`${css.contact_row} ${css.phone}`}>{provider.phoneNumber}</div>
-              </div>
-            </fieldset>
           </div>
         </section>
       </div>
@@ -819,29 +812,11 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
           ) : null}
           <div className={css.body_aside_sections}>
             <section>
-              <h1 className={css.aside_heading}>Service Categories</h1>
-              {provider.serviceCategories.length ? (
-                <nav>
-                  <ul className={css.categories_list}>
-                    {provider.serviceCategories.map((cat) => (
-                      <li key={cat.id}>
-                        <button
-                          type="button"
-                          name={cat.id}
-                          className={`${css.category_btn} ${category && category.id === cat.id ? css.active : ''}`}
-                          onClick={handleCategoryChange}
-                        >
-                          {cat.name}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
-              ) : (
-                <div className={`${css.empty_notice} ${css.center}`}>
-                  No Service Categories found!
-                </div>
-              )}
+              <h1 className={css.aside_heading}>Contact Info</h1>
+              <div className={css.contacts_wrap}>
+                <div className={`${css.contact_row} ${css.address}`}>{provider.address}</div>
+                <div className={`${css.contact_row} ${css.phone}`}>{provider.phoneNumber}</div>
+              </div>
             </section>
             <section>
               <h1 className={css.aside_heading}>Business Hours</h1>
@@ -857,6 +832,31 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
           </div>
         </aside>
         <section className={css.body_content}>
+          <section>
+            <h1 className={css.aside_heading}>Service Categories</h1>
+            {provider.serviceCategories.length ? (
+              <nav>
+                <ul className={css.categories_list}>
+                  {provider.serviceCategories.map((cat) => (
+                    <li key={cat.id}>
+                      <button
+                        type="button"
+                        name={cat.id}
+                        className={`${css.category_btn} ${category && category.id === cat.id ? css.active : ''}`}
+                        onClick={handleCategoryChange}
+                      >
+                        {cat.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ) : (
+              <div className={`${css.empty_notice} ${css.center}`}>
+                No Service Categories found!
+              </div>
+            )}
+          </section>
           <header className={css.body_header}>
             <h1 className={css.services_heading}>Services</h1>
             <label className={css.search_wrap} htmlFor={SEARCH}>
@@ -864,39 +864,43 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
                 type="search"
                 name={SEARCH}
                 id={SEARCH}
-                className="transparent"
+                className={`transparent ${css.search}`}
                 placeholder="Search Services"
                 onChange={handleValueChange}
               />
             </label>
           </header>
-          {services ? (
-            <>
-              {services.length ? (
-                <div className={css.services_panel}>
-                  {services.map((service) => (
-                    <ServiceCard
-                      key={service.id}
-                      service={service}
-                      onBook={handleBook}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className={`${css.empty_notice} ${css.center}`}>
-                  No Services found!
-                </div>
-              )}
-            </>
-          ) : (
-            <div className={`${css.empty_notice} ${css.center}`}>
-              No Category Selected!
-            </div>
-          )}
+          <div className={css.services_wrap}>
+            {services ? (
+              <>
+                {services.length ? (
+                  <div className={css.services_panel}>
+                    {services.map((service) => (
+                      <ServiceCard
+                        key={service.id}
+                        service={service}
+                        onBook={handleBook}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className={`${css.empty_notice} ${css.center}`}>
+                    No Services found!
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className={`${css.empty_notice} ${css.center}`}>
+                No Category Selected!
+              </div>
+            )}
+          </div>
         </section>
       </div>
       {includeFooter ? (
-        <Footer />
+        <div className={css.footer}>
+          <Footer />
+        </div>
       ) : null}
     </>
   );

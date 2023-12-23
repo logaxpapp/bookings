@@ -461,7 +461,7 @@ export const updateCompanyAsync = (data, callback) => (dispatch, getState) => {
       callback(null);
     })
     .catch(({ message }) => {
-      notification.showError(message);
+      notification.showError('An error occurred while performing action!');
       callback(message);
     });
 };
