@@ -99,9 +99,19 @@
 }
 
 .heading {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  color: #011c39;
+  font-family: 'M PLUS 1', sans-serif;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 100%;
+  letter-spacing: -1.28px;
+  margin: 0;
 }
 
 .content {
@@ -461,11 +471,12 @@
 
 .hero {
   flex: 1;
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   width: 100%;
+  max-width: 1200px;
   margin: auto;
-  gap: 64px;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
   padding: 24px;
 }
 
@@ -473,36 +484,18 @@
   border-radius: 12px;
   overflow: hidden;
   max-height: 100%;
-  grid-column: 1 / span 3;
 }
 
 .hero_profile_picture {
   width: 100%;
+  max-height: 480px;
   border-radius: 12px;
 }
 
 .hero_text_wrap {
-  grid-column: 4 / span 2;
-  padding: 24px 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.heading {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  color: #011c39;
-  font-family: 'M PLUS 1', sans-serif;
-  font-size: 40px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 100%;
-  letter-spacing: -1.28px;
-  margin: 0;
 }
 
 .hero_about_us {
@@ -523,13 +516,14 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 12px;
+  padding: 4px;
 }
 
 .contact_row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  font-size: 0.9rem;
 }
 
 .contact_row.address {
@@ -538,7 +532,7 @@
 
 .contact_row::before {
   content: '';
-  width: 18px;
+  flex: 0 0 18px;
   height: 18px;
   background-color: #9aa8b7;
 }
@@ -554,6 +548,8 @@
 .body {
   position: relative;
   width: 100%;
+  max-width: 1300px;
+  margin: auto;
   display: flex;
   gap: 24px;
   padding: 24px;
@@ -566,10 +562,28 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  background-color: #e8eaed;
+}
+
+.body_aside_sections {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .body_content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-height: 800px;
+  overflow: hidden;
+}
+
+.services_wrap {
+  flex: 1;
+  overflow: auto;
 }
 
 .services_panel {
@@ -581,9 +595,12 @@
 
 .body_header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 96px;
-  margin-bottom: 24px;
+  gap: 24px;
+  padding-bottom: 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px dotted #ededed;
 }
 
 .services_heading {
@@ -596,15 +613,14 @@
 }
 
 .categories_list {
-  border: 1px solid #ededed;
+  border: 1px dotted #ededed;
   border-radius: 8px;
-  padding: 8px;
   display: flex;
   flex-wrap: wrap;
   list-style: none;
   margin: 0;
-  padding: 12px;
-  max-height: 80px;
+  padding: 6px;
+  max-height: 120px;
   overflow: auto;
 }
 
@@ -613,9 +629,9 @@
   border: 1px solid #888;
   color: #888;
   border-radius: 8px;
-  padding: 4px 8px;
+  padding: 3px 6px;
   font-family: Roboto, sans-serif;
-  font-size: inherit;
+  font-size: 0.8rem;
   cursor: pointer;
 }
 
@@ -628,7 +644,6 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  font-weight: 300;
 }
 
 .business_hour_row {
@@ -651,8 +666,55 @@
 
 .search_wrap::before {
   content: '';
-  width: 18px;
+  flex: 0 0 18px;
   height: 18px;
   background-color: #3c4046;
   mask: url(../../assets/images/search.svg);
+}
+
+.search {
+  padding: 6px 16px 6px 0;
+  display: block;
+  min-width: 240px;
+}
+
+.map_container {
+  width: 100%;
+  height: 0;
+}
+
+.map_container.loaded {
+  height: 180px;
+}
+
+.footer {
+  padding: 0 24px;
+}
+
+@media only screen and (min-width: 768px) {
+  .hero {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media only screen and (min-width: 992px) {
+  .hero {
+    display: grid;
+    gap: 64px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .hero_profile_picture_wrap {
+    grid-column: 1 / span 3;
+  }
+
+  .hero_text_wrap {
+    grid-column: 4 / span 2;
+  }
+
+  .heading {
+    font-size: 40px;
+  }
 }

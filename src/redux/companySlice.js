@@ -461,7 +461,7 @@ export const updateCompanyAsync = (data, callback) => (dispatch, getState) => {
       callback(null);
     })
     .catch(({ message }) => {
-      notification.showError(message);
+      notification.showError('An error occurred while performing action!');
       callback(message);
     });
 };
@@ -1577,6 +1577,8 @@ export const selectAppointments = (state) => state.company.appointments;
 export const selectWeeklyAppointments = (state) => state.company.weeklyAppointments;
 
 export const selectSubscription = (state) => state.company.subscription;
+
+export const selectEmployee = (state) => state.company.employee;
 
 export const selectEmployees = (state) => state.company.employees;
 

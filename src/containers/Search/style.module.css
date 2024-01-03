@@ -208,18 +208,6 @@
   visibility: hidden;
 }
 
-.service_details {
-  display: grid;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.service_name {
-  width: 100%;
-  word-wrap: break-word;
-  font-size: 0.9rem;
-}
-
 .service_price_wrap {
   font-weight: bold;
   font-size: 0.8rem;
@@ -387,10 +375,7 @@
 .slot_btn {
   width: 100%;
   padding: 8px 16px;
-  /* background: linear-gradient(45deg, #df3829, #1454a8); */
-  /* color: #fff; */
   cursor: pointer;
-  /* box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0; */
   background-color: #fff;
   border-radius: 6px;
   box-shadow: 1px 4px 13px -2px rgba(0, 0, 0, 0.14);
@@ -442,7 +427,7 @@
 }
 
 .company_address {
-  white-space: wrap;
+  word-break: break-all;
   color: #333;
   width: 400px;
   margin: 0;
@@ -453,7 +438,7 @@
 
 .company_address::before {
   content: '';
-  width: 18px;
+  flex: 0 0 18px;
   height: 18px;
   background-size: 100%;
   background-image: url(../../assets/images/marker.svg);
@@ -486,6 +471,8 @@
 }
 
 .service_name {
+  width: 100%;
+  word-wrap: break-word;
   font-weight: 500;
   font-size: 1.2rem;
   margin-bottom: 0;

@@ -8,8 +8,15 @@ import {
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line
+import { Loader as GoogleLoader } from '@googlemaps/js-api-loader';
 import css from './style.module.css';
-import { currencyHelper, d2, dateUtils } from '../../utils';
+import {
+  currencyHelper,
+  d2,
+  dateUtils,
+  imageColors,
+} from '../../utils';
 import {
   companyProps,
   serviceProps,
@@ -33,6 +40,7 @@ import Error404 from '../Error404';
 import { ReturnPolicyComponent } from '../ReturnPolicy';
 import { useDialog } from '../../lib/Dialog';
 import { ServiceCard, useTimeSlotsDialog } from '../Search/SearchPanel';
+import { getApiKeysAsync } from '../../redux/apiKeys';
 
 const CLOSE_WINDOW = 'close window';
 const CATEGORY = 'category';
@@ -44,6 +52,81 @@ const VIEW_SLOTS = 'view slots';
 const weekDays = [
   'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
 ];
+
+let loader;
+
+const GoogleMap = ({ latitude, longitude }) => {
+  const [loaded, setLoaded] = useState(false);
+  const container = useRef(null);
+  const dispatch = useDispatch();
+
+  const configureMap = useCallback(async (apiKey, position) => {
+    try {
+      if (!loader) {
+        loader = new GoogleLoader({
+          apiKey,
+          version: 'weekly',
+          libraries: ['places'],
+        });
+      }
+
+      const { Map } = await loader.importLibrary('maps');
+      const { AdvancedMarkerElement } = await loader.importLibrary('marker');
+      setLoaded(true);
+
+      // eslint-disable-next-line
+      const map = new Map(container.current, {
+        center: position,
+        zoom: 10,
+        mapId: 'providerLocation',
+      });
+
+      // eslint-disable-next-line
+      new AdvancedMarkerElement({
+        map,
+        position,
+        title: 'Location',
+      }, []);
+    } catch {
+      // No action required
+    }
+  });
+
+  useEffect(() => {
+    if (latitude === null || longitude === null) {
+      return;
+    }
+
+    dispatch(getApiKeysAsync((err, keys) => {
+      if (err) {
+        return;
+      }
+
+      const apiKey = keys.googleMap;
+      const location = { lat: latitude, lng: longitude };
+
+      configureMap(apiKey, location);
+    }));
+  }, [latitude, longitude, configureMap, dispatch]);
+
+  if (!(latitude && longitude)) {
+    return null;
+  }
+
+  return (
+    <section ref={container} className={`${css.map_container} ${loaded ? css.loaded : ''}`} />
+  );
+};
+
+GoogleMap.propTypes = {
+  latitude: PropTypes.number,
+  longitude: PropTypes.number,
+};
+
+GoogleMap.defaultProps = {
+  latitude: null,
+  longitude: null,
+};
 
 const officeHour = (secs) => {
   let mins = Math.floor(secs / 60);
@@ -640,7 +723,7 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
   }, [provider]);
   const businessHours = useMemo(() => {
     if (provider.officeHours && provider.openDays) {
-      const text = `${officeHour(provider.officeHours.start)} - ${officeHour(provider.officeHours.start)}`;
+      const text = `${officeHour(provider.officeHours.start)} - ${officeHour(provider.officeHours.end)}`;
       return weekDays.map((d, idx) => (provider.openDays.indexOf(idx) >= 0 ? text : 'Closed'));
     }
 
@@ -649,6 +732,7 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
   const [category, setCategory] = useState(provider.serviceCategories[0]);
   const [services, setServices] = useState(null);
   const [term, setTerm] = useState('');
+  const [imageBG, setImageBG] = useState('transparent');
   const busyDialog = useBusyDialog();
   const slotsDialog = useTimeSlotsDialog();
   const book = useBook();
@@ -666,6 +750,14 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
     }
     setServices(services);
   }, [category, term, provider]);
+
+  useEffect(() => {
+    if (profilePicture) {
+      imageColors.getColor(profilePicture)
+        .then((color) => setImageBG(color))
+        .catch(() => {});
+    }
+  }, [profilePicture]);
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === SEARCH) {
@@ -697,7 +789,7 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
       <div>
         {includeHeader ? <Header /> : null}
         <section className={css.hero}>
-          <div className={css.hero_profile_picture_wrap}>
+          <div className={css.hero_profile_picture_wrap} style={{ backgroundColor: imageBG }}>
             <img
               src={profilePicture}
               alt={provider.name}
@@ -707,18 +799,39 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
           <div className={css.hero_text_wrap}>
             <h1 className={css.heading}>{provider.name}</h1>
             <p className={css.hero_about_us}>{aboutUs}</p>
-            <fieldset className={css.provider_contacts}>
-              <legend>Contact Info</legend>
-              <div className={css.contacts_wrap}>
-                <div className={`${css.contact_row} ${css.address}`}>{provider.address}</div>
-                <div className={`${css.contact_row} ${css.phone}`}>{provider.phoneNumber}</div>
-              </div>
-            </fieldset>
           </div>
         </section>
       </div>
       <div className={css.body}>
         <aside className={css.body_aside}>
+          {provider.location ? (
+            <GoogleMap
+              latitude={provider.location.latitude}
+              longitude={provider.location.longitude}
+            />
+          ) : null}
+          <div className={css.body_aside_sections}>
+            <section>
+              <h1 className={css.aside_heading}>Contact Info</h1>
+              <div className={css.contacts_wrap}>
+                <div className={`${css.contact_row} ${css.address}`}>{provider.address}</div>
+                <div className={`${css.contact_row} ${css.phone}`}>{provider.phoneNumber}</div>
+              </div>
+            </section>
+            <section>
+              <h1 className={css.aside_heading}>Business Hours</h1>
+              <div className={css.business_hours_panel}>
+                {weekDays.map((d, idx) => (
+                  <div key={d} className={css.business_hour_row}>
+                    <span className={css.label}>{d}</span>
+                    <span>{businessHours[idx]}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        </aside>
+        <section className={css.body_content}>
           <section>
             <h1 className={css.aside_heading}>Service Categories</h1>
             {provider.serviceCategories.length ? (
@@ -744,19 +857,6 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
               </div>
             )}
           </section>
-          <section>
-            <h1 className={css.aside_heading}>Business Hours</h1>
-            <div className={css.business_hours_panel}>
-              {weekDays.map((d, idx) => (
-                <div key={d} className={css.business_hour_row}>
-                  <span className={css.label}>{d}</span>
-                  <span>{businessHours[idx]}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        </aside>
-        <section className={css.body_content}>
           <header className={css.body_header}>
             <h1 className={css.services_heading}>Services</h1>
             <label className={css.search_wrap} htmlFor={SEARCH}>
@@ -764,39 +864,43 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
                 type="search"
                 name={SEARCH}
                 id={SEARCH}
-                className="transparent"
+                className={`transparent ${css.search}`}
                 placeholder="Search Services"
                 onChange={handleValueChange}
               />
             </label>
           </header>
-          {services ? (
-            <>
-              {services.length ? (
-                <div className={css.services_panel}>
-                  {services.map((service) => (
-                    <ServiceCard
-                      key={service.id}
-                      service={service}
-                      onBook={handleBook}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className={`${css.empty_notice} ${css.center}`}>
-                  No Services found!
-                </div>
-              )}
-            </>
-          ) : (
-            <div className={`${css.empty_notice} ${css.center}`}>
-              No Category Selected!
-            </div>
-          )}
+          <div className={css.services_wrap}>
+            {services ? (
+              <>
+                {services.length ? (
+                  <div className={css.services_panel}>
+                    {services.map((service) => (
+                      <ServiceCard
+                        key={service.id}
+                        service={service}
+                        onBook={handleBook}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className={`${css.empty_notice} ${css.center}`}>
+                    No Services found!
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className={`${css.empty_notice} ${css.center}`}>
+                No Category Selected!
+              </div>
+            )}
+          </div>
         </section>
       </div>
       {includeFooter ? (
-        <Footer />
+        <div className={css.footer}>
+          <Footer />
+        </div>
       ) : null}
     </>
   );

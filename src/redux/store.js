@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import apiKeys from './apiKeys';
 import company from './companySlice';
 import countries from './countriesSlice';
 import providers from './serviceProvidersSlice';
@@ -18,6 +19,7 @@ export const createStore = () => configureStore({
     user,
     userLocation,
     userPreferences,
+    apiKeys,
   },
   devTools: process.env.NODE_ENV !== 'production',
 });

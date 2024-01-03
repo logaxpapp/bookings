@@ -32,7 +32,7 @@ export const dateStringComparer = (date1, date2, desc = false) => {
  * @param {string} str
  */
 export const capitalize = (str) => {
-  if (!(str || str.length)) {
+  if (!(str && str.length)) {
     return str;
   }
 
