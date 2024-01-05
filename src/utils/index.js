@@ -32,8 +32,16 @@ export const dateStringComparer = (date1, date2, desc = false) => {
  * @param {string} str
  */
 export const capitalize = (str) => {
-  if (!(str && str.length)) {
-    return str;
+  if (!str) {
+    return '';
+  }
+
+  if (typeof str !== 'string') {
+    return '';
+  }
+
+  if (!str.length) {
+    return '';
   }
 
   if (str.length === 1) {
@@ -45,7 +53,7 @@ export const capitalize = (str) => {
     return `${str[0].toUpperCase()}${str.substring(1).toLowerCase()}`;
   }
 
-  return parts.map((s) => `${s[0].toUpperCase()}${s.substring(1).toLowerCase()}`).join(' ');
+  return parts.filter((s) => s).map((s) => `${s[0].toUpperCase()}${s.substring(1)?.toLowerCase()}`).join(' ');
 };
 export const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -210,9 +218,25 @@ export const camelCase = (str) => {
   if (parts.length === 1) {
     return parts[0];
   }
-  return parts.slice(1).reduce((memo, current) => (
-    `${memo}${current[0].toUpperCase()}${current.substring(1)}`
-  ), parts[0]);
+  return parts.slice(1).reduce((memo, current) => {
+    let rslt = memo;
+    if (!current) {
+      return rslt;
+    }
+
+    let txt = current.trim();
+    if (!txt) {
+      return rslt;
+    }
+
+    rslt = `${rslt}${txt[0].toUpperCase()}`;
+    txt = txt.substring(1);
+    if (txt) {
+      rslt = `${rslt}${txt}`;
+    }
+
+    return rslt;
+  }, parts[0]);
 };
 
 export const LOCAL_TIME_DIFFERENCE = (() => {

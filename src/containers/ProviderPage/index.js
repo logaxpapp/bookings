@@ -41,9 +41,11 @@ import { ReturnPolicyComponent } from '../ReturnPolicy';
 import { useDialog } from '../../lib/Dialog';
 import { ServiceCard, useTimeSlotsDialog } from '../Search/SearchPanel';
 import { getApiKeysAsync } from '../../redux/apiKeys';
+import { useBoldDialog } from '../../components/CustomDialogs';
 
 const CLOSE_WINDOW = 'close window';
 const CATEGORY = 'category';
+const MORE = 'more';
 const RETURN_POLICY = 'return_policy';
 const SEARCH = 'search';
 const VIEW_IMAGES = 'view images';
@@ -733,9 +735,24 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
   const [services, setServices] = useState(null);
   const [term, setTerm] = useState('');
   const [imageBG, setImageBG] = useState('transparent');
+  const [aboutHeight, setAboutHeight] = useState('100%');
+  const picture = useRef();
+  const heroTextWrap = useRef();
+  const heroHeading = useRef();
+  const boldDialog = useBoldDialog();
   const busyDialog = useBusyDialog();
   const slotsDialog = useTimeSlotsDialog();
   const book = useBook();
+  const { width } = useWindowSize();
+
+  useEffect(() => {
+    const pictureHeight = picture.current.clientHeight;
+    if (width >= 768 && heroTextWrap.current.clientHeight - pictureHeight >= 24) {
+      setAboutHeight(pictureHeight - heroHeading.current.clientHeight);
+    } else {
+      setAboutHeight('100%');
+    }
+  }, [width]);
 
   useEffect(() => {
     if (!category) {
@@ -784,6 +801,12 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
     });
   }, [book, busyDialog, slotsDialog]);
 
+  const handleClick = useCallback(({ target: { name } }) => {
+    if (name === MORE) {
+      boldDialog.show(<span>{aboutUs}</span>);
+    }
+  }, [aboutUs, boldDialog]);
+
   return (
     <>
       <div>
@@ -791,14 +814,27 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
         <section className={css.hero}>
           <div className={css.hero_profile_picture_wrap} style={{ backgroundColor: imageBG }}>
             <img
+              ref={picture}
               src={profilePicture}
               alt={provider.name}
               className={css.hero_profile_picture}
             />
           </div>
-          <div className={css.hero_text_wrap}>
-            <h1 className={css.heading}>{provider.name}</h1>
-            <p className={css.hero_about_us}>{aboutUs}</p>
+          <div ref={heroTextWrap} className={css.hero_text_wrap}>
+            <h1 ref={heroHeading} className={css.hero_heading}>{provider.name}</h1>
+            <p
+              className={`${css.hero_about_us} ${aboutHeight === '100%' ? '' : css.multi_line_ellipsis}`}
+              style={{ height: aboutHeight }}
+            >
+              {aboutUs}
+            </p>
+            {aboutHeight === '100%' ? null : (
+              <div className={css.hero_controls}>
+                <button type="button" name={MORE} className="link compact-link" onClick={handleClick}>
+                  read more
+                </button>
+              </div>
+            )}
           </div>
         </section>
       </div>
