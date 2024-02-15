@@ -151,7 +151,7 @@ const CardEditor = () => {
           <div className={css.card_left}>
             <div className={css.qr_wrap} style={{ backgroundColor: colors.qrCon, borderRadius: `${borderRadius}px 0 0 0` }}>
               <QRCode
-                value={code}
+                value={url}
                 size={150}
                 fgColor={colors.qrFG}
                 bgColor={colors.qrBG}
