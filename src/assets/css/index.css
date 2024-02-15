@@ -18,6 +18,8 @@
   --primary-color: #354764;
   --primary-color-dark: #011c39;
   --color-accent: #fc5546;
+  --brand-p1: #fc5546;
+  --brand-p2: #89E101;
   --neutral-n-90: #8993a4;
 }
 
@@ -546,6 +548,10 @@ input:-webkit-autofill:active {
   flex-direction: column;
   gap: 32px;
   border-radius: 8px;
+}
+
+.no-pointers {
+  pointer-events: none;
 }
 
 @keyframes animloader {

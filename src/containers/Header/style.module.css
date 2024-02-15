@@ -88,7 +88,21 @@
 
 .header.transparent .menu_link:hover,
 .header.transparent .menu_link.active {
-  color: var(--color-accent);
+  color: #fff;
+}
+
+.header.transparent .menu_link:hover {
+  text-decoration: underline;
+}
+
+.header.transparent .menu_link.register_menu_item {
+  color: var(--primary-color-dark);
+  background-color: #fff;
+}
+
+.header.transparent .menu_link.register_menu_item:hover {
+  background-color: #f0f3f7;
+  text-decoration: none;
 }
 
 .menu_link.register_menu_item {
@@ -107,6 +121,10 @@
 .globe {
   width: 24px;
   height: 24px;
+}
+
+.header.transparent .globe {
+  color: #fff;
 }
 
 .drawer_nav_bar {
@@ -240,6 +258,14 @@
   height: 18px;
   background-color: #333;
   mask: url(../../assets/images/chevron_down.svg);
+}
+
+.header.transparent .has_sub_menu_d1::after {
+  background-color: #fff;
+}
+
+.header.transparent .has_sub_menu_d1 .menu_link:hover {
+  text-decoration: none;
 }
 
 .sub_menu_d1 {
