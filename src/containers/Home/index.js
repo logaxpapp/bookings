@@ -1,6 +1,14 @@
-import { Link } from 'react-router-dom';
+/* eslint-disable no-nested-ternary */
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import QrScanner from 'qr-scanner';
+import { useDispatch, useSelector } from 'react-redux';
 import Header from '../Header';
-import SearchRow from './SearchRow';
 import css from './style.module.css';
 import searchImage from '../../assets/images/search.jpg';
 import barber from '../../assets/images/barber.jpg';
@@ -11,6 +19,20 @@ import Subscriptions from '../Pricing/Subscription';
 import BlendedImageBackground from '../../components/BlendedImageBackground';
 import Footer from '../Footer';
 import FrequentQuestions from './FrequentQuestions';
+import heroVideo from '../../assets/images/hero-video.mp4';
+import Modal from '../../components/Modal';
+import { loadCountriesAsync, selectCountries } from '../../redux/countriesSlice';
+import { useUserLocation } from '../../redux/userLocationSlice';
+import { notification } from '../../utils';
+
+const CITY = 'city';
+const COUNTRY = 'country';
+const OPEN_CITY_SELECT = 'open_city_select';
+const STATE = 'state';
+const TERM = 'term';
+const SEARCH_PROMPT_BTN = 'search_prompt_btn';
+const SCAN_BTN = 'scan_btn';
+const TOGGLE_SEARCH_MODE = 'toggle_search_mode';
 
 const reasons = [
   {
@@ -29,6 +51,356 @@ const reasons = [
     text: 'Keep your data safe with our secure infrastructure and privacy-focused features.',
   },
 ];
+
+const popularSearches = [
+  'Braiding', 'Make Up', 'Barber', 'Car Washer', 'House Cleaner',
+];
+
+const CodeReader = () => {
+  const videoRef = useRef();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const scanner = new QrScanner(videoRef.current, (result) => {
+      const { data } = result;
+      if (data) {
+        scanner.stop();
+
+        const url = new URL(data);
+        navigate(url.pathname);
+      }
+    }, { returnDetailedScanResult: true });
+    scanner.start();
+    return () => scanner.stop();
+  }, []);
+
+  return (
+    // eslint-disable-next-line jsx-a11y/media-has-caption
+    <video ref={videoRef} className={css.video} />
+  );
+};
+
+const searchModes = {
+  NONE: 'none',
+  CITY_SEARCH: 'city search',
+  LOCATION_SEARCH: 'location search',
+  CITY_SELECT: 'city select',
+};
+
+const SearchBar = () => {
+  const countries = useSelector(selectCountries);
+  const [country, setCountry] = useState('');
+  const [state, setState] = useState('');
+  const [city, setCity] = useState();
+  const [term, setTerm] = useState('');
+  const initialized = useRef(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useUserLocation();
+
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [mode, setMode] = useState(searchModes.NONE);
+
+  const handleClick = ({ target: { name } }) => {
+    if (name === SCAN_BTN) {
+      setScannerOpen(true);
+    } else if (name === SEARCH_PROMPT_BTN) {
+      setMode(searchModes.CITY_SEARCH);
+    } else if (name === TOGGLE_SEARCH_MODE) {
+      if (mode === searchModes.CITY_SEARCH) {
+        setMode(searchModes.LOCATION_SEARCH);
+      } else if (mode === searchModes.LOCATION_SEARCH) {
+        setMode(searchModes.CITY_SEARCH);
+      }
+    } else if (name === OPEN_CITY_SELECT) {
+      setMode(searchModes.CITY_SELECT);
+    }
+  };
+
+  useEffect(() => {
+    if (!countries) {
+      dispatch(loadCountriesAsync(() => {}));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (initialized.current) {
+      return;
+    }
+
+    if (countries && location && !city) {
+      initialized.current = true;
+      const country = countries.find(
+        ({ code }) => code.toLowerCase() === location.country.toLowerCase(),
+      );
+      if (country) {
+        setCountry(country);
+
+        const state = country.states.find(
+          ({ name }) => name.toLowerCase() === location.region.toLowerCase(),
+        );
+        if (state) {
+          setState(state);
+
+          const city = state.cities.find(
+            ({ name }) => name.toLowerCase() === location.city.toLowerCase(),
+          );
+          if (city) {
+            setCity(city);
+          }
+        }
+      }
+    }
+  }, [city, location, countries]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!term) {
+      notification.showInfo('Please enter a service!');
+      return;
+    }
+
+    let path = `${routes.search}?term=${term}`;
+    if (mode === searchModes.CITY_SEARCH) {
+      if (!city) {
+        notification.showError('Please select a city!');
+        return;
+      }
+
+      path += `&city_id=${city.id}`;
+    } else {
+      path += '&force_current_location=true';
+    }
+
+    navigate(path);
+  };
+
+  const handleValueChange = ({ target: { name, value } }) => {
+    if (name === COUNTRY) {
+      const country = countries && countries.find(
+        ({ id }) => id === Number.parseInt(value, 10),
+      );
+      setCountry(country);
+      setState(country ? country.states[0] : null);
+    } else if (name === STATE) {
+      setState(
+        country ? country.states.find(
+          ({ id }) => id === Number.parseInt(value, 10),
+        ) : null,
+      );
+    } else if (name === CITY) {
+      setCity(
+        state ? state.cities.find(
+          ({ id }) => id === Number.parseInt(value, 10),
+        ) : null,
+      );
+    } else if (name === TERM) {
+      setTerm(value);
+    }
+  };
+
+  return (
+    <div className={css.hero_search_wrap} id="hero-search-wrap">
+      <button
+        type="button"
+        name={SEARCH_PROMPT_BTN}
+        className={css.hero_search_btn}
+        onClick={handleClick}
+      >
+        <span className="no-pointers">Search services here ...</span>
+      </button>
+      <button
+        aria-label="scan qr code"
+        type="button"
+        name={SCAN_BTN}
+        className={css.hero_scan_btn}
+        onClick={handleClick}
+      />
+      <Modal
+        isOpen={mode !== searchModes.NONE}
+        onRequestClose={() => setMode(searchModes.NONE)}
+        parentSelector={() => document.querySelector('#hero-search-wrap')}
+        shouldCloseOnEsc
+        shouldCloseOnOverlayClick
+      >
+        <div className="modal-bold-body">
+          {mode === searchModes.CITY_SEARCH || mode === searchModes.LOCATION_SEARCH ? (
+            <>
+              {mode === searchModes.CITY_SEARCH ? (
+                <button
+                  type="button"
+                  name={OPEN_CITY_SELECT}
+                  className={`${css.city_prompt} ${css.link}`}
+                  onClick={handleClick}
+                >
+                  {city ? (
+                    <>
+                      <span>
+                        {`You are searching in ${city.name}, ${state.name}, ${country.name}.`}
+                      </span>
+                      <span>Not your city? Click to change location.</span>
+                    </>
+                  ) : <span>Please click to select your city</span>}
+                </button>
+              ) : (
+                <div className={css.city_prompt}>
+                  <span>You are searching by your device current location.</span>
+                  <span>Please allow location access if prompted!</span>
+                </div>
+              )}
+              <form onSubmit={handleSubmit} className={css.city_select_form}>
+                <input
+                  type="search"
+                  name={TERM}
+                  placeholder="Enter Service"
+                  value={term}
+                  className={css.city_select_input}
+                  onChange={handleValueChange}
+                />
+                <button type="submit" className={css.search_modal_btn}>
+                  Search
+                </button>
+              </form>
+              <button
+                type="button"
+                name={TOGGLE_SEARCH_MODE}
+                className={`link ${css.search_modal_link}`}
+                onClick={handleClick}
+              >
+                {mode === searchModes.CITY_SEARCH ? (
+                  <>
+                    <span>Use device location.</span>
+                    <span>Please allow location access if prompted!</span>
+                  </>
+                ) : 'Search in my city instead.'}
+              </button>
+            </>
+          ) : null}
+          {mode === searchModes.CITY_SELECT ? (
+            <>
+              <label htmlFor={COUNTRY} className="bold-select-wrap">
+                <span className="label">Select Country</span>
+                <div className="bold-select">
+                  <select
+                    name={COUNTRY}
+                    value={(country && country.id) || ''}
+                    onChange={handleValueChange}
+                  >
+                    <option value="" disabled>-- Select Country --</option>
+                    {countries ? countries.map((country) => (
+                      <option value={country.id} key={country.id}>{country.name}</option>
+                    )) : null}
+                  </select>
+                </div>
+              </label>
+              <label htmlFor={STATE} className="bold-select-wrap">
+                <span className="label">Select State</span>
+                <div className="bold-select">
+                  <select
+                    name={STATE}
+                    value={(state && state.id) || ''}
+                    onChange={handleValueChange}
+                  >
+                    <option value="" disabled>-- Select State --</option>
+                    {country ? country.states.map((state) => (
+                      <option value={state.id} key={state.id}>{state.name}</option>
+                    )) : null}
+                  </select>
+                </div>
+              </label>
+              <label htmlFor={CITY} className="bold-select-wrap">
+                <span className="label">Select City</span>
+                <div className="bold-select">
+                  <select
+                    name={CITY}
+                    value={(city && city.id) || ''}
+                    onChange={handleValueChange}
+                  >
+                    <option value="" disabled>-- Select City --</option>
+                    {state ? state.cities.map((city) => (
+                      <option value={city.id} key={city.id}>{city.name}</option>
+                    )) : null}
+                  </select>
+                </div>
+              </label>
+              <div className={css.search_modal_panel}>
+                <button
+                  type="button"
+                  className={`link ${css.search_modal_link}`}
+                  onClick={() => setMode(searchModes.CITY_SEARCH)}
+                >
+                  Search In Selected City
+                </button>
+                <span>OR</span>
+                <button
+                  type="button"
+                  className={`link ${css.search_modal_link}`}
+                  onClick={() => setMode(searchModes.LOCATION_SEARCH)}
+                >
+                  Search using device Location
+                </button>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </Modal>
+      <Modal
+        isOpen={scannerOpen}
+        onRequestClose={() => setScannerOpen(false)}
+        parentSelector={() => document.querySelector('#hero-search-wrap')}
+        shouldCloseOnEsc
+        shouldCloseOnOverlayClick
+      >
+        {scannerOpen ? (
+          <div className={css.scanner_wrap}>
+            <CodeReader />
+          </div>
+        ) : null}
+      </Modal>
+    </div>
+  );
+};
+
+const HeroSection = () => {
+  const handlePopularSearchClick = useCallback(() => {
+    // TODO
+  }, []);
+
+  return (
+    <div className={`${css.section_row} ${css.hero_section}`}>
+      {/* eslint-disable jsx-a11y/media-has-caption */}
+      <video className={css.hero_video} autoPlay loop muted>
+        <source src={heroVideo} />
+      </video>
+      {/* eslint-enable jsx-a11y/media-has-caption */}
+      <div className={css.hero_inner}>
+        <Header transparent />
+        <section className={css.hero_body}>
+          <header className={css.hero_body_header}>
+            <h1 className={css.hero_heading}>Find Your Perfect Services Today</h1>
+            <p className={css.hero_heading_rider}>
+              Discover top-notch service providers near you.
+            </p>
+          </header>
+          <SearchBar />
+          <div className={css.hero_popular_search_wrap}>
+            {popularSearches.map((term) => (
+              <button
+                key={term}
+                type="button"
+                name={term}
+                className={css.hero_popular_search_btn}
+                onClick={handlePopularSearchClick}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+};
 
 const Steps = () => (
   <section className={`${css.section_row} ${css.steps_row}`}>
@@ -64,7 +436,7 @@ const Steps = () => (
             Create and manage your time slots
           </h1>
           <p className={css.steps_article_text}>
-            Let your pontential clients know the times that you are
+            Let your potential clients know the times that you are
             available for appointments.
           </p>
         </article>
@@ -188,8 +560,7 @@ const WhyChooseUs = () => (
 
 const Home = () => (
   <div className={css.container}>
-    <Header />
-    <SearchRow />
+    <HeroSection />
     <TrustedBy />
     <Steps />
     <WhyChooseUs />
