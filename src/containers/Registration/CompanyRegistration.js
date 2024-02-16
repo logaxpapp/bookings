@@ -13,7 +13,6 @@ import TextBox, {
 import routes from '../../routing/routes';
 import { registerCompany } from '../../api';
 
-const ADDRESS = 'address';
 const CATEGORY = 'category';
 const EMAIL = 'email';
 const FIRSTNAME = 'firstname';
@@ -45,7 +44,6 @@ const CompanyRegistration = () => {
     satisfiesMinLength: false,
     isValid: false,
   });
-  const [address, setAddress] = useState('');
   const [errors, setErrors] = useState({
     name: '',
     email: '',
@@ -53,7 +51,6 @@ const CompanyRegistration = () => {
     lastname: '',
     phoneNumber: '',
     category: '',
-    address: '',
     password: '',
     passwordRepeat: '',
   });
@@ -85,8 +82,6 @@ const CompanyRegistration = () => {
       setPhoneNumber(value);
     } else if (name === CATEGORY) {
       setCategory(value);
-    } else if (name === ADDRESS) {
-      setAddress(value);
     } else if (name === PASSWORD) {
       setPassword(value);
       setPasswordCriteria(validatePassword(value));
@@ -124,10 +119,6 @@ const CompanyRegistration = () => {
       errors.category = 'Invalid Category!';
     }
 
-    if (!address || address.length < 10) {
-      errors.address = 'Invalid Address!';
-    }
-
     if (!passwordCriteria.isValid) {
       errors.password = 'Password does NOT meet criteria!';
     }
@@ -150,7 +141,6 @@ const CompanyRegistration = () => {
       lastname,
       phone_number: phoneNumber,
       category: category.toLowerCase(),
-      address,
       password,
       price_id: priceId,
       country_id: countryId,
@@ -168,7 +158,7 @@ const CompanyRegistration = () => {
       });
   }, [
     name, email, phoneNumber, category, firstname, lastname,
-    password, passwordRepeat, address, priceId, countryId, passwordCriteria,
+    password, passwordRepeat, priceId, countryId, passwordCriteria,
   ]);
 
   return (
@@ -177,7 +167,11 @@ const CompanyRegistration = () => {
       <main className={css.main}>
         <form className={`${css.form} ${css.registration_form}`} onSubmit={handleFormSubmit}>
           <h1 className={css.h1}>Company Registration</h1>
-          <AlertComponent type="error" message={error} style={{ maxHeight: 60 }} />
+          <AlertComponent
+            type="error"
+            message={error ? 'An error occurred while creating account' : ''}
+            style={{ maxHeight: 60 }}
+          />
           <div className={css.row}>
             <TextBox
               id={FIRSTNAME}
@@ -273,40 +267,31 @@ const CompanyRegistration = () => {
               onChange={handleValueChange}
             />
           </div>
-          <div className={css.password_criteria_wrap}>
-            <span className={`${css.password_criteria} ${css.header}`}>
-              Password MUST contain at least&nbsp;
-            </span>
-            <span className={`${css.password_criteria} ${passwordCriteria.hasLowerCase ? css.satisfied : ''}`}>
-              1 lowercase character,&nbsp;
-            </span>
-            <span className={`${css.password_criteria} ${passwordCriteria.hasUpperCase ? css.satisfied : ''}`}>
-              1 uppercase character,&nbsp;
-            </span>
-            <span className={`${css.password_criteria} ${passwordCriteria.hasDigit ? css.satisfied : ''}`}>
-              1 digit,&nbsp;
-            </span>
-            <span className={`${css.password_criteria} ${passwordCriteria.hasSpecialCharacter ? css.satisfied : ''}`}>
-              1 special character,&nbsp;
-            </span>
-            <span className={`${css.password_criteria} ${css.header}`}>
-              and MUST be&nbsp;
-            </span>
-            <span className={`${css.password_criteria} ${passwordCriteria.satisfiesMinLength ? css.satisfied : ''}`}>
-              at least 8 characters long
-            </span>
-          </div>
-          <TextBox
-            id={ADDRESS}
-            type="text"
-            name={ADDRESS}
-            value={address}
-            label="Address"
-            error={errors.address}
-            className={textboxCss.marker}
-            style={{ backgroundColor: '#efefef', borderRadius: 4 }}
-            onChange={handleValueChange}
-          />
+          {password && !passwordCriteria.isValid ? (
+            <div className={css.password_criteria_wrap}>
+              <span className={`${css.password_criteria} ${css.header}`}>
+                Password MUST contain at least&nbsp;
+              </span>
+              <span className={`${css.password_criteria} ${passwordCriteria.hasLowerCase ? css.satisfied : ''}`}>
+                1 lowercase character,&nbsp;
+              </span>
+              <span className={`${css.password_criteria} ${passwordCriteria.hasUpperCase ? css.satisfied : ''}`}>
+                1 uppercase character,&nbsp;
+              </span>
+              <span className={`${css.password_criteria} ${passwordCriteria.hasDigit ? css.satisfied : ''}`}>
+                1 digit,&nbsp;
+              </span>
+              <span className={`${css.password_criteria} ${passwordCriteria.hasSpecialCharacter ? css.satisfied : ''}`}>
+                1 special character,&nbsp;
+              </span>
+              <span className={`${css.password_criteria} ${css.header}`}>
+                and MUST be&nbsp;
+              </span>
+              <span className={`${css.password_criteria} ${passwordCriteria.satisfiesMinLength ? css.satisfied : ''}`}>
+                at least 8 characters long
+              </span>
+            </div>
+          ) : null}
           <div>
             <span>
               By clicking Create account below, you agree to the&nbsp;

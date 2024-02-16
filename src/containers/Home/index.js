@@ -1,11 +1,12 @@
+/* eslint-disable jsx-a11y/media-has-caption */
 /* eslint-disable no-nested-ternary */
 import {
-  useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import QrScanner from 'qr-scanner';
 import { useDispatch, useSelector } from 'react-redux';
 import Header from '../Header';
@@ -24,6 +25,7 @@ import Modal from '../../components/Modal';
 import { loadCountriesAsync, selectCountries } from '../../redux/countriesSlice';
 import { useUserLocation } from '../../redux/userLocationSlice';
 import { notification } from '../../utils';
+import { cityProps } from '../../utils/propTypes';
 
 const CITY = 'city';
 const COUNTRY = 'country';
@@ -75,8 +77,9 @@ const CodeReader = () => {
   }, []);
 
   return (
-    // eslint-disable-next-line jsx-a11y/media-has-caption
-    <video ref={videoRef} className={css.video} />
+    <div className={css.video_bg}>
+      <video ref={videoRef} className={css.video} />
+    </div>
   );
 };
 
@@ -87,11 +90,15 @@ const searchModes = {
   CITY_SELECT: 'city select',
 };
 
-const SearchBar = () => {
+const SearchBar = ({
+  city,
+  mode,
+  setCity,
+  setMode,
+}) => {
   const countries = useSelector(selectCountries);
   const [country, setCountry] = useState('');
   const [state, setState] = useState('');
-  const [city, setCity] = useState();
   const [term, setTerm] = useState('');
   const initialized = useRef(false);
   const dispatch = useDispatch();
@@ -99,7 +106,6 @@ const SearchBar = () => {
   const location = useUserLocation();
 
   const [scannerOpen, setScannerOpen] = useState(false);
-  const [mode, setMode] = useState(searchModes.NONE);
 
   const handleClick = ({ target: { name } }) => {
     if (name === SCAN_BTN) {
@@ -361,13 +367,42 @@ const SearchBar = () => {
   );
 };
 
+SearchBar.propTypes = {
+  city: cityProps,
+  mode: PropTypes.string.isRequired,
+  setCity: PropTypes.func.isRequired,
+  setMode: PropTypes.func.isRequired,
+};
+
+SearchBar.defaultProps = {
+  city: null,
+};
+
 const HeroSection = () => {
-  const handlePopularSearchClick = useCallback(() => {
-    // TODO
-  }, []);
+  const [mode, setMode] = useState(searchModes.NONE);
+  const [city, setCity] = useState();
+  const navigate = useNavigate();
+
+  const handlePopularSearchClick = ({ target: { name } }) => {
+    let path = `${routes.search}?term=${name}`;
+    if (city && mode !== searchModes.LOCATION_SEARCH) {
+      if (!city) {
+        notification.showError('Please select a city!');
+        return;
+      }
+
+      path += `&city_id=${city.id}`;
+    } else {
+      path += '&force_current_location=true';
+    }
+
+    navigate(path);
+  };
 
   return (
-    <div className={`${css.section_row} ${css.hero_section}`}>
+    <div
+      className={`${css.section_row} ${css.hero_section}`}
+    >
       {/* eslint-disable jsx-a11y/media-has-caption */}
       <video className={css.hero_video} autoPlay loop muted>
         <source src={heroVideo} />
@@ -382,7 +417,7 @@ const HeroSection = () => {
               Discover top-notch service providers near you.
             </p>
           </header>
-          <SearchBar />
+          <SearchBar city={city} mode={mode} setCity={setCity} setMode={setMode} />
           <div className={css.hero_popular_search_wrap}>
             {popularSearches.map((term) => (
               <button
