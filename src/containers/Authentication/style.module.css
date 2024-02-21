@@ -1,0 +1,95 @@
+.h1 {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 62px;
+  letter-spacing: 0em;
+  text-align: left;
+  margin: 0;
+}
+
+.h2 {
+  font-family: Plus Jakarta Sans;
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 62px;
+  letter-spacing: -2px;
+  text-align: left;
+  margin: 0;
+}
+
+.text_accent {
+  color: #89e101;
+}
+
+.star {
+  flex: 0 0 23.03px;
+  width: 23.03px;
+  height: 22px;
+  background-size: cover;
+  background-image: url(../../assets/images/star.svg);
+}
+
+.av {
+  width: 44.99px;
+  height: 44.99px;
+  border-radius: 158.47px;
+}
+
+.name {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+  letter-spacing: -0.02em;
+  text-align: left;
+}
+
+.designation {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  letter-spacing: -0.02em;
+  text-align: left;
+}
+
+.form_wrap {
+  max-width: 480px;
+  width: 100%;
+  height: max-content;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.password_criteria_wrap {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+.password_criteria {
+  color: #ff1414;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+
+.password_criteria.header {
+  color: inherit;
+}
+
+.password_criteria.satisfied {
+  color: #1fd735;
+}
+
+.forgot_password_header {
+  color: #0e2f5a;
+  font-size: 1.2rem;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px dotted #dfdfdf;
+}

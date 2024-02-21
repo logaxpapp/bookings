@@ -107,7 +107,7 @@ const LoginForm = ({
           />
           <LoadingButton
             type="submit"
-            label="Log In"
+            label="Login"
             loading={busy}
           />
         </form>
