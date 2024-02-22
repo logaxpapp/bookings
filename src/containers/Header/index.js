@@ -1,4 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Link,
@@ -19,11 +23,11 @@ import {
   logout as logoutCompany,
   updatePasswordAsync as updateCompanyPassword,
 } from '../../redux/companySlice';
+import Modal from '../../components/Modal';
 import { SvgButton, paths } from '../../components/svg';
 import { useDialog } from '../../lib/Dialog';
 import PasswordEditor from '../PasswordEditor';
-/* eslint-disable-next-line */
-import useAuthChooser from '../AuthTypeChooser/useAuthChooser';
+import AuthTypeChooser from '../Authentication/AuthTypeChooser';
 
 const CHANGE_PASSWORD = 'change_password';
 const DASHBOARD_BTN = 'password_btn';
@@ -198,10 +202,10 @@ UserMenu.propTypes = {
 
 const Header = ({ transparent }) => {
   const [state, setState] = useState({ signedIn: false, dashboardPath: '' });
+  const [authChooserParams, setAuthChooserParams] = useState(null);
   const user = useSelector(selectUser);
   const company = useSelector(selectCompany);
   const { pathname } = useLocation();
-  const authChooser = useAuthChooser();
   const dialog = useDialog();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -248,20 +252,20 @@ const Header = ({ transparent }) => {
     const { target: { name } } = e;
 
     if (name === LOGIN) {
-      authChooser.show(
-        () => navigate(routes.company.absolute.login),
-        () => navigate(routes.user.login),
-      );
+      setAuthChooserParams({
+        companyRoute: routes.company.absolute.login,
+        userRoute: routes.user.login,
+      });
     } else if (name === REGISTER) {
-      authChooser.show(
-        () => navigate(routes.company.absolute.registration),
-        () => navigate(routes.user.registeration),
-      );
+      setAuthChooserParams({
+        companyRoute: routes.company.absolute.registration,
+        userRoute: routes.user.registeration,
+      });
     }
-  }, [authChooser, navigate]);
+  }, []);
 
   return (
-    <header className={`${css.header} ${transparent ? css.transparent : ''}`}>
+    <header className={`${css.header} ${transparent ? css.transparent : ''}`} id="page-main-header">
       <nav className={css.nav}>
         <Link className={css.main_nav_brand} to={routes.home}>
           <img src={lx} alt="logo" className={css.logo} />
@@ -365,6 +369,21 @@ const Header = ({ transparent }) => {
         logout={logout}
         changePassword={changePassword}
       />
+      <Modal
+        isOpen={!!authChooserParams}
+        parentSelector={() => document.body}
+        onRequestClose={() => setAuthChooserParams(null)}
+        style={{ content: { maxWidth: 'max-content' } }}
+        shouldCloseOnEsc
+        shouldCloseOnOverlayClick
+      >
+        {authChooserParams ? (
+          <AuthTypeChooser
+            companyRoute={authChooserParams.companyRoute}
+            userRoute={authChooserParams.userRoute}
+          />
+        ) : null}
+      </Modal>
     </header>
   );
 };

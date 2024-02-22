@@ -256,6 +256,76 @@ const TextBox = forwardRef(function TextBox({
   );
 });
 
+/**
+ * @param {Object} props
+ * @param {import('../../types').NamedStyle} props.style
+ * @param {import('../../types').NamedStyle} props.containerStyle
+ */
+export const Password = forwardRef(function Password({
+  id,
+  name,
+  value,
+  label,
+  labelRider,
+  error,
+  style,
+  containerStyle,
+  className,
+  onChange,
+  tabIndex,
+  placeholder,
+  title,
+  readOnly,
+  hideErrorOnNull,
+  canUnmask,
+}, ref) {
+  const [type, setType] = useState('password');
+
+  const toggleType = () => setType((type) => (type === 'password' ? 'text' : 'password'));
+
+  return (
+    <label htmlFor={id} className={css.input_label} style={containerStyle}>
+      {label ? (
+        <div className={css.input_label_text}>
+          <span>{label}</span>
+          {labelRider ? (
+            <span className={css.input_label_text_rider}>{`[${labelRider}]`}</span>
+          ) : null}
+        </div>
+      ) : null}
+      <div className={`${css.input_wrap} ${className}`} style={style}>
+        <input
+          ref={ref}
+          id={id}
+          type={type}
+          name={name}
+          value={value}
+          className={css.input}
+          onChange={onChange}
+          tabIndex={tabIndex}
+          placeholder={placeholder}
+          title={title}
+          readOnly={readOnly}
+        />
+        {canUnmask ? (
+          <SvgButton
+            color="#7c8b99"
+            title="Toggle"
+            onClick={toggleType}
+            path={type === 'password' ? paths.eye : paths.eyeOff}
+            style={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+            }}
+          />
+        ) : null}
+      </div>
+      <ErrorComponent error={error} hideErrorOnNull={hideErrorOnNull} />
+    </label>
+  );
+});
+
 /* eslint-enable prefer-arrow-callback */
 
 TextBox.propTypes = {
@@ -297,6 +367,42 @@ TextBox.defaultProps = {
   options: null,
   hideErrorOnNull: false,
   readOnly: false,
+};
+
+Password.propTypes = {
+  id: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  label: PropTypes.string,
+  labelRider: PropTypes.string,
+  error: PropTypes.string,
+  style: PropTypes.shape({}),
+  containerStyle: PropTypes.shape({}),
+  className: PropTypes.string,
+  onChange: PropTypes.func,
+  tabIndex: PropTypes.number,
+  placeholder: PropTypes.string,
+  title: PropTypes.string,
+  hideErrorOnNull: PropTypes.bool,
+  readOnly: PropTypes.bool,
+  canUnmask: PropTypes.bool,
+};
+
+Password.defaultProps = {
+  value: '',
+  label: '',
+  labelRider: '',
+  error: '',
+  style: {},
+  containerStyle: {},
+  className: '',
+  onChange: null,
+  tabIndex: 0,
+  placeholder: '',
+  title: null,
+  hideErrorOnNull: false,
+  readOnly: false,
+  canUnmask: false,
 };
 
 /**

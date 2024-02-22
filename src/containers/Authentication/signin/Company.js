@@ -1,21 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router';
-import LoginForm from './LoginForm';
-import {
-  loginAsync,
-  selectAuthenticatingCompany,
-  selectCompanyAuthenticationError,
-} from '../../redux/companySlice';
-import routes from '../../routing/routes';
+import SigninForm from './SigninForm';
+import { loginAsync } from '../../../redux/companySlice';
+import routes from '../../../routing/routes';
 
 const CompanyLogin = () => {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
   const [referrer, setReferrer] = useState();
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
-  const busy = useSelector(selectAuthenticatingCompany);
-  const error = useSelector(selectCompanyAuthenticationError);
 
   useEffect(() => {
     const referrer = location.state && location.state.referrer;
@@ -23,20 +19,27 @@ const CompanyLogin = () => {
   }, []);
 
   const handleSubmit = useCallback((email, password) => {
+    setBusy(true);
     dispatch(loginAsync(email, password, (error) => {
-      if (!error) {
-        navigate(referrer, { replace: true });
+      if (error) {
+        setBusy(false);
+        setError(error === 'Invalid credentials' ? 'Incorrect Email or Password' : 'An unknown error occurred during authentication.');
+      } else {
+        setBusy(false);
+        navigate(referrer || routes.home, { replace: true });
       }
     }));
   }, [referrer]);
 
   return (
-    <LoginForm
+    <SigninForm
       busy={busy}
       error={error}
       onSubmit={handleSubmit}
       referred={!!referrer}
-      passwordRecoveryPath={routes.company.absolute.passwordRecovery}
+      forgotPasswordEndpoint="auth/password-recoveries/employee"
+      signupPath={routes.company.absolute.login}
+      setBusy={setBusy}
     />
   );
 };
