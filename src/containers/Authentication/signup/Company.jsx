@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 import css from '../style.module.css';
@@ -14,6 +14,7 @@ import routes from '../../../routing/routes';
 import { registerCompany } from '../../../api';
 import AuthContainer from '../AuthContainer';
 import { notification } from '../../../utils';
+import EmailVerificationModal from './EmailVerificationModal';
 
 const EMAIL = 'email';
 const FIRSTNAME = 'firstname';
@@ -59,6 +60,7 @@ const CompanySignupForm = () => {
   const [busy, setBusy] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [linkResendPath, setLinkResendPath] = useState('');
 
   useEffect(() => {
     if (location.state && location.state.priceId && location.state.countryId) {
@@ -69,7 +71,7 @@ const CompanySignupForm = () => {
     }
   }, []);
 
-  const handleValueChange = useCallback(({ target }) => {
+  const handleValueChange = ({ target }) => {
     const { name, value } = target;
 
     setFields((fields) => ({ ...fields, [name]: value }));
@@ -92,9 +94,9 @@ const CompanySignupForm = () => {
     }
 
     setErrors((errors) => ({ ...errors, [name]: error }));
-  }, []);
+  };
 
-  const handleFormSubmit = useCallback((e) => {
+  const handleFormSubmit = (e) => {
     e.preventDefault();
 
     const passwordValid = validatePassword(fields[PASSWORD]);
@@ -125,17 +127,14 @@ const CompanySignupForm = () => {
     })
       .then(({ id }) => {
         setBusy(false);
-        navigate(routes.company.absolute.emailVerification(id), {
-          replace: true,
-          state: { email: fields[EMAIL], resendPath: `companies/${id}/resend_verification_link` },
-        });
+        setLinkResendPath(`companies/${id}/resend-verification-link`);
       })
       .catch(({ message }) => {
         setBusy(false);
         setError(message);
         notification.showError('Applicaton encountered an error while creating account. Please try again.');
       });
-  }, [fields, priceId, countryId]);
+  };
 
   return (
     <AuthContainer
@@ -195,6 +194,7 @@ const CompanySignupForm = () => {
             error={errors[EMAIL] ? 'Invalid Email Address!' : ''}
             style={fieldStyle}
             onChange={handleValueChange}
+            readOnly={busy}
           />
           <TextBox
             id={PHONE_NUMBER}
@@ -278,6 +278,7 @@ const CompanySignupForm = () => {
             <span className="font-bold"> login.</span>
           </Link>
         </form>
+        <EmailVerificationModal email={fields[EMAIL]} resendPath={linkResendPath} />
       </div>
     </AuthContainer>
   );

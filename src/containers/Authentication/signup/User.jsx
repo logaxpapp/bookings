@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
 import css from '../style.module.css';
 import AlertComponent from '../../../components/AlertComponents';
@@ -14,6 +13,7 @@ import routes from '../../../routing/routes';
 import { registerUser } from '../../../api';
 import AuthContainer from '../AuthContainer';
 import { notification } from '../../../utils';
+import EmailVerificationModal from './EmailVerificationModal';
 
 const EMAIL = 'email';
 const FIRSTNAME = 'firstname';
@@ -52,7 +52,7 @@ const UserSignupForm = () => {
     [PHONE_NUMBER]: '',
   });
   const [busy, setBusy] = useState(false);
-  const navigate = useNavigate();
+  const [linkResendPath, setLinkResendPath] = useState('');
 
   const handleValueChange = useCallback(({ target }) => {
     const { name, value } = target;
@@ -105,10 +105,7 @@ const UserSignupForm = () => {
     registerUser(fields)
       .then(({ id }) => {
         setBusy(false);
-        navigate(routes.user.emailVerification(id), {
-          replace: true,
-          state: { email: fields[EMAIL], resendPath: `users/${id}/resend_verification_link` },
-        });
+        setLinkResendPath(`users/${id}/resend-verification-link`);
       })
       .catch(({ message }) => {
         setBusy(false);
@@ -165,6 +162,7 @@ const UserSignupForm = () => {
             error={errors[EMAIL] ? 'Invalid Email Address!' : ''}
             style={fieldStyle}
             onChange={handleValueChange}
+            readOnly={busy}
           />
           <TextBox
             id={PHONE_NUMBER}
@@ -243,11 +241,12 @@ const UserSignupForm = () => {
               styles={{ marginTop: 0 }}
             />
           </div>
-          <Link to={routes.company.absolute.login} className="link">
+          <Link to={routes.user.login} className="link">
             <span>Already has an account?</span>
             <span className="font-bold"> login.</span>
           </Link>
         </form>
+        <EmailVerificationModal email={fields[EMAIL]} resendPath={linkResendPath} />
       </div>
     </AuthContainer>
   );

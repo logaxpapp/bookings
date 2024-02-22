@@ -53,7 +53,10 @@ const Modal = ({
     parentSelector={parentSelector}
     shouldCloseOnEsc={shouldCloseOnEsc}
     shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
-    style={{ ...styles, ...style }}
+    style={{
+      content: { ...styles.content, ...(style?.content || {}) },
+      overlay: { ...styles.overlay, ...(style?.overlay || {}) },
+    }}
   >
     {children}
     {onRequestClose ? (
@@ -86,7 +89,10 @@ Modal.propTypes = {
   parentSelector: PropTypes.func,
   shouldCloseOnEsc: PropTypes.bool,
   shouldCloseOnOverlayClick: PropTypes.bool,
-  style: PropTypes.shape,
+  style: PropTypes.shape({
+    content: PropTypes.shape({}),
+    overlay: PropTypes.shape({}),
+  }),
 };
 
 Modal.defaultProps = {

@@ -3,11 +3,15 @@ import routes from './routes';
 import Home from '../containers/Home';
 import Contact from '../containers/Contact';
 import Pricing from '../containers/Pricing';
-import Login from '../containers/Login';
 import CompanyLogin from '../containers/Authentication/signin/Company';
 import UserLogin from '../containers/Authentication/signin/User';
 import CompanyRegistration from '../containers/Authentication/signup/Company';
 import UserRegistration from '../containers/Authentication/signup/User';
+import {
+  EmailVerificationFailure,
+  EmailVerificationSuccess,
+} from '../containers/Authentication/signup/EmailVerifications';
+import PasswordResetForm from '../containers/Authentication/signin/PasswordResetForm';
 import Company from '../containers/Company';
 import Dashboard from '../containers/Company/Dashboard';
 import CompanySettings, { CompanyDetailsSettings } from '../containers/Company/Settings';
@@ -17,18 +21,7 @@ import Setup from '../containers/Company/Setup';
 import User from '../containers/User';
 import UserDashboard from '../containers/User/Dashboard';
 import Error404 from '../containers/Error404';
-import Registration from '../containers/Registration';
 import Subscriptions from '../containers/Subscriptions';
-import {
-  CompanyEmailVerification,
-  UserEmailVerification,
-} from '../containers/Registration/EmailVerification';
-import {
-  CompanyPasswordRecovery,
-  PasswordResetForm,
-  PasswordResetSuccess,
-  UserPasswordRecovery,
-} from '../containers/Login/PasswordRecovery';
 import Services from '../containers/Company/Settings/Services';
 import ProfilePage from '../containers/Company/ProfilePage';
 import ServiceImages from '../containers/Company/Settings/ServiceImages';
@@ -51,7 +44,6 @@ import CardEditor from '../containers/Company/CardEditor';
 import ReturnPolicy from '../containers/ReturnPolicy';
 import CompanyReturnPolicy from '../containers/Company/ReturnPolicy';
 import { PrivacyPolicy, TermsAndConditions } from '../containers/TermsAndPrivacy';
-import InvalidLink from '../containers/InvalidLink';
 
 const router = createBrowserRouter([
   {
@@ -83,10 +75,6 @@ const router = createBrowserRouter([
     element: <Subscriptions />,
   },
   {
-    path: routes.login,
-    element: <Login />,
-  },
-  {
     path: routes.company.absolute.login,
     element: <CompanyLogin />,
   },
@@ -95,24 +83,8 @@ const router = createBrowserRouter([
     element: <UserLogin />,
   },
   {
-    path: routes.company.absolute.passwordRecovery,
-    element: <CompanyPasswordRecovery />,
-  },
-  {
-    path: routes.user.passwordRecovery,
-    element: <UserPasswordRecovery />,
-  },
-  {
     path: routes.passwordReset,
     element: <PasswordResetForm />,
-  },
-  {
-    path: routes.passwordResetSuccess,
-    element: <PasswordResetSuccess />,
-  },
-  {
-    path: routes.register,
-    element: <Registration />,
   },
   {
     path: routes.company.absolute.registration,
@@ -121,6 +93,10 @@ const router = createBrowserRouter([
   {
     path: routes.user.registeration,
     element: <UserRegistration />,
+  },
+  {
+    path: routes.emailVerified(':resource'),
+    element: <EmailVerificationSuccess />,
   },
   {
     path: routes.providerPage(':code'),
@@ -221,14 +197,6 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: routes.company.absolute.emailVerification(':id'),
-    element: <CompanyEmailVerification />,
-  },
-  {
-    path: routes.user.emailVerification(':id'),
-    element: <UserEmailVerification />,
-  },
-  {
     path: routes.stripe.accountLinks.refresh,
     element: <AccountLinksRefresh />,
   },
@@ -258,7 +226,7 @@ const router = createBrowserRouter([
   },
   {
     path: routes.invalidLink,
-    element: <InvalidLink />,
+    element: <EmailVerificationFailure />,
   },
   {
     path: '*',

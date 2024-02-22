@@ -68,7 +68,6 @@ const routes = {
     },
     login: '/users/signin',
     registeration: '/users/signup',
-    passwordRecovery: '/users/password-recovery',
     emailVerification: (id) => `/users/${id}/verify-email-address`,
   },
   pricing: '/pricing',
@@ -78,8 +77,8 @@ const routes = {
   privacyPolicy: '/privacy-policy',
   signupSuccess: '/signup/success',
   passwordReset: '/:resource/password-reset/:token',
-  passwordRecoverySuccess: '/password-recoveries',
   passwordResetSuccess: '/password-reset',
+  emailVerified: (resource) => `/${resource}/verified`,
   stripe: {
     accountLinks: {
       refresh: '/stripe/account_links/refresh',

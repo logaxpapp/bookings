@@ -22,7 +22,7 @@ const UserLogin = () => {
     setBusy(true);
     dispatch(loginAsync(email, password, (error) => {
       if (error) {
-        setError(error === 'Invalid Email or Password' ? error : 'An unknown error occurred during authentication.');
+        setError(error === 'Invalid credentials' ? 'Incorrect Email or Password' : 'An unknown error occurred during authentication.');
         setBusy(false);
       } else {
         setBusy(false);

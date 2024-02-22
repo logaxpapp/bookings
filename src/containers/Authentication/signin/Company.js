@@ -23,7 +23,7 @@ const CompanyLogin = () => {
     dispatch(loginAsync(email, password, (error) => {
       if (error) {
         setBusy(false);
-        setError(error === 'Invalid Email or Password' ? error : 'An unknown error occurred during authentication.');
+        setError(error === 'Invalid credentials' ? 'Incorrect Email or Password' : 'An unknown error occurred during authentication.');
       } else {
         setBusy(false);
         navigate(referrer || routes.home, { replace: true });

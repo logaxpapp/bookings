@@ -16,11 +16,11 @@ const AuthContainer = ({ text, children }) => (
     >
       <div className="sm:flex flex-col h-full justify-evenly w-full max-w-md hidden">
         <div className="flex flex-col gap-6">
-          <h className={css.h1}>
+          <h1 className={css.h1}>
             <span>Welcome to</span>
             <span className={css.text_accent}> LogaXP </span>
-            <span>Booking</span>
-          </h>
+            <span>BookMiz</span>
+          </h1>
           <p className={css.p}>{text}</p>
         </div>
         <div className="flex flex-col gap-6">
