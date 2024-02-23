@@ -16,6 +16,7 @@ import PropTypes from 'prop-types';
 import css from './style.module.css';
 import {
   closeAppointmentMessage,
+  fetchUserAsync,
   loadAppointmentsAsync,
   openAppointmentMessages,
   selectAppointments,
@@ -57,6 +58,10 @@ import AppointmentsPanel from './AppointmentsPanel';
 import PasswordEditor from '../PasswordEditor';
 import WebSocketManager from './WebSockManager';
 import { getUserLocation, loadIPLocationAsync } from '../../redux/userLocationSlice';
+import AppStorage from '../../utils/appStorage';
+import BlankPageContainer from '../../components/BlankPageContainer';
+
+const storage = AppStorage.getInstance();
 
 const APPOINTMENTS = 'appointments';
 const BOOKMARKS = 'Bookmarks';
@@ -1140,15 +1145,42 @@ RestrictedUserPage.propTypes = {
 const User = () => {
   const user = useSelector(selectUser);
   const location = useLocation();
+  const [state, setState] = useState({ loading: true, error: '' });
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = storage.getEmployeeToken();
+    if (token) {
+      dispatch(fetchUserAsync(token, (err) => {
+        setState({ loading: false, error: err });
+      }));
+    } else {
+      setState({ loading: false, error: 'No Token Found' });
+    }
+  }, []);
+
+  if (state.loading) {
+    return (
+      <BlankPageContainer>
+        <LoadingSpinner>
+          <span>Loading ...</span>
+        </LoadingSpinner>
+      </BlankPageContainer>
+    );
+  }
 
   if (!user) {
-    return (
-      <Navigate
-        to={routes.user.login}
-        state={{ referrer: location.pathname }}
-        replace
-      />
-    );
+    if (state.error) {
+      return (
+        <Navigate
+          to={routes.user.login}
+          state={{ referrer: location.pathname }}
+          replace
+        />
+      );
+    }
+
+    return null;
   }
 
   return <RestrictedUserPage user={user} />;

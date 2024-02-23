@@ -8,6 +8,7 @@ import routes from '../../routing/routes';
 import Header from '../Header';
 import {
   closeAppointmentMessage,
+  fetchCompanyAsync,
   selectCompany,
   selectEmployee,
   selectOpenMessages,
@@ -21,6 +22,11 @@ import { appointmentProps } from '../../utils/propTypes';
 import MessagePanel from '../../components/MessagePanel';
 import WebSocketManager from './WebSocketManager';
 import { useWindowSize } from '../../lib/hooks';
+import AppStorage from '../../utils/appStorage';
+import BlankPageContainer from '../../components/BlankPageContainer';
+import LoadingSpinner from '../../components/LoadingSpinner';
+
+const storage = AppStorage.getInstance();
 
 const styles = {
   messagePanel: {
@@ -283,15 +289,42 @@ RestrictedCompany.propTypes = {
 const Company = () => {
   const company = useSelector(selectCompany);
   const location = useLocation();
+  const [state, setState] = useState({ loading: true, error: '' });
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = storage.getEmployeeToken();
+    if (token) {
+      dispatch(fetchCompanyAsync(token, (err) => {
+        setState({ loading: false, error: err });
+      }));
+    } else {
+      setState({ loading: false, error: 'No Token Found' });
+    }
+  }, []);
+
+  if (state.loading) {
+    return (
+      <BlankPageContainer>
+        <LoadingSpinner>
+          <span>Loading ...</span>
+        </LoadingSpinner>
+      </BlankPageContainer>
+    );
+  }
 
   if (!company) {
-    return (
-      <Navigate
-        to={routes.company.absolute.login}
-        state={{ referrer: location.pathname }}
-        replace
-      />
-    );
+    if (state.error) {
+      return (
+        <Navigate
+          to={routes.company.absolute.login}
+          state={{ referrer: location.pathname }}
+          replace
+        />
+      );
+    }
+
+    return null;
   }
 
   return <RestrictedCompany company={company} pathname={location.pathname} />;

@@ -13,6 +13,9 @@ import {
   notification,
 } from '../utils';
 import { updateProvider } from './serviceProvidersSlice';
+import AppStorage from '../utils/appStorage';
+
+const storage = AppStorage.getInstance();
 
 const ACCESS_MESSAGE = 'You do not have access to requested resource!';
 
@@ -48,6 +51,7 @@ const slice = createSlice({
       state.employees = payload.employees;
       state.permissions = payload.permissions;
       state.authenticating = false;
+      storage.setEmployeeToken(payload.token);
     },
     teardown: (state) => {
       state.company = null;
@@ -62,6 +66,7 @@ const slice = createSlice({
       state.employee = null;
       state.employees = [];
       state.permissions = {};
+      storage.unsetEmployeeToken();
     },
     setCompany: (state, { payload }) => {
       state.company = payload;
@@ -418,6 +423,21 @@ export const loginAsync = (email, password, callback) => (dispatch) => {
     })
     .catch(({ message }) => {
       dispatch(setAuthenticationError(message));
+      if (callback) {
+        callback(message);
+      }
+    });
+};
+
+export const fetchCompanyAsync = (token, callback) => (dispatch) => {
+  fetchResources('companies/auth/re-auth', token, true)
+    .then((data) => {
+      dispatch(setup({ ...data, token }));
+      if (callback) {
+        callback(null);
+      }
+    })
+    .catch(({ message }) => {
       if (callback) {
         callback(message);
       }
