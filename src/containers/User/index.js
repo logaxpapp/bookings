@@ -55,11 +55,11 @@ import { DateButton } from '../../components/Buttons';
 import { useWindowSize } from '../../lib/hooks';
 import MessagePanel from '../../components/MessagePanel';
 import AppointmentsPanel from './AppointmentsPanel';
-import PasswordEditor from '../PasswordEditor';
 import WebSocketManager from './WebSockManager';
 import { getUserLocation, loadIPLocationAsync } from '../../redux/userLocationSlice';
 import AppStorage from '../../utils/appStorage';
 import BlankPageContainer from '../../components/BlankPageContainer';
+import PasswordEditorDialog from '../Authentication/PasswordEditor';
 
 const storage = AppStorage.getInstance();
 
@@ -73,7 +73,6 @@ const LATITUDE = 'latitude';
 const LONGITUDE = 'longitude';
 const MODE = 'mode';
 const OPEN_CITY_DIALOG = 'open_city_dialog';
-const OPEN_PASSWORD_EDITOR = 'open_password_editor';
 const REFRESH_LOCATION = 'refresh_location';
 const SAVE = 'save';
 const SEARCH_TERM = 'search_term';
@@ -776,22 +775,12 @@ Preferences.propTypes = {
 };
 
 const Details = ({ user }) => {
+  const [isUpdatingPassword, setUpdatingPassword] = useState(false);
   const dispatch = useDispatch();
-  const dialog = useDialog();
 
   const handleUpdate = useCallback((name, value, callback) => dispatch(
     updateUserAsync({ [name]: value }, callback),
   ), []);
-
-  const handleClick = useCallback(({ target: { name } }) => {
-    if (name === OPEN_PASSWORD_EDITOR) {
-      let popup;
-      const handleClose = () => popup.close();
-      popup = dialog.show(
-        <PasswordEditor onClose={handleClose} updatePassword={updatePasswordAsync} />,
-      );
-    }
-  }, []);
 
   return (
     <section className={css.settings_section}>
@@ -801,10 +790,9 @@ const Details = ({ user }) => {
         </h1>
         <SvgButton
           type="button"
-          name={OPEN_PASSWORD_EDITOR}
           title="Change Password"
           path={paths.lockReset}
-          onClick={handleClick}
+          onClick={() => setUpdatingPassword(true)}
           sm
         />
       </header>
@@ -848,6 +836,11 @@ const Details = ({ user }) => {
           />
         </div>
       </div>
+      <PasswordEditorDialog
+        isOpen={isUpdatingPassword}
+        onClose={() => setUpdatingPassword(false)}
+        updatePassword={updatePasswordAsync}
+      />
     </section>
   );
 };

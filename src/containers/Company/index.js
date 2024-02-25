@@ -1,8 +1,17 @@
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Menu } from '@headlessui/react';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { BellIcon } from '@heroicons/react/20/solid';
+import oldCss from './oldStyles.module.css';
 import css from './styles.module.css';
 import routes from '../../routing/routes';
 import Header from '../Header';
@@ -25,8 +34,65 @@ import { useWindowSize } from '../../lib/hooks';
 import AppStorage from '../../utils/appStorage';
 import BlankPageContainer from '../../components/BlankPageContainer';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import LogoLink from '../../components/LogoLink';
+import UserMenu from '../../components/UserMenu';
 
 const storage = AppStorage.getInstance();
+
+const mainLinks = [
+  {
+    title: 'Dashboard',
+    route: routes.company.absolute.dashboard,
+    className: `${css.main_link} ${css.calendar}`,
+    isActive: (pathname) => pathname === routes.company.absolute.dashboard,
+  },
+  {
+    title: 'Services',
+    route: routes.company.absolute.setup,
+    className: `${css.main_link} ${css.list}`,
+    isActive: (pathname) => pathname.startsWith(routes.company.absolute.setup),
+  },
+  {
+    title: 'Customers',
+    route: routes.company.absolute.settings.base,
+    className: `${css.main_link} ${css.users}`,
+    isActive: (pathname) => pathname.startsWith(routes.company.absolute.settings.base),
+  },
+  {
+    title: 'TODO',
+    route: routes.company.absolute.dashboard,
+    className: `${css.main_link} ${css.dashboard}`,
+    isActive: (pathname) => pathname === routes.company.absolute.dashboard,
+  },
+  {
+    title: 'Settings',
+    route: routes.company.absolute.dashboard,
+    className: `${css.main_link} ${css.settings}`,
+    isActive: (pathname) => pathname === routes.company.absolute.dashboard,
+  },
+];
+
+const MainLinks = ({ path }) => (
+  <aside className="flex md:flex-col px-6 py-10 gap-3 border-e w-[80px]">
+    {mainLinks.map(({
+      className,
+      isActive,
+      route,
+      title,
+    }) => (
+      <Link
+        key={title}
+        title={title}
+        to={route}
+        className={`${className} ${isActive(path) ? css.active : ''}`}
+      />
+    ))}
+  </aside>
+);
+
+MainLinks.propTypes = {
+  path: PropTypes.string.isRequired,
+};
 
 const styles = {
   messagePanel: {
@@ -199,7 +265,7 @@ CompanyMessagePanel.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
-const RestrictedCompany = ({ company, pathname }) => {
+const RestrictedCompany2 = ({ company, pathname }) => {
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [menus, setMenus] = useState([]);
   const employee = useSelector(selectEmployee);
@@ -235,7 +301,7 @@ const RestrictedCompany = ({ company, pathname }) => {
             <span className="timezone-label">Timezone:</span>
             <span>{TIMEZONE}</span>
           </div>
-          <div className={css.employee_name}>
+          <div className={oldCss.employee_name}>
             <span>{`Signed In as ${capitalize(employee.firstname)}`}</span>
           </div>
           <nav className="aside-nav">
@@ -263,6 +329,97 @@ const RestrictedCompany = ({ company, pathname }) => {
             <OverflowMenu isOpen={overflowOpen} close={toggleOverflow} />
           </nav>
         </aside>
+        <Outlet context={[company]} />
+      </div>
+      {openMessages.length ? (
+        <div style={styles.messagePanel}>
+          {openMessages.map((appointment) => (
+            <CompanyMessagePanel
+              key={appointment.id}
+              appointment={appointment}
+              onClose={handleCloseMessages}
+            />
+          ))}
+        </div>
+      ) : null}
+      <WebSocketManager />
+    </div>
+  );
+};
+
+RestrictedCompany2.propTypes = {
+  company: PropTypes.shape({}).isRequired,
+  pathname: PropTypes.string.isRequired,
+};
+
+const Notifications = () => (
+  <Menu as="div" className="relative inline-block text-left">
+    <div>
+      <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+        <BellIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+      </Menu.Button>
+    </div>
+
+    {/* <Transition
+      as={Fragment}
+      enter="transition ease-out duration-100"
+      enterFrom="transform opacity-0 scale-95"
+      enterTo="transform opacity-100 scale-100"
+      leave="transition ease-in duration-75"
+      leaveFrom="transform opacity-100 scale-100"
+      leaveTo="transform opacity-0 scale-95"
+    >
+      <Menu.Items
+        className="absolute right-0 z-10 mt-2 w-56 origin-top-right
+        rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      >
+        <div className="py-1">
+          <Menu.Item>
+            {({ active }) => (
+              <button
+                type="button"
+                className={classNames(
+                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                  'block w-full px-4 py-2 text-left text-sm',
+                )}
+                onClick={onLogout}
+              >
+                Sign out
+              </button>
+            )}
+          </Menu.Item>
+        </div>
+      </Menu.Items>
+    </Transition> */}
+  </Menu>
+);
+
+const RestrictedCompany = ({ company, pathname }) => {
+  const openMessages = useSelector(selectOpenMessages);
+  const { width: screenWidth } = useWindowSize();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setMaxOpenMessages(Math.floor(screenWidth / 240) || 1));
+  }, [screenWidth, setMaxOpenMessages]);
+
+  const handleCloseMessages = useCallback((appointment) => {
+    dispatch(closeAppointmentMessage(appointment));
+  }, []);
+
+  return (
+    <div className="flex flex-col w-full h-screen overflow-hidden relative">
+      <header className="flex justify-between items-center h-16 px-8 border-b">
+        <div className="w-[326px] h-16 flex items-center border-e">
+          <LogoLink />
+        </div>
+        <div className="flex gap-2 items-center">
+          <Notifications />
+          <UserMenu />
+        </div>
+      </header>
+      <div className="flex flex-col-reverse md:flex-row flex-1 overflow-hidden">
+        <MainLinks path={pathname} />
         <Outlet context={[company]} />
       </div>
       {openMessages.length ? (

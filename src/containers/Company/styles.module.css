@@ -1,21 +1,36 @@
-.employee_name {
-  padding: 8px;
-  display: none;
-  align-items: center;
-  gap: 12px;
-  border: 1px solid #ededed;
+.main_link {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  background-size: 100% 100%;
+  transition: all 0.3s ease-in-out;
 }
 
-.employee_name::before {
-  content: '';
-  flex: 0 0 22px;
-  height: 22px;
-  background-color: #bfc6cc;
-  mask: url(../../assets/images/account.svg);
+.main_link.active,
+.main_link:hover {
+  background-color: #e6e8eb;
 }
 
-@media only screen and (min-width: 576px) {
-  .employee_name {
-    display: flex;
-  }
+.main_link.calendar {
+  background-image: url(../../assets/images/calendar.svg);
+}
+
+.main_link.list {
+  background-image: url(../../assets/images/list.svg);
+}
+
+.main_link.dashboard {
+  background-image: url(../../assets/images/dashboard.svg);
+}
+
+.main_link.users {
+  background-image: url(../../assets/images/users.svg);
+}
+
+.main_link.settings {
+  background-image: url(../../assets/images/settings.svg);
 }
