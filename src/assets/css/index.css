@@ -454,6 +454,15 @@ input:-webkit-autofill:active {
   border-radius: 8px;
 }
 
+.text-input {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-size: 1.2rem;
+  border: 1px solid #ceebd8;
+  border-radius: 6px;
+}
+
 .bold-select-wrap {
   display: flex;
   flex-direction: column;

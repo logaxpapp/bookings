@@ -14,20 +14,15 @@ import {
 import PasswordResetForm from '../containers/Authentication/signin/PasswordResetForm';
 import Company from '../containers/Company';
 import Dashboard from '../containers/Company/Dashboard';
-import CompanySettings, { CompanyDetailsSettings } from '../containers/Company/Settings';
-import ServiceCategories from '../containers/Company/Settings/ServiceCategories';
-import TimeSlots, { NewTimeSlot } from '../containers/Company/Settings/TimeSlots';
+import Services, { ServicesDashboard } from '../containers/Company/Services';
+import CompanySettings from '../containers/Company/Settings';
 import Setup from '../containers/Company/Setup';
 import User from '../containers/User';
 import UserDashboard from '../containers/User/Dashboard';
 import Error404 from '../containers/Error404';
 import Subscriptions from '../containers/Subscriptions';
-import Services from '../containers/Company/Settings/Services';
-import ProfilePage from '../containers/Company/ProfilePage';
-import ServiceImages from '../containers/Company/Settings/ServiceImages';
 import UserSearch from '../containers/User/Search';
 import Provider from '../containers/User/Provider';
-import Calendar from '../containers/Company/Calendar';
 import AccountLinksRefresh from '../containers/Company/Stripe/AccountLinksRefresh';
 import AccountLinksReturn from '../containers/Company/Stripe/AccountLinksReturn';
 import StripeDepositPaymentWindow from '../containers/Company/Stripe/DepositPaymentWindow';
@@ -44,6 +39,8 @@ import CardEditor from '../containers/Company/CardEditor';
 import ReturnPolicy from '../containers/ReturnPolicy';
 import CompanyReturnPolicy from '../containers/Company/ReturnPolicy';
 import { PrivacyPolicy, TermsAndConditions } from '../containers/TermsAndPrivacy';
+import Brand from '../containers/Company/Settings/Brand';
+import Profile from '../containers/Company/Settings/Profile';
 
 const router = createBrowserRouter([
   {
@@ -115,40 +112,26 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: routes.company.calendar,
-        element: <Calendar />,
-      },
-      {
-        path: routes.company.profile,
-        element: <ProfilePage />,
+        path: routes.company.services.home,
+        element: <Services />,
+        children: [
+          {
+            path: '',
+            element: <ServicesDashboard />,
+          },
+        ],
       },
       {
         path: routes.company.settings.base,
         element: <CompanySettings />,
         children: [
           {
-            path: routes.company.settings.details,
-            element: <CompanyDetailsSettings />,
+            path: routes.company.settings.brand,
+            element: <Brand />,
           },
           {
-            path: routes.company.settings.serviceCategories,
-            element: <ServiceCategories />,
-          },
-          {
-            path: routes.company.settings.serviceImages(':service_id'),
-            element: <ServiceImages />,
-          },
-          {
-            path: routes.company.settings.services,
-            element: <Services />,
-          },
-          {
-            path: routes.company.settings.newTimeSlots,
-            element: <NewTimeSlot />,
-          },
-          {
-            path: routes.company.settings.timeSlots,
-            element: <TimeSlots />,
+            path: routes.company.settings.profile,
+            element: <Profile />,
           },
         ],
       },

@@ -515,3 +515,5 @@ export const notification = {
   showSuccess: (msg) => toast(msg, toastOptions.SUCCESS),
   showWarning: (msg) => toast(msg, toastOptions.WARNING),
 };
+
+export const classNames = (...classes) => classes.filter(Boolean).join(' ');

@@ -19,6 +19,11 @@ const storage = AppStorage.getInstance();
 
 const ACCESS_MESSAGE = 'You do not have access to requested resource!';
 
+const periodTypes = {
+  working_hours: 'workingHours',
+  breaks: 'breaks',
+};
+
 /* eslint-disable no-param-reassign */
 const slice = createSlice({
   name: 'company',
@@ -486,6 +491,46 @@ export const updateCompanyAsync = (data, callback) => (dispatch, getState) => {
     });
 };
 
+export const addCompanyPeriodAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  postResource(token, `companies/${company.id}/periods`, data, true)
+    .then((period) => {
+      const prop = periodTypes[period.type];
+      dispatch(updateCompany({ [prop]: [...company[prop], period] }));
+      callback(null, period);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
+export const deleteCompanyPeriodAsync = (id, type, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  deleteResource(token, `companies/${company.id}/periods/${id}`, true)
+    .then(() => {
+      const prop = periodTypes[type];
+      dispatch(updateCompany({ [prop]: company[prop].filter((period) => period.id !== id) }));
+      callback();
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
 export const updateCompanyCityAsync = (
   city,
   state,
@@ -764,26 +809,27 @@ export const updateServiceAsync = (data, service, category, callback) => (dispat
         newService.minDeposit = data.min_deposit;
       }
 
-      const services = [];
-      category.services.forEach((serv) => {
-        services.push(
-          serv.id !== service.id
-            ? serv
-            : newService,
-        );
-      });
-
       const categories = [];
-      serviceCategories.forEach((cat) => {
-        categories.push(
-          cat.id !== category.id
-            ? cat
-            : {
-              ...category,
-              services,
-            },
-        );
-      });
+
+      if (data.category_id && data.category_id !== category.id) {
+        serviceCategories.forEach((cat) => {
+          if (cat.id === data.category_id) {
+            categories.push({ ...cat, services: [...cat.services, newService] });
+          } else if (cat.id === category.id) {
+            categories.push(
+              { ...cat, services: cat.services.filter(({ id }) => id !== service.id) },
+            );
+          } else {
+            categories.push(cat);
+          }
+        });
+      } else {
+        serviceCategories.forEach((cat) => categories.push(
+          cat.id === category.id
+            ? { ...cat, services: cat.services.map((s) => (s.id === service.id ? newService : s)) }
+            : cat,
+        ));
+      }
 
       dispatch(setServiceCategories(categories));
 
