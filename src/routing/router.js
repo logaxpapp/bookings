@@ -44,6 +44,10 @@ import CardEditor from '../containers/Company/CardEditor';
 import ReturnPolicy from '../containers/ReturnPolicy';
 import CompanyReturnPolicy from '../containers/Company/ReturnPolicy';
 import { PrivacyPolicy, TermsAndConditions } from '../containers/TermsAndPrivacy';
+import UserLayout from '../layouts/UserLayout';
+import UserMenu from '../components/Sidebar/UserMenu';
+import UserHome from '../containers/UserDashboard/UserHome';
+import Settings from '../containers/UserDashboard/Settings';
 
 const router = createBrowserRouter([
   {
@@ -105,6 +109,20 @@ const router = createBrowserRouter([
   {
     path: routes.search,
     element: <Search />,
+  },
+  {
+    path: 'layouts',
+    element: <UserLayout menu={UserMenu} />,
+    children: [
+      {
+        path: '',
+        element: <UserHome />,
+      },
+      {
+        path: 'setting',
+        element: <Settings />,
+      },
+    ],
   },
   {
     path: routes.company.base,
