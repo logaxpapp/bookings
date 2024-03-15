@@ -89,7 +89,7 @@ const BreadCrumb = ({ name, handleInputChange }) => {
                 type="button"
                 ref={trigger}
                 onClick={() => setFilterOpen(!filterOpen)}
-                className="bg-transparent py-4 rounded-xl px-2 text-black dark:text-white border dark:border-white border-black-700 flex items-center gap-4"
+                className="bg-transparent py-4 rounded-xl px-2 text-black dark:text-white border dark:border-white border-gray-700 flex items-center gap-4"
               >
                 Filter
               </button>

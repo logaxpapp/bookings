@@ -1,7 +1,7 @@
 /* eslint-disable arrow-body-style */
 const Notification = () => {
   return (
-    <div>
+    <div className="mx-24 my-16">
       Notification
     </div>
   );
