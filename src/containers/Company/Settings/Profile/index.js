@@ -125,7 +125,7 @@ const Profile = () => {
           <TimeOffs />
         </TabBody>
         <TabBody tab={tab} header={tabs.updates}>
-          <div className="flex justify-center">
+          <div className="flex justify-center max-w-[600px]">
             <div className="w-60">
               <EmptyListPanel text="Coming Soon" />
             </div>

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import { useState } from 'react';
 import Modal from '../../../../components/Modal';
 import MenuSelect from '../../../../components/Inputs/MenuSelect';

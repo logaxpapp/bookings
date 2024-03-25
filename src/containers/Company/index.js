@@ -6,7 +6,7 @@ import {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Outlet, useLocation } from 'react-router';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { Menu, Transition } from '@headlessui/react';
@@ -19,6 +19,7 @@ import Header from '../Header';
 import {
   closeAppointmentMessage,
   fetchCompanyAsync,
+  logout,
   selectCompany,
   selectEmployee,
   selectOpenMessages,
@@ -38,6 +39,7 @@ import LoadingSpinner from '../../components/LoadingSpinner';
 import LogoLink from '../../components/LogoLink';
 import UserMenu from '../../components/UserMenu';
 import EmptyListPanel from '../../components/EmptyListPanel';
+import logoutIcon from '../../assets/images/logout.svg';
 
 const storage = AppStorage.getInstance();
 
@@ -54,14 +56,15 @@ const mainLinks = [
   },
   {
     title: 'Customers',
-    route: routes.company.absolute.settings.base,
-    getClass: (path) => `${css.main_link} ${css.users} ${path === routes.company.absolute.settings.base ? css.active : ''}`,
+    route: routes.company.absolute.customers,
+    getClass: (path) => `${css.main_link} ${css.users} ${path === routes.company.absolute.customers ? css.active : ''}`,
   },
-  {
-    title: 'TODO',
-    route: routes.company.absolute.dashboard,
-    getClass: (path) => `${css.main_link} ${css.dashboard} ${path === routes.company.absolute.dashboard ? css.active : ''}`,
-  },
+  // {
+  //   title: 'TODO',
+  //   route: routes.company.absolute.dashboard,
+  //   getClass: (path) => `${css.main_link} ${css.dashboard}
+  // ${path === routes.company.absolute.dashboard ? css.active : ''}`,
+  // },
   {
     title: 'Settings',
     route: routes.company.absolute.settings.base,
@@ -69,22 +72,45 @@ const mainLinks = [
   },
 ];
 
-const MainLinks = ({ path }) => (
-  <aside className="flex md:flex-col px-6 py-10 gap-3 border-e w-[80px]">
-    {mainLinks.map(({
-      getClass,
-      route,
-      title,
-    }) => (
-      <Link
-        key={title}
-        title={title}
-        to={route}
-        className={getClass(path)}
-      />
-    ))}
-  </aside>
-);
+const MainLinks = ({ path }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const signout = () => {
+    dispatch(logout());
+    navigate(routes.home);
+  };
+
+  return (
+    <aside className="flex md:flex-col px-6 py-10 gap-3 border-e w-[80px]">
+      {mainLinks.map(({
+        getClass,
+        route,
+        title,
+      }) => (
+        <Link
+          key={title}
+          title={title}
+          to={route}
+          className={getClass(path)}
+        />
+      ))}
+      <button
+        aria-label="Logout"
+        type="button"
+        className={css.main_link}
+        onClick={signout}
+        style={{ padding: 6 }}
+      >
+        <img
+          alt="logout"
+          src={logoutIcon}
+          className="w-full h-full"
+        />
+      </button>
+    </aside>
+  );
+};
 
 MainLinks.propTypes = {
   path: PropTypes.string.isRequired,
@@ -314,6 +340,7 @@ const RestrictedCompany2 = ({ company, pathname }) => {
               </Link>
             ))}
             <button
+              aria-label="more"
               type="button"
               className="main-aside-link overflow-menu-open-btn"
               onClick={toggleOverflow}

@@ -10,6 +10,7 @@ const routes = {
       home: 'services',
       categories: 'categories',
     },
+    customers: 'customers',
 
     profile: 'profile',
     calendar: 'calendar',
@@ -25,7 +26,7 @@ const routes = {
       general: 'general',
       page: 'page',
       payments: 'payments',
-      report: 'report',
+      reports: 'reports',
       billing: 'billing',
       notifications: 'notifications',
       reviews: 'reviews',
@@ -43,6 +44,7 @@ const routes = {
         home: '/companies/services',
         categories: '/companies/services/categories',
       },
+      customers: '/companies/customers',
 
       calendar: '/companies/calendar',
       employees: '/companies/employees',
@@ -58,7 +60,7 @@ const routes = {
         general: '/companies/settings/general',
         page: '/companies/settings/page',
         payments: '/companies/settings/payments',
-        report: '/companies/settings/report',
+        reports: '/companies/settings/reports',
         billing: '/companies/settings/billing',
         notifications: '/companies/settings/notifications',
         reviews: '/companies/settings/reviews',

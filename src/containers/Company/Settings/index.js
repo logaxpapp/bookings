@@ -6,11 +6,16 @@ import {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useOutletContext } from 'react-router';
-import { Link, Navigate, Outlet } from 'react-router-dom';
+import {
+  Link,
+  Navigate,
+  Outlet,
+  useNavigate,
+} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import css from './styles.module.css';
 import { FieldEditor } from '../../../components/TextBox';
-import { selectPermissions, updateCompanyAsync } from '../../../redux/companySlice';
+import { logout, selectPermissions, updateCompanyAsync } from '../../../redux/companySlice';
 import routes from '../../../routing/routes';
 import { capitalize } from '../../../utils';
 import { Ring } from '../../../components/LoadingButton';
@@ -18,23 +23,6 @@ import Aside, { Heading } from '../../Aside';
 
 const ABOUT_US = 'about_us';
 const SAVE = 'save';
-// brand: '',
-// profile: 'profile',
-// team: 'team',
-// services: 'services',
-// general: 'general',
-
-// page: 'page',
-// payments: 'payments',
-// report: 'report',
-// billing: 'billing',
-// notifications: 'notifications',
-// reviews: 'reviews',
-
-// downloads: 'downloads',
-// activities: 'activities',
-// refer: 'refer',
-
 const links = {
   Settings: [
     {
@@ -68,8 +56,8 @@ const links = {
       to: routes.company.settings.payments,
     },
     {
-      title: 'Reportts',
-      to: routes.company.settings.report,
+      title: 'Reports',
+      to: routes.company.settings.reports,
     },
     {
       title: 'Billing',
@@ -290,6 +278,13 @@ export const CompanySettings2 = () => {
 const CompanySettings = () => {
   const [company] = useOutletContext();
   const { pathname } = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const signout = () => {
+    dispatch(logout());
+    navigate(routes.home);
+  };
 
   return (
     <div className="flex-1 h-full flex" id="service-container-id">
@@ -301,6 +296,15 @@ const CompanySettings = () => {
               {links[group].map((link) => (
                 <Menu key={link.title} title={link.title} to={link.to} pathname={pathname} />
               ))}
+              {group === 'OTHERS' ? (
+                <button
+                  type="button"
+                  className={css.menu}
+                  onClick={signout}
+                >
+                  Logout
+                </button>
+              ) : null}
             </div>
           ))}
         </div>

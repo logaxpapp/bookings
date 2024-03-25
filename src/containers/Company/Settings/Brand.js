@@ -155,18 +155,100 @@ FieldModal.defaultProps = {
   isOpen: false,
 };
 
-export const BrandHeader = ({ company }) => {
-  const [state, setState] = useState({
-    isPictureModalOpen: false,
-    isPictureModalBusy: false,
-    isSloganModalOpen: false,
-    isSloganModalBusy: false,
-  });
+export const ProfilePicture = ({ company, viewOnly }) => {
+  const [editing, setEditing] = useState(false);
+  const [busy, setBusy] = useState(false);
   const initials = useMemo(() => {
     const parts = company.name.split('');
 
     return `${parts[0][0]} ${parts.length > 1 ? parts[1][0] : parts[0][1]}`.toUpperCase();
   }, [company]);
+  const dispatch = useDispatch();
+
+  const uploadImage = (file, callback) => {
+    setBusy(true);
+
+    uploadFile('chassnet', 'image', 'logaxp', file)
+      .then(({ secure_url: url }) => (
+        dispatch(updateCompanyImages(url, 'profile', 'profilePicture', (err) => {
+          setBusy(false);
+          if (err) {
+            callback(err.length < 200 ? err : 'Error uploading image. Please try again.');
+          } else {
+            notification.showSuccess('Image successfully upoaded!');
+            callback();
+          }
+        }))
+      ))
+      .catch(() => {
+        callback('An error occurred during file upload');
+        setBusy(false);
+      });
+  };
+
+  return (
+    <div className="relative min-w-fit w-[84px] h-[84px]" id="company-profile-picture">
+      <div className="w-[84px] h-[84px] flex justify-center items-center bg-[#5c5c5c] overflow-hidden rounded-full relative">
+        {company.profilePicture ? (
+          <img alt={initials} src={company.profilePicture} className="w-full h-full rounded-full flex-1" />
+        ) : (
+          <span className="font-semibold text-base text-white">
+            {initials}
+          </span>
+        )}
+      </div>
+      <div
+        className="absolute w-8 h-8 rounded-full flex justify-center items-center -right-1 -top-1 bg-[#e6e8eB]"
+      >
+        <SvgButton
+          type="button"
+          color="#5c5c5c"
+          path={paths.pencil}
+          title="Edit"
+          onClick={() => setEditing(true)}
+          sm
+        />
+      </div>
+      {viewOnly ? null : (
+        <Modal
+          isOpen={editing || busy}
+          parentSelector={() => document.querySelector('#company-profile-picture')}
+          onRequestClose={() => {
+            if (!busy) {
+              setEditing(false);
+            }
+          }}
+          style={{ content: { maxWidth: 'max-content' } }}
+          shouldCloseOnEsc
+          shouldCloseOnOverlayClick
+        >
+          <div className="p-8">
+            <ImageUploader
+              onSubmit={uploadImage}
+              onValidate={validateImage}
+              previewPlaceholder={company.profilePicture || ''}
+            />
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+};
+
+ProfilePicture.propTypes = {
+  company: companyProps.isRequired,
+  viewOnly: PropTypes.bool,
+};
+
+ProfilePicture.defaultProps = {
+  viewOnly: false,
+};
+
+export const BrandHeader = ({ company }) => {
+  const [state, setState] = useState({
+    isSloganModalOpen: false,
+    isSloganModalBusy: false,
+  });
   const dispatch = useDispatch();
 
   const updateSlogan = (value) => {
@@ -178,50 +260,9 @@ export const BrandHeader = ({ company }) => {
     }));
   };
 
-  const uploadImage = (file, callback) => {
-    setState((state) => ({ ...state, isPictureModalBusy: true }));
-
-    uploadFile('chassnet', 'image', 'logaxp', file)
-      .then(({ secure_url: url }) => (
-        dispatch(updateCompanyImages(url, 'profile', 'profilePicture', (err) => {
-          setState((state) => ({ ...state, isPictureModalBusy: false }));
-          if (err) {
-            callback(err.length < 200 ? err : 'Error uploading image. Please try again.');
-          } else {
-            notification.showSuccess('Image successfully upoaded!');
-            callback();
-            setState((state) => ({ ...state, isPictureModalOpen: false }));
-          }
-        }))
-      ))
-      .catch(() => {
-        callback('An error occurred during file upload');
-        setState((state) => ({ ...state, isPictureModalBusy: false }));
-      });
-  };
-
   return (
     <div className="flex items-center gap-6" id={BRAND_HEADER}>
-      <div className="relative min-w-fit">
-        <div className="w-[84px] h-[84px] flex justify-center items-center bg-[#5c5c5c] overflow-hidden rounded-full relative">
-          {company.profilePicture ? (
-            <img alt={initials} src={company.profilePicture} className="w-full h-full rounded-full flex-1" />
-          ) : (
-            <span className="font-semibold text-base text-white">
-              {initials}
-            </span>
-          )}
-        </div>
-        <div className="absolute w-7 h-7 rounded-full flex justify-center items-center -right-1 -top-1 bg-[#e6e8eB]">
-          <SvgButton
-            type="button"
-            path={paths.pencil}
-            title="Edit"
-            onClick={() => setState((state) => ({ ...state, isPictureModalOpen: true }))}
-            sm
-          />
-        </div>
-      </div>
+      <ProfilePicture company={company} />
       <div className="flex flex-col gap-1">
         <h1 className="font-semibold text-base text-[#011c39] m-0">
           {company.name}
@@ -242,22 +283,6 @@ export const BrandHeader = ({ company }) => {
           />
         </FieldRow>
       </div>
-      <Modal
-        isOpen={state.isPictureModalOpen || state.isPictureModalBusy}
-        parentSelector={() => document.querySelector(`#${BRAND_HEADER}`)}
-        onRequestClose={() => setState((state) => ({ ...state, isPictureModalOpen: false }))}
-        style={{ content: { maxWidth: 'max-content' } }}
-        shouldCloseOnEsc
-        shouldCloseOnOverlayClick
-      >
-        <div className="p-8">
-          <ImageUploader
-            onSubmit={uploadImage}
-            onValidate={validateImage}
-            previewPlaceholder={company.profilePicture || ''}
-          />
-        </div>
-      </Modal>
     </div>
   );
 };

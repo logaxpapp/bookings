@@ -34,3 +34,7 @@
 .main_link.settings {
   background-image: url(../../assets/images/settings.svg);
 }
+
+.main_link.logout {
+  background-image: url(../../assets/images/logout.svg);
+}

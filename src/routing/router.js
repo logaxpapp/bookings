@@ -27,7 +27,7 @@ import AccountLinksRefresh from '../containers/Company/Stripe/AccountLinksRefres
 import AccountLinksReturn from '../containers/Company/Stripe/AccountLinksReturn';
 import StripeDepositPaymentWindow from '../containers/Company/Stripe/DepositPaymentWindow';
 import StripeDepositReturnWindow from '../containers/Company/Stripe/DepositReturnWindow';
-import Employees from '../containers/Company/Employees';
+import Employees from '../containers/Company/Settings/Employees';
 import Search from '../containers/Search';
 import UpdateSubscriptionPage from '../containers/Company/Setup/UpdateSubscriptionPage';
 import SubscriptionRenewal from '../containers/Company/SubscriptionRenewal';
@@ -41,6 +41,17 @@ import CompanyReturnPolicy from '../containers/Company/ReturnPolicy';
 import { PrivacyPolicy, TermsAndConditions } from '../containers/TermsAndPrivacy';
 import Brand from '../containers/Company/Settings/Brand';
 import Profile from '../containers/Company/Settings/Profile';
+import General from '../containers/Company/Settings/General';
+import Bookings from '../containers/Company/Settings/Bookings';
+import Payments from '../containers/Company/Settings/Payments';
+import Reports from '../containers/Company/Settings/Reports';
+import CompanySubscriptions from '../containers/Company/Settings/Subscriptions';
+import Notifications from '../containers/Company/Settings/Notifications';
+import Reviews from '../containers/Company/Settings/Reviews';
+import Downloads from '../containers/Company/Settings/Downloads';
+import Activities from '../containers/Company/Settings/Activities';
+import References from '../containers/Company/Settings/References';
+import Customers from '../containers/Company/Settings/Customers';
 
 const router = createBrowserRouter([
   {
@@ -122,6 +133,10 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: routes.company.customers,
+        element: <Customers />,
+      },
+      {
         path: routes.company.settings.base,
         element: <CompanySettings />,
         children: [
@@ -132,6 +147,54 @@ const router = createBrowserRouter([
           {
             path: routes.company.settings.profile,
             element: <Profile />,
+          },
+          {
+            path: routes.company.settings.team,
+            element: <Employees />,
+          },
+          {
+            path: routes.company.settings.services,
+            element: <ServicesDashboard />,
+          },
+          {
+            path: routes.company.settings.general,
+            element: <General />,
+          },
+          {
+            path: routes.company.settings.page,
+            element: <Bookings />,
+          },
+          {
+            path: routes.company.settings.payments,
+            element: <Payments />,
+          },
+          {
+            path: routes.company.settings.reports,
+            element: <Reports />,
+          },
+          {
+            path: routes.company.settings.billing,
+            element: <CompanySubscriptions />,
+          },
+          {
+            path: routes.company.settings.notifications,
+            element: <Notifications />,
+          },
+          {
+            path: routes.company.settings.reviews,
+            element: <Reviews />,
+          },
+          {
+            path: routes.company.settings.downloads,
+            element: <Downloads />,
+          },
+          {
+            path: routes.company.settings.activities,
+            element: <Activities />,
+          },
+          {
+            path: routes.company.settings.refer,
+            element: <References />,
           },
         ],
       },

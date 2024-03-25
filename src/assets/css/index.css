@@ -476,10 +476,29 @@ input:-webkit-autofill:active {
 
 .bold-select {
   display: block;
+  width: 100%;
   border: 1px solid #ceebd8;
   border-radius: 6px;
   position: relative;
   cursor: pointer;
+}
+
+.bold-select.caret {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 8px;
+  gap: 12px;
+}
+
+.bold-select.caret::after {
+  content: '';
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  background-size: 100% 100%;
+  background-image: url(../../assets/images/caret-down.svg);
 }
 
 .bold-select > select {
@@ -489,10 +508,15 @@ input:-webkit-autofill:active {
   padding: 16px 26px 16px 16px;
   margin: 0;
   width: 100%;
+  flex: 1;
   font-family: inherit;
   font-size: 1.1rem;
   cursor: inherit;
   line-height: inherit;
+}
+
+.bold-select.caret > select {
+  margin-right: -32px;
 }
 
 .bold-select > select::-ms-expand {

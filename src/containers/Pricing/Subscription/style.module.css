@@ -4,6 +4,7 @@
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 16px;
+  padding-right: 4px;
 }
 
 .country_notice {

@@ -12,7 +12,7 @@ import {
   updateServiceCategoryAsync,
 } from '../../../redux/companySlice';
 import { serviceCategoryProps, serviceProps } from '../../../utils/propTypes';
-import TextBox, {
+import {
   parseAmount,
   parseDuration,
 } from '../../../components/TextBox';
@@ -20,7 +20,6 @@ import {
   currencyHelper,
   notification,
 } from '../../../utils';
-import LoadingButton from '../../../components/LoadingButton';
 
 const CATEGORY = 'category';
 const DEPOSIT = 'deposit';
@@ -152,12 +151,16 @@ export const ServiceEditor = ({
     } else if (name === CATEGORY) {
       setCategoryId(Number.parseInt(value, 10));
     } else if (name === DESCRIPTION) {
+      let desc = value;
+      let error = false;
+
       if (value.length > MAXIMUM_DESCRIPTION_LENGTH) {
-        setHasDescriptionError(true);
-      } else {
-        setDescription(value);
-        setHasDescriptionError(false);
+        desc = value.substring(0, 100);
+        error = true;
       }
+
+      setDescription(desc);
+      setHasDescriptionError(error);
     }
   };
 
@@ -257,97 +260,119 @@ export const ServiceEditor = ({
   };
 
   return (
-    <section className="flex flex-col p-10 gap-6">
-      <h1 className="pb-6 border-b border-b-gray-200">
-        {service ? 'Update Service' : 'New Service'}
-      </h1>
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-2 gap-4 max-w-80">
-          <div className="flex flex-col gap-1">
-            <div className="font-bold text-sm">Category</div>
-            <div className="select">
+    <div className="max-h-[80vh] overflow-y-auto">
+      <section className="flex flex-col p-10 gap-6">
+        <h1 className="pb-6 border-b border-b-gray-200 font-semibold text-lg">
+          {service ? 'Update Service' : 'New Service'}
+        </h1>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <label htmlFor={CATEGORY} className="bold-select-wrap">
+            <span className="label">Select Category</span>
+            <div className="bold-select caret">
               <select
                 name={CATEGORY}
                 value={categoryId}
                 onChange={handleValueChange}
                 disabled={!!service}
               >
+                {categories.length ? null : (
+                  <option value="" disabled>-- Select Category --</option>
+                )}
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
             </div>
+          </label>
+          <div className="grid grid-cols-2 gap-4 w-full">
+            <label htmlFor={NAME} className="bold-select-wrap">
+              <span className="label">Enter Service Name</span>
+              <div className="bold-select">
+                <input
+                  type="text"
+                  name={NAME}
+                  id={NAME}
+                  value={name}
+                  className="text-input"
+                  onChange={handleValueChange}
+                />
+                {nameError ? <span className="input-error">{nameError}</span> : null}
+              </div>
+            </label>
+            <label htmlFor={PRICE} className="bold-select-wrap">
+              <span className="label">Price</span>
+              <div className="bold-select">
+                <input
+                  type="text"
+                  name={PRICE}
+                  id={PRICE}
+                  value={price}
+                  placeholder="10.50"
+                  className="text-input"
+                  onChange={handleValueChange}
+                />
+                {priceError ? <span className="input-error">{priceError}</span> : null}
+              </div>
+            </label>
+            <label htmlFor={DURATION} className="bold-select-wrap">
+              <span className="label">Duration</span>
+              <div className="bold-select">
+                <input
+                  type="text"
+                  name={DURATION}
+                  id={DURATION}
+                  value={duration}
+                  placeholder="1:30"
+                  className="text-input"
+                  onChange={handleValueChange}
+                />
+                {durationError ? <span className="input-error">{durationError}</span> : null}
+              </div>
+            </label>
+            <label htmlFor={DEPOSIT} className="bold-select-wrap">
+              <span className="label">Deposit</span>
+              <div className="bold-select">
+                <input
+                  type="text"
+                  name={DEPOSIT}
+                  id={DEPOSIT}
+                  value={deposit}
+                  placeholder="1.00"
+                  className="text-input"
+                  onChange={handleValueChange}
+                />
+              </div>
+            </label>
           </div>
-          <TextBox
-            type="text"
-            id={NAME}
-            name={NAME}
-            value={name}
-            label="Name"
-            error={nameError}
-            style={{ backgroundColor: '#edf1f7' }}
-            containerStyle={{ marginBottom: 0 }}
-            onChange={handleValueChange}
-          />
-          <TextBox
-            type="text"
-            id={PRICE}
-            name={PRICE}
-            value={price}
-            label="Price"
-            placeholder="10.50"
-            error={priceError}
-            style={{ backgroundColor: '#edf1f7' }}
-            containerStyle={{ marginBottom: 0 }}
-            onChange={handleValueChange}
-          />
-          <TextBox
-            type="text"
-            id={DURATION}
-            name={DURATION}
-            value={duration}
-            label="Duration"
-            placeholder="1:30"
-            error={durationError}
-            style={{ backgroundColor: '#edf1f7' }}
-            containerStyle={{ marginBottom: 0 }}
-            onChange={handleValueChange}
-          />
-          <TextBox
-            type="text"
-            id={DEPOSIT}
-            name={DEPOSIT}
-            value={deposit}
-            label="Deposit"
-            placeholder="1.00"
-            style={{ backgroundColor: '#edf1f7' }}
-            containerStyle={{ marginBottom: 0 }}
-            onChange={handleValueChange}
-          />
-        </div>
-        <label className="input-label" htmlFor={DESCRIPTION}>
-          <span className="input-label-text">Description</span>
-          <textarea
-            name={DESCRIPTION}
-            id={DESCRIPTION}
-            value={description}
-            className="resize-none p-3 border border-[#ededed] h-20"
-            onChange={handleValueChange}
-            placeholder={`Enter optional description. Maximum length is ${MAXIMUM_DESCRIPTION_LENGTH} characters ...`}
-          />
-          {hasDescriptionError ? (
-            <span className="input-error">
-              {`Maximum allowed length is ${MAXIMUM_DESCRIPTION_LENGTH}.`}
-            </span>
-          ) : null}
-        </label>
-        <div className="form-controls pad">
-          <button type="submit" className="control-btn" disabled={busy}>
-            {service ? 'Update' : 'Save'}
-          </button>
-        </div>
-      </form>
-    </section>
+          <label className="bold-select-wrap" htmlFor={DESCRIPTION}>
+            <span className="label">Description</span>
+            <textarea
+              name={DESCRIPTION}
+              id={DESCRIPTION}
+              value={description}
+              rows={4}
+              className="text-input resize-none"
+              onChange={handleValueChange}
+              placeholder={`Enter optional description. Maximum length is ${MAXIMUM_DESCRIPTION_LENGTH} characters ...`}
+            />
+            {hasDescriptionError ? (
+              <span className="input-error">
+                {`Maximum allowed length is ${MAXIMUM_DESCRIPTION_LENGTH}.`}
+              </span>
+            ) : null}
+          </label>
+          <div className="form-controls pad">
+            <button
+              type="submit"
+              className="py-4 px-12 rounded-[10px] transition-transform hover:scale-105 hover:disabled:scale-100 bg-[#011c39] text-white disabled:bg-slate-700"
+              disabled={busy}
+            >
+              {service ? 'Update' : 'Save'}
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
   );
 };
 
@@ -430,25 +455,31 @@ export const CategoryEditor = ({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col p-10 gap-6">
-      <h1 className="pb-6 border-b border-b-gray-200">
+      <h1 className="pb-6 border-b border-b-gray-200 font-semibold text-lg">
         {category ? 'Update Category' : 'New Category'}
       </h1>
-      <TextBox
-        type="text"
-        name={NAME}
-        id={NAME}
-        label="Enter Category Name"
-        value={name}
-        onChange={({ target: { value } }) => setName(value)}
-      />
-      <LoadingButton
-        type="submit"
-        label="Create"
-        loading={busy}
-        styles={{
-          marginTop: 0,
-        }}
-      />
+      <label htmlFor={NAME} className="bold-select-wrap">
+        <span className="label">Enter Name</span>
+        <div className="bold-select">
+          <input
+            type="text"
+            name={NAME}
+            id={NAME}
+            value={name}
+            className="text-input"
+            onChange={({ target: { value } }) => setName(value)}
+          />
+        </div>
+      </label>
+      <div className="form-controls pad">
+        <button
+          type="submit"
+          className="py-4 px-12 rounded-[10px] transition-transform hover:scale-105 hover:disabled:scale-100 bg-[#011c39] text-white disabled:bg-slate-700"
+          disabled={busy}
+        >
+          Create
+        </button>
+      </div>
     </form>
   );
 };
