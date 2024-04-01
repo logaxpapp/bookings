@@ -1,17 +1,18 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import {
+  Fragment,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import css from './styles.module.css';
+import { Menu, Transition } from '@headlessui/react';
+import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import {
-  Svg,
   SvgButton,
-  SvgLink,
   colors,
   paths,
 } from '../../../components/svg';
@@ -20,6 +21,7 @@ import {
   dateToNormalizedString,
   dateUtils,
   notification,
+  classNames,
 } from '../../../utils';
 import { useConfirmDialog, useDialog } from '../../../lib/Dialog';
 import {
@@ -36,17 +38,16 @@ import {
   updateTimeSlotAsync,
 } from '../../../redux/companySlice';
 import SlideDialog from '../../../components/SlideInDialog';
-import routes from '../../../routing/routes';
 import { useBusyDialog } from '../../../components/LoadingSpinner';
-import AlertComponent from '../../../components/AlertComponents';
-import { useOnHoverContextMenu } from '../../../components/ContextMenu';
-import PageHeader from '../../PageHeader';
 import GridPanel from '../../../components/GridPanel';
-import { useHover } from '../../../lib/hooks';
 import { FieldEditor } from '../../../components/TextBox';
 import { DatePicker2 } from '../../../components/DatePicker';
+import { Heading1 } from '../../Aside';
+import { TabBody, TabHeaders } from '../../../components/TabControl';
+import gearIcon from '../../../assets/images/gear.svg';
+import Modal from '../../../components/Modal';
+import { useWindowSize } from '../../../lib/hooks';
 
-const AUTO = 'auto';
 const CATEGORY = 'category';
 const CHECK_ALL_SLOTS = 'check_all_slots';
 const CHECK_SLOT = 'check_slot';
@@ -59,13 +60,15 @@ const EDIT = 'edit';
 const END_DATE = 'end_date';
 const GENERATE = 'generate';
 const LOAD = 'load';
-const NEW = 'new';
+const OPEN = 'open';
 const REPEATS = 'repeats';
 const SAVE = 'save';
 const SERVICE = 'service';
 const START_DATE = 'start_date';
 const TIME = 'time';
 const UPDATE = 'update';
+
+const weekdays = ['sunday', 'monday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 /**
  * @param {Date} date
@@ -102,7 +105,7 @@ const TimeSlotRow = ({
 
   return (
     <>
-      <td className={css.timeslots_date_column}>
+      <td className="flex items-center gap-2 h-[39px]">
         {onCheckedChanged ? (
           <input
             type="checkbox"
@@ -165,251 +168,36 @@ TimeSlotRow.defaultProps = {
   onCheckedChanged: null,
 };
 
-const AutoTimeSlotRow = ({
-  slot,
-  service,
-  onChange,
-  onDelete,
-}) => {
-  const [datetime, setDateTime] = useState({
-    date: '',
-    time: '',
-    slotDate: '',
-    overlapStart: 0,
-    overlapEnd: 0,
-    overlapTime: 0,
-  });
-  const [overlaps, setOverlaps] = useState();
-  const timeSlots = useSelector(selectTimeSlots);
-  const timeInput = useRef();
-  const overlapIcon = useRef();
-  const hoverContext = useOnHoverContextMenu();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const date = new Date(slot.time);
-    const time = 3600 * date.getHours() + 60 * date.getMinutes();
-
-    setDateTime({
-      date: date.toLocaleDateString(),
-      time: date.toLocaleTimeString(),
-      slotDate: dateUtils.toNormalizedString(date),
-      overlapStart: (time - service.duration) / 60,
-      overlapEnd: (time + service.duration) / 60,
-      overlapTime: time / 60,
-    });
-  }, [slot, service, setDateTime]);
-
-  useEffect(() => {
-    const slotsForDate = timeSlots[datetime.slotDate];
-    setOverlaps(
-      slotsForDate
-        ? slotsForDate.filter(
-          (s) => {
-            if (s.serviceId !== service.id) {
-              return false;
-            }
-
-            const date = new Date(s.time);
-            const time = 60 * date.getHours() + date.getMinutes();
-            return (
-              (time > datetime.overlapStart && time <= datetime.overlapTime)
-              || (time >= datetime.overlapTime && time < datetime.overlapEnd)
-            );
-          },
-        )
-        : null,
-    );
-  }, [service, datetime, timeSlots, setOverlaps]);
-
-  const handleClick = useCallback(({ target: { name } }) => {
-    if (name === TIME) {
-      timeInput.current.showPicker();
-    } else if (name === DELETE) {
-      onDelete(slot);
-    } else if (name === LOAD) {
-      dispatch(loadTimeSlotsAsync(dateUtils.toNormalizedString(slot.time), () => {}));
-    }
-  }, [slot, onDelete]);
-
-  const handleValueChange = useCallback(({ target: { name, value } }) => {
-    if (name === TIME) {
-      onChange({ ...slot, time: value });
-    } else if (name === DELETE) {
-      onDelete(slot);
-    }
-  }, [slot, onChange, onDelete]);
-
-  return (
-    <tr>
-      <td>
-        <div className={css.editable_datetime_cell}>
-          <span>{datetime.date}</span>
-        </div>
-      </td>
-      <td>
-        <div className={css.editable_datetime_cell}>
-          <span>{datetime.time}</span>
-          <SvgButton
-            type="button"
-            title="edit"
-            name={TIME}
-            path={paths.pencil}
-            onClick={handleClick}
-            xsm
-          />
-          <input
-            ref={timeInput}
-            type="datetime-local"
-            name={TIME}
-            className="clip"
-            onChange={handleValueChange}
-          />
-        </div>
-      </td>
-      <td>{slot.weekday}</td>
-      <td ref={overlapIcon} className="relative">
-        <Svg path={paths.alertOutline} color={overlaps && !overlaps.length ? '#2ec4b6' : colors.delete} sm />
-        {overlaps ? (
-          <span
-            style={{
-              position: 'absolute',
-              top: 2,
-              right: 12,
-              display: 'block',
-              padding: 4,
-              color: '#fff',
-              backgroundColor: colors.delete,
-              borderRadius: '50%',
-              lineHeight: 0.6,
-              fontSize: '0.6rem',
-              fontWeight: 'bold',
-            }}
-          >
-            {overlaps.length}
-          </span>
-        ) : null}
-        <hoverContext.Menu refElement={overlapIcon}>
-          <section className={css.new_time_slot_auto_overlaps_section}>
-            <h1 className={`${css.h1} ${css.sm}`}>
-              Overlaps
-            </h1>
-            {overlaps ? (
-              <>
-                {overlaps.length ? (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 4,
-                    }}
-                  >
-                    {overlaps.map((slot) => (
-                      <span key={slot.id}>
-                        {`Time: ${dateUtils.toTimeFormat(60 * slot.time)}`}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <div className={`${css.empty_notice} ${css.small}`}>
-                    No overlaps found
-                  </div>
-                )}
-              </>
-            ) : (
-              <div style={{ padding: '8px 0' }}>
-                <button
-                  type="button"
-                  name={LOAD}
-                  className="link compact-link"
-                  onClick={handleClick}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 8,
-                    textAlign: 'center',
-                  }}
-                >
-                  <span className="pointer-events-none">
-                    Timeslots for date are not yet loaded
-                  </span>
-                  <span className="pointer-events-none">
-                    Click To Load
-                  </span>
-                </button>
-              </div>
-            )}
-          </section>
-        </hoverContext.Menu>
-      </td>
-      <td aria-label="delete">
-        <SvgButton
-          type="button"
-          name={DELETE}
-          title="Delete"
-          path={paths.close}
-          onClick={handleClick}
-          color={colors.delete}
-          sm
-        />
-      </td>
-    </tr>
-  );
-};
-
-AutoTimeSlotRow.propTypes = {
-  slot: PropTypes.shape({
-    id: PropTypes.number,
-    time: PropTypes.string,
-    weekday: PropTypes.string,
-  }).isRequired,
-  service: PropTypes.shape({
-    id: PropTypes.number,
-    duration: PropTypes.number,
-  }).isRequired,
-  onChange: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-};
-
 const AutoTimeSlotCard = ({
   slot,
   service,
   onChange,
   onDelete,
 }) => {
-  const [datetime, setDateTime] = useState({
-    date: '',
-    time: '',
-    text: '',
-    slotDate: '',
-    overlapStart: 0,
-    overlapEnd: 0,
-    overlapTime: 0,
-  });
-  const [overlaps, setOverlaps] = useState();
-  const timeSlots = useSelector(selectTimeSlots);
-  const timeInput = useRef();
-  const overlapIcon = useRef();
-  const dispatch = useDispatch();
-  const hovered = useHover(overlapIcon);
-
-  useEffect(() => {
+  const datetime = useMemo(() => {
     const date = new Date(slot.time);
     const time = 3600 * date.getHours() + 60 * date.getMinutes();
     const timeParts = date.toLocaleTimeString().split(':');
     const mer = timeParts.pop().split(' ').pop();
 
-    setDateTime({
+    return {
       date: date.toLocaleDateString(),
       time: date.toLocaleTimeString(),
-      text: `${slot.weekday} ${date.toLocaleDateString()} ${timeParts.join(':')} ${mer}`,
+      text: `${timeParts.join(':')} ${mer}`,
       slotDate: dateUtils.toNormalizedString(date),
       overlapStart: (time - service.duration) / 60,
       overlapEnd: (time + service.duration) / 60,
       overlapTime: time / 60,
-    });
+    };
   }, [slot, service]);
+  const [overlaps, setOverlaps] = useState();
+  const [overlapsModal, setOverlapsModal] = useState({ busy: false, isOpen: false });
+  const [isRight, setRight] = useState(false);
+  const timeSlots = useSelector(selectTimeSlots);
+  const { width } = useWindowSize();
+  const timeInput = useRef();
+  const containerRef = useRef();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const slotsForDate = timeSlots[datetime.slotDate];
@@ -433,12 +221,16 @@ const AutoTimeSlotCard = ({
     );
   }, [service, datetime, timeSlots]);
 
+  useEffect(() => {
+    const elmt = containerRef.current;
+    const rect = elmt.getBoundingClientRect();
+    const rect2 = elmt.parentElement.getBoundingClientRect();
+
+    setRight(rect2.right - rect.right < 200);
+  }, [width]);
+
   const handleClick = useCallback(({ target: { name } }) => {
-    if (name === TIME) {
-      timeInput.current.showPicker();
-    } else if (name === DELETE) {
-      onDelete(slot);
-    } else if (name === LOAD) {
+    if (name === LOAD) {
       dispatch(loadTimeSlotsAsync(dateUtils.toNormalizedString(slot.time), () => {}));
     }
   }, [slot, onDelete]);
@@ -452,18 +244,74 @@ const AutoTimeSlotCard = ({
   }, [slot, onChange, onDelete]);
 
   return (
-    <article className={css.auto_slot_card}>
-      <p className={css.auto_slot_card_text}>{datetime.text}</p>
-      <footer className={css.auto_slot_card_controls}>
-        <div className={css.editable_datetime_cell}>
-          <SvgButton
-            type="button"
-            title="edit"
-            name={TIME}
-            path={paths.pencil}
-            onClick={handleClick}
-            sm
-          />
+    <div ref={containerRef} id={`slot-${slot.id}`} className="p-1">
+      <article
+        className="py-3 px-4 w-full flex items-center justify-between border border-[#e6edf3] rounded-md relative"
+      >
+        <p className="m-0 whitespace-pre-wrap">{datetime.text}</p>
+        <Menu as="div" className="inline-block text-left">
+          <div>
+            <Menu.Button
+              className="bg-transparent p-0 border-none outline-none"
+            >
+              <EllipsisVerticalIcon stroke="#5c5c5c" className="w-5 h-5" />
+            </Menu.Button>
+          </div>
+          <Transition
+            as={Fragment}
+            enter="transition ease-out duration-100"
+            enterFrom="transform opacity-0 scale-95"
+            enterTo="transform opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="transform opacity-100 scale-100"
+            leaveTo="transform opacity-0 scale-95"
+          >
+            <Menu.Items className={`absolute z-10 mt-2 w-56 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${isRight ? 'right-0' : 'left-0'}`}>
+              <div className="py-1">
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      type="button"
+                      className={classNames(
+                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                        'block w-full px-4 py-2 text-left text-lg',
+                      )}
+                      onClick={() => timeInput.current.showPicker()}
+                    >
+                      Edit Slot
+                    </button>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      type="button"
+                      className={classNames(
+                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                        'block w-full px-4 py-2 text-left text-lg',
+                      )}
+                      onClick={() => setOverlapsModal({ isOpen: true, busy: false })}
+                    >
+                      View Overlaps
+                    </button>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      type="button"
+                      className={`block w-full px-4 py-2 text-left text-lg text-[#b61818] ${active ? 'bg-gray-100' : ''}`}
+                      onClick={() => onDelete(slot)}
+                    >
+                      Delete Slot
+                    </button>
+                  )}
+                </Menu.Item>
+              </div>
+            </Menu.Items>
+          </Transition>
+        </Menu>
+        <div className="left-2 bottom-6 absolute">
           <input
             ref={timeInput}
             type="datetime-local"
@@ -472,92 +320,71 @@ const AutoTimeSlotCard = ({
             onChange={handleValueChange}
           />
         </div>
-        <SvgButton
-          type="button"
-          name={DELETE}
-          title="Delete"
-          path={paths.deleteOutline}
-          onClick={handleClick}
-          color={colors.delete}
-          sm
-        />
-        <div ref={overlapIcon} className="relative">
-          <Svg path={paths.alertOutline} color={overlaps && !overlaps.length ? '#2ec4b6' : colors.delete} sm />
-          {overlaps && overlaps.length ? (
-            <span
-              style={{
-                position: 'absolute',
-                top: -6,
-                right: -6,
-                display: 'block',
-                padding: 4,
-                color: '#fff',
-                backgroundColor: colors.delete,
-                borderRadius: '50%',
-                lineHeight: 0.6,
-                fontSize: '0.6rem',
-                fontWeight: 'bold',
-              }}
-            >
-              {overlaps.length}
-            </span>
-          ) : null}
-          {hovered ? (
-            <section className={css.new_time_slot_auto_overlaps_section}>
-              <h1 className={`${css.h1} ${css.sm}`}>
-                Overlaps
-              </h1>
-              {overlaps ? (
-                <>
-                  {overlaps.length ? (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 4,
-                      }}
-                    >
-                      {overlaps.map((slot) => (
-                        <span key={slot.id} style={{ whiteSpace: 'nowrap' }}>
-                          {new Date(slot.time).toLocaleString()}
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className={`${css.empty_notice} ${css.small}`}>
-                      No overlaps found
-                    </div>
-                  )}
-                </>
+      </article>
+      <Modal
+        isOpen={overlapsModal.busy || overlapsModal.isOpen}
+        parentSelector={() => document.querySelector(`#slot-${slot.id}`)}
+        onRequestClose={() => {
+          if (!overlapsModal.busy) {
+            setOverlapsModal({ busy: false, isOpen: false });
+          }
+        }}
+        shouldCloseOnEsc
+        shouldCloseOnOverlayClick
+      >
+        <section className="w-full h-full overflow-auto max-h-[80vh] min-h-32 py-5 px-8">
+          <h1 className="text-sm">
+            {`${overlaps?.length ? `${overlaps.length} Overlap found` : 'Overlaps'}`}
+          </h1>
+          {overlaps ? (
+            <>
+              {overlaps.length ? (
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 4,
+                  }}
+                >
+                  {overlaps.map((slot) => (
+                    <span key={slot.id} style={{ whiteSpace: 'nowrap' }}>
+                      {new Date(slot.time).toLocaleString()}
+                    </span>
+                  ))}
+                </div>
               ) : (
-                <div style={{ padding: '8px 0' }}>
-                  <button
-                    type="button"
-                    name={LOAD}
-                    className="link compact-link"
-                    onClick={handleClick}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: 8,
-                      textAlign: 'center',
-                    }}
-                  >
-                    <span className="pointer-events-none">
-                      Timeslots for date are not yet loaded
-                    </span>
-                    <span className="pointer-events-none">
-                      Click To Load
-                    </span>
-                  </button>
+                <div className="font-bold text-[#858b9c] text-[0.8rem]">
+                  No overlaps found
                 </div>
               )}
-            </section>
-          ) : null}
-        </div>
-      </footer>
-    </article>
+            </>
+          ) : (
+            <div style={{ padding: '8px 0' }}>
+              <button
+                type="button"
+                name={LOAD}
+                className="link compact-link"
+                onClick={handleClick}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 8,
+                  textAlign: 'center',
+                }}
+              >
+                <span className="pointer-events-none">
+                  Timeslots for date are not yet loaded
+                </span>
+                <span className="pointer-events-none">
+                  Click To Load
+                </span>
+              </button>
+            </div>
+          )}
+        </section>
+      </Modal>
+    </div>
   );
 };
 
@@ -576,24 +403,33 @@ AutoTimeSlotCard.propTypes = {
 };
 
 const AutoGeneratePanel = ({ service }) => {
-  const [slots, setSlots] = useState([]);
-  const [setupCompleted, setSetupCompleted] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const [slots, setSlots] = useState({});
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [repeats, setRepeats] = useState(1);
   const company = useSelector(selectCompany);
   const employees = useSelector(selectEmployees);
   const permissions = useSelector(selectPermissions);
+  const workSettings = useMemo(() => {
+    const hours = Array(7);
+    const breaks = Array(7);
+
+    weekdays.forEach((day, idx) => {
+      let hr = company.workingHours.find(({ weekday }) => weekday === day);
+      hours[idx] = hr ? { start: hr.start * 60, end: hr.end * 60 } : hr;
+      hr = company.breaks.find(({ weekday }) => weekday === day);
+      breaks[idx] = hr ? { start: hr.start * 60, end: hr.end * 60 } : hr;
+    });
+
+    return { hours, breaks };
+  }, [company]);
   const startDateRef = useRef();
   const endDateRef = useRef();
   const busyDialog = useBusyDialog();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (company) {
-      setSetupCompleted(company.officeHours && company.openDays);
-    }
-  }, [company]);
+  const slotKeys = Object.keys(slots);
 
   useEffect(() => {
     if (employees) {
@@ -629,52 +465,68 @@ const AutoGeneratePanel = ({ service }) => {
 
       const popup = busyDialog.show('Generating Timeslots ...');
 
-      const start = company.officeHours ? company.officeHours.start : 32400; // 9:00AM
-      const end = (company.officeHours ? company.officeHours.end : 61200) - service.duration;
-
-      const includeDate = company.openDays
-        ? (date) => company.openDays.includes(date.getDay())
-        : () => true;
-
-      const slots = [];
+      const slots = {};
       let slot;
       let id = 1;
       while (date <= lastDate) {
-        if (includeDate(date)) {
-          let time = start;
+        const dateSlots = [];
+        const day = date.getDay();
+        const hours = workSettings.hours[day];
+        if (hours) {
+          const breaks = workSettings.breaks[day];
+          const end = hours.end - service.duration;
+          let time = hours.start;
           const lDate = new Date(date);
-          while (time < end) {
+          while (time <= end) {
+            const slotEnd = time + service.duration;
+            if (
+              breaks && (
+                (time <= breaks.start && slotEnd <= breaks.end)
+                || (time >= breaks.start && time < breaks.end)
+              )
+            ) {
+              time = slotEnd;
+              // eslint-disable-next-line no-continue
+              continue;
+            }
+
             lDate.setHours(Math.floor(time / 3600));
             lDate.setMinutes(Math.floor((time % 3600) / 60));
             slot = {
               id,
               time: lDate.toUTCString(),
               serviceId: service.id,
-              weekday: dateUtils.getWeekday(date.getDay(), true),
             };
 
             for (let i = 0; i < repeats; i += 1) {
-              slots.push({ ...slot });
+              dateSlots.push({ ...slot, id });
+              id += 1;
             }
 
             id += 1;
-            time += service.duration;
+            time = slotEnd;
           }
         }
+
+        if (dateSlots.length) {
+          slots[`${dateUtils.getWeekday(date.getDay(), true)} ${date.toLocaleDateString()}`] = dateSlots;
+        }
+
         date.setDate(date.getDate() + 1);
       }
 
       setSlots(slots);
+      setControlsVisible(false);
       popup.close();
     } else if (name === SAVE) {
-      if (!(slots && slots.length)) {
+      if (!slotKeys?.length) {
         notification.showError('There are no time slots to save!');
         return;
       }
 
-      const list = slots.map((slot) => ({
-        time: slot.time,
-      }));
+      const list = slotKeys.reduce((memo, key) => (
+        [...memo, ...slots[key].map(({ time }) => ({ time }))]
+      ), []);
 
       const popup = busyDialog.show('Creating Slots ...');
       dispatch(createTimeSlotsAsync({ slots: list }, service.id, true, (err, createdSlots) => {
@@ -694,8 +546,15 @@ const AutoGeneratePanel = ({ service }) => {
       }));
     } else if (name === CLEAR) {
       setSlots([]);
+    } else if (name === CLOSE) {
+      setControlsVisible(false);
+    } else if (name === OPEN) {
+      setControlsVisible(true);
     }
-  }, [company, startDate, endDate, repeats, service, slots, permissions]);
+  }, [
+    company, startDate, endDate, repeats,
+    service, slots, permissions, workSettings,
+  ]);
 
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === START_DATE) {
@@ -719,132 +578,141 @@ const AutoGeneratePanel = ({ service }) => {
   }, []);
 
   return (
-    <section className={css.auto_generate_panel}>
-      <h1 className={`${css.h1} ${css.pad} ${css.sm}`}>
-        Auto Generate
-      </h1>
-      <div className={css.auto_generate_body}>
-        {slots.length ? (
-          <GridPanel minimumChildWidth={240}>
-            {slots.map((slot) => (
-              <div key={slot.id} style={{ padding: 4 }}>
+    <section className="p-2 h-full flex flex-col overflow-hidden">
+      <header className="flex items-center justify-between">
+        <h1 className="text-[0.9rem] mb-1 pb-1">
+          Auto Generate
+        </h1>
+        {controlsVisible ? null : (
+          <button
+            type="button"
+            aria-label="Open Controls"
+            title="Open Controls"
+            name={OPEN}
+            onClick={handleClick}
+            className="w-4 h-4 cursor-pointer border-none outline-none transition-transform hover:scale-105 bg-[#5c5c5c]"
+            style={{
+              maskSize: '100% 100%',
+              maskImage: `url(${gearIcon})`,
+            }}
+          />
+        )}
+      </header>
+      <div className="text-[0.9rem] mb-2 pb-1 flex-1 overflow-auto">
+        {slotKeys.length ? slotKeys.map((key) => (
+          <section key={key}>
+            <h1 className="py-4 px-8 font-semibold text-[#011c39] text-lg mb-0 bg-[#f0f0f0]">
+              {key}
+            </h1>
+            <GridPanel minimumChildWidth={140}>
+              {slots[key].map((slot) => (
                 <AutoTimeSlotCard
+                  key={slot.id}
                   slot={slot}
                   service={service}
                   onChange={handleChange}
                   onDelete={handleDelete}
                 />
-              </div>
-            ))}
-          </GridPanel>
-        ) : (
-          <>
-            {setupCompleted ? (
-              <section className={`${css.empty_notice} ${css.small} ${css.center}`}>
-                List is Empty!
-              </section>
-            ) : (
-              <section className={css.new_time_slot_auto_generate_setup_alert_wrap}>
-                {company.officeDays ? null : (
-                  <AlertComponent type="error" style={{ padding: 8, margin: 0 }}>
-                    <span>
-                      You have NOT setup your office days. We will generate slots
-                      for every day in the date interval you specify.
-                    </span>
-                  </AlertComponent>
-                )}
-                {company.officeHours ? null : (
-                  <AlertComponent type="error" style={{ padding: 8, margin: 0 }}>
-                    You have NOT setup your office hours.
-                    We will assume you open by 9:00AM to 5:00PM local times.
-                  </AlertComponent>
-                )}
-              </section>
-            )}
-          </>
+              ))}
+            </GridPanel>
+          </section>
+        )) : (
+          <section className="font-bold text-[0.8rem] text-center text-[#858b9c]">
+            List is Empty!
+          </section>
         )}
       </div>
-      <div className={css.slot_auto_generate_controls}>
-        <div className={css.slot_auto_generate_dates_wrap}>
-          <div className={css.auto_input_wrap}>
-            <button
-              type="button"
-              name={START_DATE}
-              className="link compact-link"
-              onClick={handleClick}
-            >
-              {`Start:  ${startDate || 'YYYY-mm-dd'}`}
-            </button>
-            <input
-              ref={startDateRef}
-              type="date"
-              name={START_DATE}
-              value={startDate}
-              className="clip"
-              onChange={handleValueChange}
-            />
-          </div>
-          <div className={css.auto_input_wrap}>
-            <button
-              type="button"
-              name={END_DATE}
-              className="link compact-link"
-              onClick={handleClick}
-            >
-              {`End:  ${endDate || 'YYYY-mm-dd'}`}
-            </button>
-            <input
-              ref={endDateRef}
-              type="date"
-              name={END_DATE}
-              value={endDate}
-              className="clip"
-              onChange={handleValueChange}
-            />
-          </div>
-          <FieldEditor
-            type="text"
-            name={REPEATS}
-            label="Repeats"
-            initialValue={repeats}
-            onSave={handleFieldValueChange}
-            style={{ display: 'flex', alignItems: 'center' }}
-            inputStyle={{ width: 60 }}
-            isInteger
-            transparent
-          />
-        </div>
-        <div className={css.slot_auto_generate_actions_wrap}>
-          <button
-            type="button"
-            name={GENERATE}
-            className={`control-btn ${css.control_btn}`}
-            onClick={handleClick}
-          >
-            Generate
-          </button>
-          {slots.length ? (
-            <>
+      {controlsVisible ? (
+        <div className="p-2 bg-[#e7f1f5] flex justify-between items-center flex-wrap gap-3 whitespace-pre">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex items-center gap-1 relative">
               <button
                 type="button"
-                name={SAVE}
-                className={`control-btn green ${css.control_btn}`}
+                name={START_DATE}
+                className="link compact-link"
                 onClick={handleClick}
               >
-                Save
+                {`Start:  ${startDate || 'YYYY-mm-dd'}`}
               </button>
+              <input
+                ref={startDateRef}
+                type="date"
+                name={START_DATE}
+                value={startDate}
+                className="clip"
+                onChange={handleValueChange}
+              />
+            </div>
+            <div className="flex items-center gap-1 relative">
               <button
                 type="button"
-                name={CLEAR}
-                className={`control-btn cancel ${css.control_btn}`}
+                name={END_DATE}
+                className="link compact-link"
                 onClick={handleClick}
               >
-                Clear
+                {`End:  ${endDate || 'YYYY-mm-dd'}`}
               </button>
-            </>
-          ) : null}
+              <input
+                ref={endDateRef}
+                type="date"
+                name={END_DATE}
+                value={endDate}
+                className="clip"
+                onChange={handleValueChange}
+              />
+            </div>
+            <FieldEditor
+              type="text"
+              name={REPEATS}
+              label="Repeats"
+              initialValue={repeats}
+              onSave={handleFieldValueChange}
+              style={{ display: 'flex', alignItems: 'center' }}
+              inputStyle={{ width: 60 }}
+              isInteger
+              transparent
+            />
+          </div>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              name={GENERATE}
+              className="control-btn text-[0.6rem]"
+              onClick={handleClick}
+            >
+              Generate
+            </button>
+            {slotKeys.length ? (
+              <>
+                <button
+                  type="button"
+                  name={SAVE}
+                  className="control-btn green text-[0.6rem]"
+                  onClick={handleClick}
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  name={CLEAR}
+                  className="control-btn cancel text-[0.6rem]"
+                  onClick={handleClick}
+                >
+                  Clear
+                </button>
+              </>
+            ) : null}
+            <button
+              type="button"
+              name={CLOSE}
+              className="control-btn cancel text-[0.6rem]"
+              onClick={handleClick}
+            >
+              Close
+            </button>
+          </div>
         </div>
-      </div>
+      ) : null}
     </section>
   );
 };
@@ -892,17 +760,17 @@ const OverlapsPanel = ({
   }, [time]);
 
   return (
-    <section className={css.time_slots_overlaps_panel}>
-      <h1 className={`${css.h1} ${css.pad} ${css.sm}`}>
+    <section className="w-full h-full flex flex-col overflow-hidden p-2">
+      <h1 className="text-[0.9rem] mb-1 pb-1">
         Overlaps
       </h1>
       {overlaps ? (
         <>
-          <div className={css.time_slots_overlaps_count}>
+          <div className="py-0 px-2 text-[0.7rem]">
             {`${overlaps.length} overlap${overlaps.length === 1 ? '' : 's'} found.`}
           </div>
           {overlaps.length ? (
-            <div className={css.time_slots_overlaps_body}>
+            <div className="flex-1 overflow-auto py-3 px-6">
               <table className="table">
                 <thead>
                   <tr>
@@ -922,7 +790,7 @@ const OverlapsPanel = ({
           ) : null}
         </>
       ) : (
-        <div className={css.time_slots_overlaps_not_loaded}>
+        <div className="p-6 flex justify-center">
           {time ? (
             <button type="button" name={LOAD} className="link" onClick={handleClick}>
               Time Slots not yet loaded for date. (click to load)
@@ -994,16 +862,17 @@ const UpdateTimeSlotPopup = ({ slot, onClose }) => {
 
   return (
     <SlideDialog isIn={isOpen}>
-      <section className={css.time_slot_update_section}>
-        <h1 className={`${css.h1} ${css.pad}`}>Update TimeSlot</h1>
-        <div className={css.time_slot_update_inputs_wrap}>
-          <div className={css.custom_input_wrap}>
-            <div className={css.custom_input_label}>Set Time</div>
+      <section className="relative py-2 px-4">
+        <h1 className="text-[1.4rem] pb-6 mb-6 border border-dotted border-[#eee]">Update TimeSlot</h1>
+        <div className="min-w-60 grid grid-cols-2 gap-6">
+          <div className="flex flex-col gap-1">
+            <div className="font-bold text-[0.8rem]">Set Time</div>
             <input
               type="datetime-local"
               name={TIME}
               value={time}
               onChange={handleValueChange}
+              className="block w-full border border-[#eceff1] rounded"
             />
           </div>
         </div>
@@ -1011,7 +880,7 @@ const UpdateTimeSlotPopup = ({ slot, onClose }) => {
           <button
             type="button"
             name={UPDATE}
-            className={`control-btn ${css.control_btn}`}
+            className="control-btn text-[0.6rem]"
             onClick={handleClick}
           >
             Update
@@ -1039,53 +908,42 @@ UpdateTimeSlotPopup.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
+const tabs = {
+  AUTO: 'Auto Generate',
+  CUSTOM: 'Custom Slot',
+};
+
+const headers = Object.values(tabs);
+
 const NewTimeSlotBody = ({
   service,
   time,
   clickHandler,
   valueChangeHandler,
 }) => {
-  const [tab, setTab] = useState(AUTO);
-  const handleHeaderClick = useCallback(({ target: { name } }) => setTab(name), []);
+  const [tab, setTab] = useState(tabs.AUTO);
 
   return (
-    <div className={css.new_time_slot_tab_control}>
-      <div className={css.new_time_slot_tab_headers_panel}>
-        <button
-          type="button"
-          name={AUTO}
-          className={`${css.new_time_slot_tab_header} ${tab === AUTO ? css.active : ''}`}
-          onClick={handleHeaderClick}
-        >
-          Auto Generate
-        </button>
-        <button
-          type="button"
-          name={NEW}
-          className={`${css.new_time_slot_tab_header} ${tab === NEW ? css.active : ''}`}
-          onClick={handleHeaderClick}
-        >
-          Custom Slot
-        </button>
+    <div className="flex-1 w-full h-full flex flex-col overflow-hidden">
+      <div className="py-5">
+        <TabHeaders tab={tab} headers={headers} setTab={setTab} />
       </div>
-      <div className={`table-wrap ${css.new_time_slot_panel}`}>
-        <div
-          className={`tab ${tab === NEW ? 'active' : ''} ${css.new_time_slot_form_overlap_wrap}`}
-        >
-          <div className={`${css.new_time_slot_overlap_wrap} ${css.new_section}`}>
+      <TabBody tab={tab} header={tabs.CUSTOM} className="flex-1 overflow-hidden">
+        <div className="flex flex-col overflow-hidden h-full">
+          <div className="flex-1 flex overflow-hidden border border-[#cfd8df] bg-white rounded">
             <OverlapsPanel
               serviceId={service ? service.id : 0}
               time={time}
             />
           </div>
-          <section className={`${css.time_slot_update_section} ${css.new} ${css.new_section}`}>
-            <div className={css.new_timeslot_custom_controls_wrap}>
-              <div className={css.custom_input_label}>Set Time</div>
+          <section className="relative p-2 bg-[#e7f1f5]">
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="font-bold text-[0.8rem]">Set Time</div>
               <TimePicker time={time} onChange={valueChangeHandler} />
               <button
                 type="button"
                 name={SAVE}
-                className={`control-btn ${css.control_btn}`}
+                className="control-btn text-[0.6rem]"
                 onClick={clickHandler}
               >
                 SAVE
@@ -1093,12 +951,14 @@ const NewTimeSlotBody = ({
             </div>
           </section>
         </div>
+      </TabBody>
+      <TabBody tab={tab} header={tabs.AUTO} className="flex-1 overflow-hidden">
         <div
-          className={`tab ${tab === AUTO ? 'active' : ''} ${css.new_time_slot_auto_generate_wrap} ${css.new_section}`}
+          className="h-full overflow-hidden border border-[#cfd8df] bg-white rounded"
         >
           <AutoGeneratePanel service={service} />
         </div>
-      </div>
+      </TabBody>
     </div>
   );
 };
@@ -1195,37 +1055,29 @@ export const NewTimeSlot = () => {
   }, [service, time, company, confirmDialog]);
 
   return (
-    <section className={`${css.content} ${css.overflow_hidden}`}>
-      <header className={`${css.page_header} ${css.new}`}>
-        <div className={css.new_time_slot_heading_wrap}>
-          <SvgLink
-            to={routes.company.absolute.settings.timeSlots}
-            path={paths.back}
-          />
-          <h1 className={`${css.h1} ${css.md}`}>New Time Slot</h1>
-        </div>
-      </header>
-      <div className={css.column_screen}>
+    <section className="flex-1 overflow-hidden h-full py-5 px-8 flex flex-col">
+      <Heading1>New Timeslots</Heading1>
+      <div className="flex-1 h-full flex flex-col overflow-hidden pt-4">
         {!categories.length ? (
-          <div className={`${css.empty_notice} ${css.time_slot_empty_pad}`}>
+          <div className="font-bold text-xl text-[#858b9c] p-12 text-center">
             No Service Categories Found!
           </div>
         ) : (
           <>
-            <div className={css.time_slot_selects_block}>
-              <div className={css.time_slot_select_wrap}>
-                <div className={css.time_slot_select_label}>Select Category</div>
-                <div className="select">
+            <div className="py-2 px-4 flex flex-wrap gap-6 border border-[#eee]">
+              <label className="bold-select-wrap min-w-24">
+                <span className="label">Select Category</span>
+                <div className="bold-select caret">
                   <select name={CATEGORY} value={selectedCategory.id} onChange={handleValueChange}>
                     {categories.map((cat) => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
                 </div>
-              </div>
-              <div className={css.time_slot_select_wrap}>
-                <div className={css.time_slot_select_label}>Select Service</div>
-                <div className="select">
+              </label>
+              <label className="bold-select-wrap">
+                <span className="label">Select Service</span>
+                <div className="bold-select caret">
                   <select
                     name={SERVICE}
                     value={service ? service.id : ''}
@@ -1236,10 +1088,10 @@ export const NewTimeSlot = () => {
                     ))}
                   </select>
                 </div>
-              </div>
+              </label>
             </div>
             {!service ? (
-              <div className={`${css.empty_notice} ${css.time_slot_empty_pad}`}>
+              <div className="font-bold text-xl text-[#858b9c] p-12 text-center">
                 No services found!
               </div>
             ) : (
@@ -1270,12 +1122,17 @@ const TimeSlots = () => {
   const busyDialog = useBusyDialog();
   const confirmDialog = useConfirmDialog();
   const dialog = useDialog();
+  const hasServiceRef = useRef(false);
 
   useEffect(() => {
     if (date) {
       const slots = timeSlots[date];
       if (slots) {
         setSlots(slots);
+        return;
+      }
+
+      if (!hasServiceRef.current) {
         return;
       }
 
@@ -1287,6 +1144,7 @@ const TimeSlots = () => {
   }, [date, timeSlots]);
 
   useEffect(() => {
+    hasServiceRef.current = !!selectedService;
     if (selectedService) {
       setFilteredSlots(slots.filter((slot) => slot.serviceId === selectedService.id));
     }
@@ -1373,16 +1231,16 @@ const TimeSlots = () => {
   }, [checkedSlots, date, confirmDialog]);
 
   return (
-    <section className={`${css.content} ${css.overflow_hidden} p-6`}>
-      <PageHeader title="Timeslots" />
-      <div className={css.column_screen}>
+    <section className="flex-1 overflow-hidden py-5 px-8 h-full">
+      <Heading1>Timeslots</Heading1>
+      <div className="flex-1 h-full flex flex-col overflow-hidden pt-4">
         {!categories.length ? (
-          <div className={`${css.empty_notice} ${css.time_slot_empty_pad}`}>
+          <div className="font-bold text-xl text-[#858b9c] p-12 text-center">
             No Service Categories Found!
           </div>
         ) : (
           <>
-            <div className={css.time_slot_selects_block}>
+            <div className="py-2 px-4 flex flex-wrap gap-6 border border-[#eee]">
               <label className="bold-select-wrap">
                 <span className="label">Select Category</span>
                 <div className="bold-select caret">
@@ -1417,18 +1275,18 @@ const TimeSlots = () => {
               </div>
             </div>
             {!selectedService ? (
-              <div className={`${css.empty_notice} ${css.time_slot_empty_pad}`}>
+              <div className="font-bold text-xl text-[#858b9c] p-12 text-center">
                 No services found!
               </div>
             ) : (
               <div className="table-wrap">
                 {!filteredSlots.length ? (
-                  <div className={`${css.empty_notice} ${css.time_slot_empty_pad}`}>
+                  <div className="font-bold text-xl text-[#858b9c] p-12 text-center">
                     No time slots found!
                   </div>
                 ) : (
-                  <div className={css.slots_table_wrap}>
-                    <div className={css.slots_table_header}>
+                  <div className="flex-1 flex flex-col h-full overflow-hidden">
+                    <div className="py-2 px-4 flex items-center gap-6">
                       <input
                         type="checkbox"
                         name={CHECK_ALL_SLOTS}
@@ -1448,11 +1306,11 @@ const TimeSlots = () => {
                         />
                       ) : null}
                     </div>
-                    <div className={`table-card ${css.slots_table}`}>
+                    <div className="table-card">
                       <table className="table">
                         <thead>
                           <tr>
-                            <th className={css.slots_date_header}>Date</th>
+                            <th className="pl-9">Date</th>
                             <th>Time</th>
                             <th colSpan={2}>Actions</th>
                           </tr>

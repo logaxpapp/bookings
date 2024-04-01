@@ -82,7 +82,7 @@ const MainLinks = ({ path }) => {
   };
 
   return (
-    <aside className="flex md:flex-col px-6 py-10 gap-3 border-e w-[80px]">
+    <aside className="grid grid-cols-5 md:flex md:flex-col px-6 py-3 md:py-10 gap-3 border-e w-full md:w-[80px]">
       {mainLinks.map(({
         getClass,
         route,

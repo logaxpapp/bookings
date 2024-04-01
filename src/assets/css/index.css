@@ -327,6 +327,37 @@ a {
   background-color: #045033;
 }
 
+.btn {
+  padding-block: 12px;
+  padding-inline: 24px;
+  border-radius: 10px;
+  background-color: #011c39;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.3s linear;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.btn.danger {
+  background-color: #b61818;
+}
+
+.btn.busy::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background-color: #fff;
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+  mask-image: url(../images/ring.webp);
+  animation: spin normal 1s infinite linear;
+}
+
 .calendar-date-icon {
   position: relative;
   top: 0;
@@ -594,5 +625,14 @@ input:-webkit-autofill:active {
 @keyframes animloader {
   to {
     background-position: 185px 0, center 0, center 115px, center 142px;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

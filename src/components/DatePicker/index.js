@@ -203,7 +203,12 @@ DatePicker.defaultProps = {
  * @param {Object} props
  * @param {Date} props.initialDate
  */
-export const DatePicker2 = ({ initialDate, onChange, dateFormatter }) => {
+export const DatePicker2 = ({
+  initialDate,
+  onChange,
+  dateFormatter,
+  style,
+}) => {
   const [date, setDate] = useState(initialDate);
   const dateString = useMemo(() => dateFormatter(date), [date]);
 
@@ -220,7 +225,7 @@ export const DatePicker2 = ({ initialDate, onChange, dateFormatter }) => {
       <div>
         <Popover.Button
           className="flex gap-10 justify-between items-center font-medium text-base text-[#5c5c5c] border border-[#8e98a8] py-3 px-4 rounded-[10px] min-w-44"
-          style={{ border: '1px solid #8e98a8' }}
+          style={style}
         >
           <span>{dateString}</span>
           <ChevronDownIcon aria-hidden="true" className="w-5 h-5 text-[#5c5c5c]" />
@@ -247,12 +252,14 @@ DatePicker2.propTypes = {
   initialDate: PropTypes.instanceOf(Date),
   onChange: PropTypes.func,
   dateFormatter: PropTypes.func,
+  style: PropTypes.shape({}),
 };
 
 DatePicker2.defaultProps = {
   initialDate: new Date(),
   onChange: null,
   dateFormatter: defaultDateFormatter,
+  style: { border: '1px solid #8e98a8' },
 };
 
 export default DatePicker;

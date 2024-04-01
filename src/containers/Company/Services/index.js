@@ -14,19 +14,25 @@ import {
   DocumentDuplicateIcon,
   EllipsisVerticalIcon,
   EnvelopeIcon,
+  PencilIcon,
   TrashIcon,
+  ArrowUpOnSquareIcon,
 } from '@heroicons/react/24/outline';
 import Aside, { Heading } from '../../Aside';
-import { createServiceImageAsync, deleteServiceImageAsync, selectServiceCategories } from '../../../redux/companySlice';
+import {
+  createServiceImageAsync,
+  deleteServiceAsync,
+  deleteServiceImageAsync,
+  selectServiceCategories,
+} from '../../../redux/companySlice';
 import routes from '../../../routing/routes';
 import EmptyListPanel from '../../../components/EmptyListPanel';
 import { classNames, notification } from '../../../utils';
-import { companyProps, serviceProps } from '../../../utils/propTypes';
+import { companyProps, serviceCategoryProps, serviceProps } from '../../../utils/propTypes';
 import { SvgButton, paths } from '../../../components/svg';
 import Modal from '../../../components/Modal';
 import { fileSize, isImage, uploadFile } from '../../../lib/CloudinaryUtils';
 import { ImageUploader } from '../../../components/ImageUploader';
-import { ShareButtonDesign } from '../../../components/Buttons';
 import { useHover } from '../../../lib/hooks';
 import { Ring } from '../../../components/LoadingButton';
 import { CategoryEditor, ServiceEditor } from './Editor';
@@ -60,9 +66,9 @@ const allServices = (categories) => categories.reduce(
 
 const getColors = (() => {
   const colors = [
-    { main: '#89e101', faint: 'f0feda' },
-    { main: '#673fd7', faint: 'dadafe' },
-    { main: '#011c39', faint: 'e6e8eb' },
+    { main: '#89e101', faint: '#f0feda' },
+    { main: '#673fd7', faint: '#dadafe' },
+    { main: '#011c39', faint: '#e6e8eb' },
   ];
   const { length } = colors;
   let index = 0;
@@ -166,13 +172,13 @@ const ImagesPanel = ({ serviceId }) => {
   };
 
   return (
-    <div className="flex gap-1 pt-1">
+    <div className="flex items-center gap-2 pt-1">
       {params.service.images && params.service.images.length ? (
         params.service.images.map(({ id, url }) => (
           <button
             key={id}
             type="button"
-            className="cursor-pointer bg-transparent w-6 h-6 p-0 border-0 outline-none"
+            className="cursor-pointer bg-transparent w-8 h-8 p-0 border-0 outline-none"
             onClick={() => setModalImageSrc(url)}
           >
             <img src={url} alt="!" className="w-full h-full rounded" />
@@ -295,7 +301,10 @@ const ServiceImage = ({ service, color, duration }) => {
   }
 
   return (
-    <div className={`rounded-full w-12 h-13 flex justify-center items-center bg-[${color}]`}>
+    <div
+      className={`rounded-full w-12 h-12 flex justify-center items-center bg-[${color}]`}
+      style={{ backgroundColor: color }}
+    >
       <span className="text-[#011c39]">
         {duration}
       </span>
@@ -314,14 +323,39 @@ ServiceImage.propTypes = {
  * @param {import('../../../types').Service} props.service
  * @param {import('../../../types').Category[]} props.categories
  */
-const ServicePanel = ({ service, currencySymbol }) => {
+const ServicePanel = ({
+  service,
+  currencySymbol,
+  categories,
+  category,
+}) => {
   const [editor, setEditor] = useState({ busy: false, isOpen: false });
+  const [deleteModal, setDeleteModal] = useState({ busy: false, isOpen: false });
+  const [descModalOpen, setDescModalOpen] = useState(false);
   const colors = useMemo(() => getColors(), []);
+  const saveCategory = useMemo(() => {
+    if (category) {
+      return category;
+    }
+    return categories.find((cat) => cat.services.find(({ id }) => id === service.id));
+  }, [category]);
+
   const { duration, price, deposit } = useMemo(() => ({
     duration: service.duration / 60,
     price: `${currencySymbol}${service.price / 100}`,
     deposit: service.minDeposit ? `${currencySymbol}${service.minDeposit / 100}` : '---',
   }), [service]);
+  const dispatch = useDispatch();
+
+  const handleDelete = () => {
+    setDeleteModal({ isOpen: true, busy: true });
+    dispatch(deleteServiceAsync(service.id, saveCategory, (err) => {
+      setDeleteModal({
+        busy: false,
+        isOpen: !!err,
+      });
+    }));
+  };
 
   return (
     <div
@@ -333,8 +367,8 @@ const ServicePanel = ({ service, currencySymbol }) => {
         <ServiceImage service={service} color={colors.faint} duration={duration} />
         <div className="flex flex-col gap-1 text-[#5c5c5c]">
           <span>{service.name}</span>
-          <div className="flex items-center gap-2">
-            <span>{`${duration}Mins`}</span>
+          <div className="flex items-center gap-2 pb-1">
+            <span>{`${duration}mins`}</span>
             <span>{price}</span>
             <span>{deposit}</span>
           </div>
@@ -345,8 +379,7 @@ const ServicePanel = ({ service, currencySymbol }) => {
         <Menu as="div" className="relative inline-block text-left">
           <div>
             <Menu.Button className="inline-flex gap-4 items-center">
-              <ShareButtonDesign />
-              <EllipsisVerticalIcon className="w-4 h-4" />
+              <EllipsisVerticalIcon className="w-6 h-6 text-[#5c5c5c]" />
             </Menu.Button>
           </div>
           <Transition
@@ -363,6 +396,23 @@ const ServicePanel = ({ service, currencySymbol }) => {
               rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
             >
               <div className="py-1">
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      type="button"
+                      className={classNames(
+                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                        'flex gap-2 items-center py-[10px] pl-10 pr-20 w-full',
+                      )}
+                      onClick={() => setEditor({ isOpen: true, busy: false })}
+                    >
+                      <PencilIcon className="w-4 h-4" stroke="#545454" type="outline" />
+                      <span className="text-sm font-[#545454] whitespace-nowrap">
+                        Edit Service
+                      </span>
+                    </button>
+                  )}
+                </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (
                     <button
@@ -395,6 +445,42 @@ const ServicePanel = ({ service, currencySymbol }) => {
                     </button>
                   )}
                 </Menu.Item>
+                {service.description ? (
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
+                        type="button"
+                        className={classNames(
+                          active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                          'flex gap-2 items-center py-[10px] pl-10 pr-20 w-full',
+                        )}
+                        onClick={() => setDescModalOpen(true)}
+                      >
+                        <ArrowUpOnSquareIcon className="w-4 h-4" color="#545454" />
+                        <span className="text-sm font-[#545454] whitespace-nowrap">
+                          View Description
+                        </span>
+                      </button>
+                    )}
+                  </Menu.Item>
+                ) : null}
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      type="button"
+                      className={classNames(
+                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                        'flex gap-2 items-center py-[10px] pl-10 pr-20 w-full',
+                      )}
+                      onClick={() => setDeleteModal({ isOpen: true, busy: false })}
+                    >
+                      <TrashIcon className="w-4 h-4" stroke="#b61818" type="outline" />
+                      <span className="text-sm text-[#b61818] whitespace-nowrap">
+                        Delete Service
+                      </span>
+                    </button>
+                  )}
+                </Menu.Item>
               </div>
             </Menu.Items>
           </Transition>
@@ -415,8 +501,55 @@ const ServicePanel = ({ service, currencySymbol }) => {
           onClose={() => setEditor({ busy: false, isOpen: false })}
           setBusy={() => setEditor({ busy: true, isOpen: false })}
           service={service}
+          busy={editor.busy}
         />
       </Modal>
+      <Modal
+        isOpen={deleteModal.isOpen || deleteModal.busy}
+        parentSelector={() => document.querySelector('#service-container-id')}
+        onRequestClose={() => {
+          if (!deleteModal.busy) {
+            setDeleteModal({ isOpen: false, busy: false });
+          }
+        }}
+        style={{ content: { maxWidth: 400 } }}
+        shouldCloseOnEsc
+        shouldCloseOnOverlayClick
+      >
+        <div className="py-5 px-8">
+          <p className="m-0 px-4 flex flex-col gap-3">
+            <span className="font-medium text-lg">
+              {`The service ${service.name} will be permanently deleted!`}
+            </span>
+            <span className="text-lg font-semibold text-center">
+              Do yo wish to continue?
+            </span>
+          </p>
+          <div className="pt-6 px-4 flex items-center justify-end">
+            <button
+              type="button"
+              className={`btn danger ${deleteModal.busy ? 'busy' : ''}`}
+              onClick={handleDelete}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </Modal>
+      {service.description ? (
+        <Modal
+          isOpen={descModalOpen}
+          parentSelector={() => document.querySelector('#service-container-id')}
+          onRequestClose={() => setDescModalOpen(false)}
+          style={{ content: { maxWidth: 480 } }}
+          shouldCloseOnEsc
+          shouldCloseOnOverlayClick
+        >
+          <p className="m-1 py-4 px-6 font-semibold text-lg text-[#5c5c5c]">
+            {service.description}
+          </p>
+        </Modal>
+      ) : null}
     </div>
   );
 };
@@ -424,17 +557,23 @@ const ServicePanel = ({ service, currencySymbol }) => {
 ServicePanel.propTypes = {
   service: serviceProps.isRequired,
   currencySymbol: PropTypes.string.isRequired,
+  category: serviceCategoryProps,
+  categories: PropTypes.arrayOf(serviceCategoryProps).isRequired,
+};
+
+ServicePanel.defaultProps = {
+  category: null,
 };
 
 export const ServiceComponent = ({ company }) => {
   const [busy, setBusy] = useState(false);
   const categories = useSelector(selectServiceCategories);
   const isEditorOpen = useSelector(selectIsServiceEditorOpen);
-  const [state, setState] = useState({
-    categoryName: 'All Services',
-    services: allServices(categories),
-  });
+  const [category, setCategory] = useState(null);
   const dispatch = useDispatch();
+  const services = useMemo(() => (
+    category?.services || allServices(categories)
+  ), [category, categories]);
 
   return (
     <div id={DASHBOARD_CONTAINER_ID}>
@@ -443,7 +582,7 @@ export const ServiceComponent = ({ company }) => {
           <div>
             <Menu.Button className="inline-flex w-full justify-center gap-4 rounded-md bg-transparent px-3 py-2 text-sm font-semibold text-gray-900">
               <span>
-                {`${state.categoryName}(${state.services.length})`}
+                {`${category?.name || 'All Services'}(${services.length})`}
               </span>
               <ChevronDownIcon className="-mr-1 h-5 w-5 text-[#454545]" aria-hidden="true" />
             </Menu.Button>
@@ -472,8 +611,8 @@ export const ServiceComponent = ({ company }) => {
                         'block w-full px-4 py-2 text-left text-sm',
                       )}
                       onClick={() => {
-                        if (state.categoryName !== 'All Services') {
-                          setState({ categoryName: 'All Services', services: allServices(categories) });
+                        if (category) {
+                          setCategory(null);
                         }
                       }}
                     >
@@ -491,8 +630,8 @@ export const ServiceComponent = ({ company }) => {
                           'block w-full px-4 py-2 text-left text-sm',
                         )}
                         onClick={() => {
-                          if (state.categoryName !== cat.name) {
-                            setState({ categoryName: cat.name, services: cat.services });
+                          if (category?.id !== cat.id) {
+                            setCategory(cat);
                           }
                         }}
                       >
@@ -507,13 +646,15 @@ export const ServiceComponent = ({ company }) => {
         </Menu>
       </div>
       <div className="flex-1 w-full">
-        {state.services.length ? (
-          <div className="flex flex-col gap-4 py-10">
-            {state.services.map((service) => (
+        {services.length ? (
+          <div className="flex flex-col gap-4 py-5">
+            {services.map((service) => (
               <ServicePanel
                 key={service.id}
                 service={service}
                 currencySymbol={company.country.currencySymbol}
+                categories={categories}
+                category={category}
               />
             ))}
           </div>
@@ -600,7 +741,7 @@ const Services = () => {
             >
               <span>{`Services(${servicesCount})`}</span>
             </Link>
-            <div className="flex justify-center w-52">
+            <div className="w-52 pl-6">
               <button
                 type="button"
                 name={SERVICE}
@@ -653,7 +794,7 @@ const Services = () => {
                 data-popper-arrow
               />
             </div>
-            <div className="flex justify-center w-52">
+            <div className="w-52 pl-6">
               <button
                 type="button"
                 name={CATEGORY}
@@ -676,6 +817,36 @@ const Services = () => {
                   New Category
                 </span>
               </button>
+            </div>
+          </div>
+          <div className="flex flex-col gap-3">
+            <Link
+              to={routes.company.absolute.services.timeSlots}
+              className="w-52 h-10 flex items-center bg-[#f6f8fb] border-[#89e101] rounded border-l-[3px] pl-3 text-sm font-semibold"
+            >
+              <span>Time Slots</span>
+            </Link>
+            <div className="w-52 pl-6">
+              <Link
+                to={routes.company.absolute.services.newTimeSlot}
+                className="flex items-center gap-[2.5px] bg-transparent border-o outline-none cursor-pointer"
+              >
+                <svg
+                  width="16"
+                  height="17"
+                  viewBox="0 0 16 17"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  className="pointer-events-none"
+                >
+                  <path d="M8 3.16666V13.8333" stroke="#454545" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2.66797 8.5H13.3346" stroke="#454545" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span className="font-normal text-sm text-[#454545] pointer-events-none">
+                  New Time Slot
+                </span>
+              </Link>
             </div>
           </div>
         </div>

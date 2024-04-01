@@ -9,6 +9,8 @@ const routes = {
     services: {
       home: 'services',
       categories: 'categories',
+      timeSlots: 'time-slots',
+      newTimeSlot: 'time-slots/new',
     },
     customers: 'customers',
 
@@ -43,6 +45,8 @@ const routes = {
       services: {
         home: '/companies/services',
         categories: '/companies/services/categories',
+        timeSlots: '/companies/services/time-slots',
+        newTimeSlot: '/companies/services/time-slots/new',
       },
       customers: '/companies/customers',
 
@@ -67,6 +71,7 @@ const routes = {
         downloads: '/companies/settings/downloads',
         activities: '/companies/settings/activities',
         refer: 'refer',
+        serviceImages: () => '',
       },
       setup: '/companies/setup',
       subscriptions: '/companies/subscriptions',

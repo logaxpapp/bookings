@@ -256,7 +256,6 @@ const ImportCustomer = () => {
           { ...memo, [current]: values[idx] }
         ), {});
         customers.push(customer);
-        console.log(customer);
       };
 
       reader.readAsText(file, 'utf8');

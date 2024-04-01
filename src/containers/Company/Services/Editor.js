@@ -136,6 +136,7 @@ export const ServiceEditor = ({
       setPrice(currencyHelper.fromDecimal(service.price / 100));
       setDuration(getDurationText(service.duration));
       setDeposit(currencyHelper.fromDecimal(service.minDeposit / 100));
+      setDescription(service.description || '');
     }
   }, [service]);
 
@@ -256,6 +257,7 @@ export const ServiceEditor = ({
       return;
     }
 
+    setBusy(true);
     dispatch(updateServiceAsync(data, service, category, completedHandler));
   };
 
@@ -361,11 +363,10 @@ export const ServiceEditor = ({
               </span>
             ) : null}
           </label>
-          <div className="form-controls pad">
+          <div className="flex justify-end items-center gap-4 pt-6">
             <button
               type="submit"
-              className="py-4 px-12 rounded-[10px] transition-transform hover:scale-105 hover:disabled:scale-100 bg-[#011c39] text-white disabled:bg-slate-700"
-              disabled={busy}
+              className={`btn ${busy ? 'busy' : ''}`}
             >
               {service ? 'Update' : 'Save'}
             </button>
@@ -474,10 +475,10 @@ export const CategoryEditor = ({
       <div className="form-controls pad">
         <button
           type="submit"
-          className="py-4 px-12 rounded-[10px] transition-transform hover:scale-105 hover:disabled:scale-100 bg-[#011c39] text-white disabled:bg-slate-700"
+          className={`btn ${busy ? 'busy' : ''}`}
           disabled={busy}
         >
-          Create
+          {category ? 'Update' : 'Create'}
         </button>
       </div>
     </form>

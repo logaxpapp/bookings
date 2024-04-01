@@ -15,6 +15,7 @@ import PasswordResetForm from '../containers/Authentication/signin/PasswordReset
 import Company from '../containers/Company';
 import Dashboard from '../containers/Company/Dashboard';
 import Services, { ServicesDashboard } from '../containers/Company/Services';
+import TimeSlots, { NewTimeSlot } from '../containers/Company/Services/TimeSlots';
 import CompanySettings from '../containers/Company/Settings';
 import Setup from '../containers/Company/Setup';
 import User from '../containers/User';
@@ -52,6 +53,7 @@ import Downloads from '../containers/Company/Settings/Downloads';
 import Activities from '../containers/Company/Settings/Activities';
 import References from '../containers/Company/Settings/References';
 import Customers from '../containers/Company/Settings/Customers';
+import Categories from '../containers/Company/Services/Categories';
 
 const router = createBrowserRouter([
   {
@@ -129,6 +131,18 @@ const router = createBrowserRouter([
           {
             path: '',
             element: <ServicesDashboard />,
+          },
+          {
+            path: routes.company.services.categories,
+            element: <Categories />,
+          },
+          {
+            path: routes.company.services.timeSlots,
+            element: <TimeSlots />,
+          },
+          {
+            path: routes.company.services.newTimeSlot,
+            element: <NewTimeSlot />,
           },
         ],
       },

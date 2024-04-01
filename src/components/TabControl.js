@@ -28,7 +28,12 @@ TabHeader.propTypes = {
   setTab: PropTypes.func.isRequired,
 };
 
-export const TabBody = ({ tab, header, children }) => {
+export const TabBody = ({
+  tab,
+  header,
+  children,
+  className,
+}) => {
   const isActive = tab === header;
 
   return (
@@ -36,7 +41,7 @@ export const TabBody = ({ tab, header, children }) => {
       role="tab"
       aria-current={isActive}
       aria-hidden={!isActive}
-      className={isActive ? 'block' : 'hidden'}
+      className={`${className} ${isActive ? 'block' : 'hidden'}`}
     >
       {children}
     </div>
@@ -47,10 +52,12 @@ TabBody.propTypes = {
   tab: PropTypes.string.isRequired,
   header: PropTypes.string.isRequired,
   children: childrenProps,
+  className: PropTypes.string,
 };
 
 TabBody.defaultProps = {
   children: null,
+  className: '',
 };
 
 export const TabHeaders = ({ headers, tab, setTab }) => (
