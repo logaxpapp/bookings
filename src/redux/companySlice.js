@@ -39,6 +39,7 @@ const slice = createSlice({
     weeklyAppointments: {},
     employee: null,
     employees: [],
+    customers: [],
     permissions: {},
     openMessages: [],
     maxOpenMessages: 4,
@@ -54,6 +55,7 @@ const slice = createSlice({
       state.serviceCategories = payload.serviceCategories;
       state.employee = payload.employee;
       state.employees = payload.employees;
+      state.customers = payload.customers;
       state.permissions = payload.permissions;
       state.authenticating = false;
       storage.setEmployeeToken(payload.token);
@@ -357,6 +359,17 @@ const slice = createSlice({
     removeEmployee: (state, { payload }) => {
       state.employees = state.employees.filter(({ id }) => id !== payload);
     },
+    addCustomer: (state, { payload }) => {
+      state.customers.push(payload);
+    },
+    updateCustomer: (state, { payload: { id, data } }) => {
+      state.customers = state.customers.map((cus) => (
+        cus.id === id ? data : cus
+      ));
+    },
+    removeCustomer: (state, { payload }) => {
+      state.customers = state.customers.filter(({ id }) => id !== payload);
+    },
     setOpenMessages: (state, { payload }) => {
       state.openMessages = payload;
     },
@@ -409,6 +422,9 @@ export const {
   addEmployee,
   updateEmployee,
   removeEmployee,
+  addCustomer,
+  updateCustomer,
+  removeCustomer,
   openAppointmentMessages,
   closeAppointmentMessage,
   setMaxOpenMessages,
@@ -1576,6 +1592,69 @@ export const removeEmployeeAsync = (id, callback) => (dispatch, getState) => {
     });
 };
 
+export const createCustomerAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  postResource(token, 'customers', data, true)
+    .then((customer) => {
+      dispatch(addCustomer(customer));
+      callback(null, customer);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const updateCustomerAsync = (id, data, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  updateResource(token, `customers/${id}`, data, true)
+    .then((customer) => {
+      dispatch(updateCustomer({ id, data: customer }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const removeCustomerAsync = (id, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  deleteResource(token, `customers/${id}`, true)
+    .then(() => {
+      dispatch(removeCustomer(id));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
 export const updatePasswordAsync = (
   data,
   callback,
@@ -1645,6 +1724,8 @@ export const selectWeeklyAppointments = (state) => state.company.weeklyAppointme
 export const selectSubscription = (state) => state.company.subscription;
 
 export const selectEmployee = (state) => state.company.employee;
+
+export const selectCustomers = (state) => state.company.customers;
 
 export const selectEmployees = (state) => state.company.employees;
 

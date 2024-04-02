@@ -2,6 +2,7 @@ import {
   forwardRef,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -403,6 +404,69 @@ Password.defaultProps = {
   hideErrorOnNull: false,
   readOnly: false,
   canUnmask: false,
+};
+
+export const Input = ({
+  name,
+  id,
+  value,
+  type,
+  label,
+  error,
+  style,
+  className,
+  onChange,
+}) => {
+  const inputStyle = useMemo(() => {
+    const s = style ? { ...style } : {};
+    if (error) {
+      s.borderColor = '#c51306';
+    }
+
+    return s;
+  }, [error, style]);
+
+  return (
+    <label htmlFor={id || name} className="bold-select-wrap">
+      {label ? <span className="label">{label}</span> : null}
+      <input
+        type={type}
+        name={name}
+        id={id || name}
+        value={value}
+        onChange={onChange}
+        className={`text-input ${className || ''}`}
+        style={inputStyle}
+      />
+      {error ? <span className="input-error">{error}</span> : null}
+    </label>
+  );
+};
+
+Input.propTypes = {
+  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  name: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  type: PropTypes.string,
+  label: PropTypes.string,
+  error: PropTypes.string,
+  style: PropTypes.shape({}),
+  containerStyle: PropTypes.shape({}),
+  className: PropTypes.string,
+  onChange: PropTypes.func,
+};
+
+Input.defaultProps = {
+  id: null,
+  name: null,
+  value: '',
+  label: '',
+  type: 'text',
+  error: '',
+  style: {},
+  containerStyle: {},
+  className: '',
+  onChange: null,
 };
 
 /**

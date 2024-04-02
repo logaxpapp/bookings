@@ -335,8 +335,8 @@ a {
   color: #fff;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: transform 0.3s linear;
+  gap: 16px;
+  transition: all 0.3s linear;
 }
 
 .btn:hover {

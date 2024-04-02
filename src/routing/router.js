@@ -52,7 +52,7 @@ import Reviews from '../containers/Company/Settings/Reviews';
 import Downloads from '../containers/Company/Settings/Downloads';
 import Activities from '../containers/Company/Settings/Activities';
 import References from '../containers/Company/Settings/References';
-import Customers from '../containers/Company/Settings/Customers';
+import Customers from '../containers/Company/Customers';
 import Categories from '../containers/Company/Services/Categories';
 
 const router = createBrowserRouter([
