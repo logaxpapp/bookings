@@ -557,3 +557,12 @@ export const toWords = (() => {
 
   return translate;
 })();
+
+export const addressText = (address) => {
+  let addr = '';
+  if (address) {
+    addr = `${address.line1}${address.line2 ? ` ${address.line2},` : ''}, ${address.city.name}, ${address.city.state.name}, ${address.city.state.country.name}`;
+  }
+
+  return addr;
+};

@@ -15,10 +15,10 @@ import Modal from '../../../components/Modal';
 import AddressEditor from '../../AddressEditor';
 import { loadCountriesAsync, selectCountries } from '../../../redux/countriesSlice';
 import LoadingButton from '../../../components/LoadingButton';
-import { updateCompanyAsync, updateCompanyImages } from '../../../redux/companySlice';
+import { updateCompanyAddressAsync, updateCompanyAsync, updateCompanyImages } from '../../../redux/companySlice';
 import { ImageUploader } from '../../../components/ImageUploader';
 import { fileSize, isImage, uploadFile } from '../../../lib/CloudinaryUtils';
-import { notification } from '../../../utils';
+import { addressText, notification } from '../../../utils';
 
 const BRAND_HEADER = 'brand_neader';
 const ID = 'company-brand';
@@ -301,9 +301,7 @@ export const BrandDetails = ({ company }) => {
     const initial = `${parts[0][0]} ${parts.length > 1 ? parts[1][0] : parts[0][1]}`.toUpperCase();
 
     return {
-      address: company.address
-        ? `${company.address.line1} ${company.address.line2} ${company.address.city} ${company.address.state} ${company.address.country}`
-        : 'Address NOT set!',
+      address: addressText(company.address) || 'Address NOT set',
       currency: `${company.country.name} ${company.country.code} (${company.country.currencySymbol})`,
       initial,
       url: `${config.API_HOST}${routes.providerPage(`A${company.id + 1000}`)}`,
@@ -328,9 +326,16 @@ export const BrandDetails = ({ company }) => {
     }
   }, [storeCountries]);
 
-  const handleChangeAddress = () => {
+  const handleChangeAddress = (data) => {
     setPostingAddress(true);
-    setTimeout(() => setPostingAddress(false), 10000);
+
+    dispatch(updateCompanyAddressAsync(data, (err) => {
+      setPostingAddress(false);
+
+      if (!err) {
+        setAddressModalOpen(false);
+      }
+    }));
   };
 
   return (
@@ -359,6 +364,7 @@ export const BrandDetails = ({ company }) => {
             countries={countries}
             busy={isPostingAddress}
             onSubmit={handleChangeAddress}
+            address={company.address}
           />
         </Modal>
       </FieldRow>

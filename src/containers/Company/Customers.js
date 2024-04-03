@@ -29,7 +29,7 @@ import {
 import emailIcon from '../../assets/images/email.svg';
 import phoneIcon from '../../assets/images/phone.svg';
 import addressicon from '../../assets/images/marker.svg';
-import { classNames } from '../../utils';
+import { addressText, classNames } from '../../utils';
 
 const ADDRESS_LINE1 = 'line1';
 const ADDRESS_LINE2 = 'line2';
@@ -54,7 +54,7 @@ const customerProps = PropTypes.shape({
     id: PropTypes.number,
     line1: PropTypes.string,
     line2: PropTypes.string,
-    zipCode: PropTypes.string,
+    zipCode: PropTypes.number,
     city: PropTypes.shape({
       id: PropTypes.number,
       name: PropTypes.string,
@@ -526,14 +526,7 @@ const CustomerCard = ({
   setEditModal,
   setDeleteModal,
 }) => {
-  const address = useMemo(() => {
-    let addr = '';
-    if (customer.address) {
-      addr = `${customer.address.line1}${customer.address.line2 ? ` ${customer.address.line2}` : ''}, ${customer.address.city.name}, ${customer.address.city.state.name}, ${customer.address.city.state.country.name}`;
-    }
-
-    return addr;
-  }, [customer]);
+  const address = useMemo(() => addressText(customer.address), [customer]);
 
   return (
     <section

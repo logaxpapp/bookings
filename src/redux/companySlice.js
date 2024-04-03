@@ -547,6 +547,46 @@ export const deleteCompanyPeriodAsync = (id, type, callback) => (dispatch, getSt
     });
 };
 
+export const addCompanyTimeOffAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  postResource(token, `companies/${company.id}/time-offs`, data, true)
+    .then((timeOff) => {
+      dispatch(updateCompany({ timeOffs: [...company.timeOffs, timeOff] }));
+      callback(null, timeOff);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
+export const deleteCompanyTimeOffAsync = (id, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  deleteResource(token, `companies/${company.id}/time-offs/${id}`, true)
+    .then(() => {
+      dispatch(updateCompany({
+        timeOffs: company.timeOffs.filter((timeOff) => timeOff.id !== id),
+      }));
+      callback();
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
 export const updateCompanyCityAsync = (
   city,
   state,
@@ -592,6 +632,29 @@ export const updateCompanyLocationAsync = (
     .then(() => {
       dispatch(updateCompany({ location: { latitude, longitude } }));
       notification.showSuccess('Location successfully updated.');
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const updateCompanyAddressAsync = (
+  data,
+  callback,
+) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  postResource(token, `companies/${company.id}/address`, data, true)
+    .then((address) => {
+      dispatch(updateCompany({ address }));
+      notification.showSuccess('Address successfully updated.');
       callback(null);
     })
     .catch(({ message }) => {

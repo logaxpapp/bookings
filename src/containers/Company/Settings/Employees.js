@@ -7,9 +7,8 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Menu, Transition } from '@headlessui/react';
-import { EllipsisVerticalIcon } from '@heroicons/react/20/solid';
+import { EllipsisVerticalIcon, PlusIcon } from '@heroicons/react/24/outline';
 import css from '../Employees/style.module.css';
-import { NewButton } from '../../../components/Buttons';
 import {
   createEmployeeAsync,
   removeEmployeeAsync,
@@ -83,7 +82,7 @@ const EmployeeForm = ({ busy, employee, onConfirm }) => {
       }
       if (!(fields.lastname && fields.lastname.length >= 2)) {
         errors.lastname = 'Lastname MUST be at least 2 characters!';
-      } else if (fields.lastname !== fields.employee.lastname) {
+      } else if (fields.lastname !== employee.lastname) {
         data.lastname = fields.lastname;
       }
     } else {
@@ -217,13 +216,13 @@ const EmployeeCard = ({
   onRequestEdit,
   onRequestDelete,
 }) => {
-  const handleClick = useCallback(({ target: { name } }) => {
+  const handleClick = ({ target: { name } }) => {
     if (name === DELETE) {
       onRequestDelete(employee);
     } else if (name === UPDATE) {
       onRequestEdit(employee);
     }
-  }, []);
+  };
 
   return (
     <section className={`card ${css.card}`} style={{ maxWidth: 300 }}>
@@ -443,7 +442,17 @@ const Employees = () => {
         <header className="page-header">
           <h1 className="page-heading">Employees</h1>
           {permissions.isAdmin ? (
-            <NewButton name={NEW} text="New Employee" onClick={handleClick} />
+            <button
+              type="button"
+              className="btn"
+              name={NEW}
+              onClick={handleClick}
+            >
+              <div className="flex items-center gap-2 pointer-events-none">
+                <PlusIcon className="w-[18px] h-[18px]" stroke="#fff" />
+                <span>New Employee</span>
+              </div>
+            </button>
           ) : null}
         </header>
         {employees.length ? (

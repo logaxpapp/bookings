@@ -1,9 +1,11 @@
 import {
+  useEffect,
   useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { countryProps } from '../utils/propTypes';
 import LoadingButton from '../components/LoadingButton';
+import { Input } from '../components/TextBox';
 
 const CITY = 'city';
 const COUNTRY = 'country';
@@ -12,7 +14,12 @@ const LINE2 = 'line2';
 const STATE = 'state';
 const ZIP_CODE = 'zip_code';
 
-const AddressEditor = ({ busy, countries, onSubmit }) => {
+const AddressEditor = ({
+  address,
+  busy,
+  countries,
+  onSubmit,
+}) => {
   const [country, setCountry] = useState(countries[0]);
   const [state, setState] = useState(country && country.states[0]);
   const [city, setCity] = useState(state && state.cities[0]);
@@ -21,6 +28,44 @@ const AddressEditor = ({ busy, countries, onSubmit }) => {
     [LINE2]: '',
     [ZIP_CODE]: '',
   });
+  const [errors, setErrors] = useState({
+    [LINE1]: '',
+    [ZIP_CODE]: '',
+    [CITY]: '',
+  });
+
+  useEffect(() => {
+    if (address) {
+      setFields({
+        [LINE1]: address.line1 || '',
+        [LINE2]: address.line2 || '',
+        [ZIP_CODE]: address.zipCode || '',
+      });
+      let id = address.city?.state?.country?.id;
+      if (id) {
+        const country = countries.find((c) => c.id === id);
+        if (country) {
+          setCountry(country);
+          id = address.city.state.id;
+          if (id) {
+            const state = country.states.find((s) => s.id === id);
+
+            if (state) {
+              setState(state);
+              id = address.city.id;
+
+              if (id) {
+                const city = state.cities.find((c) => c.id === id);
+                if (city) {
+                  setCity(city);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }, [address]);
 
   const selectState = (state) => {
     setState(state);
@@ -60,17 +105,41 @@ const AddressEditor = ({ busy, countries, onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit();
+
+    const errors = {};
+
+    if (!fields.line1) {
+      errors[LINE1] = 'This field is required!';
+    }
+
+    if (!fields.zip_code) {
+      errors[ZIP_CODE] = 'This field is required!';
+    }
+
+    if (!city) {
+      errors[CITY] = 'Please select a city!';
+    }
+
+    setErrors(errors);
+
+    if (Object.keys(errors).length) {
+      return;
+    }
+
+    onSubmit({ ...fields, city_id: city.id });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="modal-bold-body max-h-[80vh] overflow-auto">
+    <form
+      onSubmit={handleSubmit}
+      className="modal-bold-body max-h-[80vh] overflow-auto"
+    >
       <h1 className="m-0 text-lg font-semibold">
         Update Your Address
       </h1>
       <label htmlFor={COUNTRY} className="bold-select-wrap">
         <span className="label">Select Country</span>
-        <div className="bold-select">
+        <div className="bold-select caret">
           <select
             name={COUNTRY}
             value={(country && country.id) || ''}
@@ -85,7 +154,7 @@ const AddressEditor = ({ busy, countries, onSubmit }) => {
       </label>
       <label htmlFor={STATE} className="bold-select-wrap">
         <span className="label">Select State</span>
-        <div className="bold-select">
+        <div className="bold-select caret">
           <select
             name={STATE}
             value={(state && state.id) || ''}
@@ -100,7 +169,7 @@ const AddressEditor = ({ busy, countries, onSubmit }) => {
       </label>
       <label htmlFor={CITY} className="bold-select-wrap">
         <span className="label">Select City</span>
-        <div className="bold-select">
+        <div className="bold-select caret" style={errors.city ? { borderColor: '#c51306' } : {}}>
           <select
             name={CITY}
             value={(city && city.id) || ''}
@@ -112,40 +181,31 @@ const AddressEditor = ({ busy, countries, onSubmit }) => {
             )) : null}
           </select>
         </div>
+        {errors.city ? <span className="input-error">{errors.city}</span> : null}
       </label>
-      <label htmlFor={LINE1} className="bold-select-wrap">
-        <span className="label">Line 1</span>
-        <input
-          type="text"
-          name={LINE1}
-          id={LINE1}
-          value={fields[LINE1]}
-          onChange={handleFieldChange}
-          className="text-input"
-        />
-      </label>
-      <label htmlFor={LINE2} className="bold-select-wrap">
-        <span className="label">Line 2</span>
-        <input
-          type="text"
-          name={LINE2}
-          id={LINE2}
-          value={fields[LINE2]}
-          onChange={handleFieldChange}
-          className="text-input"
-        />
-      </label>
-      <label htmlFor={ZIP_CODE} className="bold-select-wrap">
-        <span className="label">Zip Code</span>
-        <input
-          type="text"
-          name={ZIP_CODE}
-          id={ZIP_CODE}
-          value={fields[ZIP_CODE]}
-          onChange={handleFieldChange}
-          className="text-input"
-        />
-      </label>
+      <Input
+        type="text"
+        label="Line 1"
+        name={LINE1}
+        value={fields[LINE1]}
+        onChange={handleFieldChange}
+        error={errors.line1}
+      />
+      <Input
+        type="text"
+        label="Line 2"
+        name={LINE2}
+        value={fields[LINE2]}
+        onChange={handleFieldChange}
+      />
+      <Input
+        type="text"
+        label="Zip Code"
+        name={ZIP_CODE}
+        value={fields[ZIP_CODE]}
+        onChange={handleFieldChange}
+        error={errors.zip_code}
+      />
       <LoadingButton
         type="submit"
         loading={busy}
@@ -157,12 +217,31 @@ const AddressEditor = ({ busy, countries, onSubmit }) => {
 };
 
 AddressEditor.propTypes = {
+  address: PropTypes.shape({
+    id: PropTypes.number,
+    line1: PropTypes.string,
+    line2: PropTypes.string,
+    zipCode: PropTypes.number,
+    city: PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      state: PropTypes.shape({
+        id: PropTypes.number,
+        name: PropTypes.string,
+        country: PropTypes.shape({
+          id: PropTypes.number,
+          name: PropTypes.string,
+        }),
+      }),
+    }),
+  }),
   busy: PropTypes.bool,
   countries: PropTypes.arrayOf(countryProps).isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
 
 AddressEditor.defaultProps = {
+  address: null,
   busy: false,
 };
 
