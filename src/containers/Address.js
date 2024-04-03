@@ -1,11 +1,15 @@
 import {
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import PropTypes from 'prop-types';
 import { countryProps } from '../utils/propTypes';
 import LoadingButton from '../components/LoadingButton';
 import { Input } from '../components/TextBox';
+import { SvgButton, paths } from '../components/svg';
+import { Field } from './CustomInputs';
+import Modal from '../components/Modal';
 
 const CITY = 'city';
 const COUNTRY = 'country';
@@ -14,7 +18,26 @@ const LINE2 = 'line2';
 const STATE = 'state';
 const ZIP_CODE = 'zip_code';
 
-const AddressEditor = ({
+const addressProps = PropTypes.shape({
+  id: PropTypes.number,
+  line1: PropTypes.string,
+  line2: PropTypes.string,
+  zipCode: PropTypes.number,
+  city: PropTypes.shape({
+    id: PropTypes.number,
+    name: PropTypes.string,
+    state: PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      country: PropTypes.shape({
+        id: PropTypes.number,
+        name: PropTypes.string,
+      }),
+    }),
+  }),
+});
+
+export const AddressEditor = ({
   address,
   busy,
   countries,
@@ -217,24 +240,7 @@ const AddressEditor = ({
 };
 
 AddressEditor.propTypes = {
-  address: PropTypes.shape({
-    id: PropTypes.number,
-    line1: PropTypes.string,
-    line2: PropTypes.string,
-    zipCode: PropTypes.number,
-    city: PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-      state: PropTypes.shape({
-        id: PropTypes.number,
-        name: PropTypes.string,
-        country: PropTypes.shape({
-          id: PropTypes.number,
-          name: PropTypes.string,
-        }),
-      }),
-    }),
-  }),
+  address: addressProps,
   busy: PropTypes.bool,
   countries: PropTypes.arrayOf(countryProps).isRequired,
   onSubmit: PropTypes.func.isRequired,
@@ -245,4 +251,95 @@ AddressEditor.defaultProps = {
   busy: false,
 };
 
-export default AddressEditor;
+export const AddressFields = ({
+  address,
+  countries,
+  onEdit,
+}) => {
+  const [busy, setBusy] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const fields = useMemo(() => {
+    const fs = {
+      country: address?.city?.state?.country?.name || '',
+      state: address?.city?.state?.name || '',
+      city: address?.city?.name || '',
+      line1: address?.line1 || '',
+      line2: address?.line2 || '',
+      zipCode: address?.zipCode || '',
+    };
+
+    return fs;
+  }, [address]);
+
+  if (!address) {
+    return null;
+  }
+
+  const handleEdit = (data) => {
+    setBusy(true);
+    onEdit(data, (err) => {
+      setBusy(false);
+
+      if (!err) {
+        setModalOpen(false);
+      }
+    });
+  };
+
+  return (
+    <section className="pt-10 flex flex-col gap-4" id="company-bookings-address-panel">
+      <div className="flex items-center gap-12">
+        <h1 className="m-0 font-bold text-xs text-[#011c39]">
+          ADDRESS
+        </h1>
+        {onEdit ? (
+          <SvgButton
+            type="button"
+            title="Edit"
+            color="#5c5c5c"
+            path={paths.pencil}
+            onClick={() => setModalOpen(true)}
+            sm
+          />
+        ) : null}
+      </div>
+      <div className="flex flex-col gap-4 pl-4">
+        <Field title="Country" initialValue={fields.country} />
+        <Field title="State" initialValue={fields.state} />
+        <Field title="City" initialValue={fields.city} />
+        <Field title="Line 1" initialValue={fields.line1} />
+        <Field title="Line 2" initialValue={fields.line2} />
+        <Field title="Zip Code / Postal Code" initialValue={fields.zipCode} />
+      </div>
+      <Modal
+        isOpen={isModalOpen || busy}
+        parentSelector={() => document.querySelector('#company-bookings-address-panel')}
+        onRequestClose={() => {
+          if (!busy) {
+            setModalOpen(false);
+          }
+        }}
+        shouldCloseOnEsc
+        shouldCloseOnOverlayClick
+      >
+        <AddressEditor
+          address={address}
+          busy={busy}
+          countries={countries}
+          onSubmit={handleEdit}
+        />
+      </Modal>
+    </section>
+  );
+};
+
+AddressFields.propTypes = {
+  address: addressProps.isRequired,
+  countries: PropTypes.arrayOf(countryProps).isRequired,
+  onEdit: PropTypes.func,
+};
+
+AddressFields.defaultProps = {
+  onEdit: null,
+};

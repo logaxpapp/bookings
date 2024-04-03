@@ -213,6 +213,7 @@ export const ReturnPolicyComponent = ({
     </p>
   </section>
 );
+
 ReturnPolicyComponent.propTypes = {
   homepage: PropTypes.bool,
   effectiveDate: PropTypes.string,

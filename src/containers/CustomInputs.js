@@ -1,27 +1,24 @@
 import {
   Fragment,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Menu, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/20/solid';
-import { companyProps } from '../utils/propTypes';
 import { classNames } from '../utils';
 import { updateCompanyAsync } from '../redux/companySlice';
-import { loadCountriesAsync, selectCountries } from '../redux/countriesSlice';
 import Modal from '../components/Modal';
 import { SvgButton, paths } from '../components/svg';
 import LoadingButton from '../components/LoadingButton';
-import AddressEditor from './AddressEditor';
 
 const timeUnitsObj = {
   Minutes: 'm',
   Hours: 'h',
   Days: 'd',
+  Weeks: 'w',
   Months: 'mo',
   Years: 'y',
 };
@@ -77,6 +74,17 @@ export const TimeAmount = ({ initialValue, name, onChange }) => {
   const mountedRef = useRef(false);
 
   useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+
+    if (onChange) {
+      onChange(name, `${time.value || 0}${timeUnitsObj[time.unit]}`);
+    }
+  }, [time]);
+
+  useEffect(() => {
     if (initialValue) {
       const { letters, numbers } = extractNumbersAndLetters(initialValue);
       let unit;
@@ -84,23 +92,13 @@ export const TimeAmount = ({ initialValue, name, onChange }) => {
         unit = timeUnits[i];
 
         if (timeUnitsObj[unit] === letters) {
+          mountedRef.current = false;
           setTime({ unit, value: numbers });
           break;
         }
       }
     }
   }, []);
-
-  useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      return;
-    }
-
-    if (onChange) {
-      onChange(name, `${time.value}${timeUnitsObj[time.unit]}`);
-    }
-  }, [time]);
 
   const handleValueChange = ({ target: { value } }) => {
     const newValue = intVal(value);
@@ -271,8 +269,8 @@ export const Field = ({
 };
 
 Field.propTypes = {
-  initialValue: PropTypes.string,
-  name: PropTypes.string,
+  initialValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  name: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   title: PropTypes.string,
   onChange: PropTypes.func,
 };
@@ -282,98 +280,4 @@ Field.defaultProps = {
   name: '',
   title: '',
   onChange: null,
-};
-
-export const AddressFields = ({ company }) => {
-  const [busy, setBusy] = useState(false);
-  const [isModalOpen, setModalOpen] = useState(false);
-  const allCountries = useSelector(selectCountries);
-  const countries = useMemo(() => {
-    const rslt = [];
-
-    if (allCountries) {
-      const country = allCountries.find(({ code }) => code === company.country.code);
-
-      if (country) {
-        rslt.push(country);
-      }
-    }
-
-    return rslt;
-  }, [allCountries]);
-  const dispatch = useDispatch();
-
-  const fields = useMemo(() => {
-    const fs = {
-      country: '',
-      state: '',
-      city: '',
-      line1: '',
-      line2: '',
-      zipCode: '',
-    };
-
-    if (company.address?.line1) {
-      fs.country = company.address.country;
-      fs.state = company.address.state;
-      fs.city = company.address.city;
-      fs.line1 = company.address.line1;
-      fs.line2 = company.address.line2;
-    }
-
-    return fs;
-  }, [company]);
-
-  useEffect(() => {
-    if (!allCountries) {
-      dispatch(loadCountriesAsync());
-    }
-  }, []);
-
-  const handleSubmit = () => {
-    setBusy(false);
-  };
-
-  return (
-    <section className="pt-10 flex flex-col gap-4" id="company-bookings-address-panel">
-      <div className="flex items-center gap-12">
-        <h1 className="m-0 font-bold text-xs text-[#011c39]">
-          ADDRESS
-        </h1>
-        <SvgButton
-          type="button"
-          title="Edit"
-          color="#5c5c5c"
-          path={paths.pencil}
-          onClick={() => setModalOpen(true)}
-          sm
-        />
-      </div>
-      <div className="flex flex-col gap-4 pl-4">
-        <Field title="Country" initialValue={fields.country} />
-        <Field title="State" initialValue={fields.state} />
-        <Field title="City" initialValue={fields.city} />
-        <Field title="Line 1" initialValue={fields.line1} />
-        <Field title="Line 2" initialValue={fields.line2} />
-        <Field title="Zip Code / Postal Code" initialValue={fields.zipCode} />
-      </div>
-      <Modal
-        isOpen={isModalOpen || busy}
-        parentSelector={() => document.querySelector('#company-bookings-address-panel')}
-        onRequestClose={() => {
-          if (!busy) {
-            setModalOpen(false);
-          }
-        }}
-        shouldCloseOnEsc
-        shouldCloseOnOverlayClick
-      >
-        <AddressEditor busy={busy} countries={countries} onSubmit={handleSubmit} />
-      </Modal>
-    </section>
-  );
-};
-
-AddressFields.propTypes = {
-  company: companyProps.isRequired,
 };

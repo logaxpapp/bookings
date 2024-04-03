@@ -3,7 +3,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useOutletContext } from 'react-router';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
@@ -18,21 +18,34 @@ import { SvgButton, paths } from '../../../components/svg';
 import Modal from '../../../components/Modal';
 import { ImageUploader } from '../../../components/ImageUploader';
 import { fileSize, isImage, uploadFile } from '../../../lib/CloudinaryUtils';
-import { updateCompanyImages } from '../../../redux/companySlice';
-import { notification, toTimeFormat } from '../../../utils';
+import { updateCompanyAddressAsync, updateCompanyImages } from '../../../redux/companySlice';
+import { camelCase, notification } from '../../../utils';
 import { ProfilePicture } from './Brand';
 import LoadingButton from '../../../components/LoadingButton';
 import { ReturnPolicyComponent } from './ReturnPolicy';
 import MenuSelect from '../../../components/MenuSelect';
 import {
-  AddressFields,
   Field,
   intVal,
   TimeAmount,
   toDisplayTimeUnit,
 } from '../../CustomInputs';
+import { AddressFields } from '../../Address';
+import { loadCountriesAsync, selectCountries } from '../../../redux/countriesSlice';
+import { usePrefereceFields } from '../../../utils/hooks';
 
+const CANCELLATION_WINDOW = 'cancellation_window';
+const REFUND_DELAY = 'refund_delay';
+const REFUND_PERCENT = 'refund_percent';
+const LANGUAGE = 'language';
+const LEAD_TIME = 'schedule_lead_time';
 const MAX_IMAGE_SIZE = 100000;
+const RETURN_POLICY_EFFECTIVE_DATE = 'return_policy_effective_date';
+const SCHEDULE_WINDOW = 'schedule_window';
+const SLOT_SIZE = 'slot_size';
+const TIME_FORMAT = 'time_format';
+const WEEK_START = 'week_start';
+
 const effectiveDate = new Date(2023, 9, 23).toLocaleDateString();
 const email = 'enquiries@logaxp.com';
 const phoneNumber = '+1 (615) 930-6090 | +1 (832) 946-5563 | +2348031332801';
@@ -168,6 +181,22 @@ const Details = ({ company }) => {
   const [busy, setBusy] = useState(false);
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
   const [about, setAbout] = useState('');
+  const allCountries = useSelector(selectCountries);
+  const countries = useMemo(() => {
+    const cs = [];
+
+    if (allCountries) {
+      const country = allCountries.find(({ id }) => id === company.country.id);
+      if (country) {
+        cs.push(country);
+      }
+    }
+
+    return cs;
+  }, [allCountries]);
+  const dispatch = useDispatch();
+
+  useEffect(() => dispatch(loadCountriesAsync()), []);
 
   useEffect(() => {
     setAbout(company.about || '');
@@ -181,6 +210,10 @@ const Details = ({ company }) => {
       setAboutModalOpen(false);
     }, 5000);
   };
+
+  const handleUpdateAddress = (data, callback) => dispatch(
+    updateCompanyAddressAsync(data, callback),
+  );
 
   return (
     <div className="w-full max-w-2xl" id="company-settings-bookings-details-panel">
@@ -232,8 +265,15 @@ const Details = ({ company }) => {
           </div>
         </div>
       </section>
-      <AddressFields company={company} />
-      <section className="pt-10 pl-6 relative flex flex-col gap-4">
+      <div className="pr-6">
+        <AddressFields
+          address={company.address}
+          busy={busy}
+          countries={countries}
+          onEdit={handleUpdateAddress}
+        />
+      </div>
+      <section className="pt-10 px-6 relative flex flex-col gap-4">
         <h1 className="clip">Extras</h1>
         <Field name="slogan" title="Slogan" initialValue={company.slogan || ''} />
         <div className="bold-select-wrap">
@@ -297,10 +337,16 @@ Details.propTypes = {
   company: companyProps.isRequired,
 };
 
-const BookingPolicies = () => {
-  const handleChange = () => {
-    // TODO:
-  };
+const BookingPreferences = () => {
+  const {
+    busy,
+    fields,
+    hasChanges,
+    setFields,
+    update,
+  } = usePrefereceFields([LEAD_TIME, SCHEDULE_WINDOW, SLOT_SIZE]);
+
+  const handleChange = (name, value) => setFields((fields) => ({ ...fields, [name]: value }));
 
   return (
     <div className="w-[600px] flex flex-col gap-5">
@@ -313,7 +359,7 @@ const BookingPolicies = () => {
             How soon before an appointment can a customer schedule?
           </span>
         </div>
-        <TimeAmount name="leadTime" onChange={handleChange} />
+        <TimeAmount name={LEAD_TIME} initialValue={fields[LEAD_TIME]} onChange={handleChange} />
       </div>
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-[6px]">
@@ -324,7 +370,11 @@ const BookingPolicies = () => {
             How far in advance can a customer schedule appointment?
           </span>
         </div>
-        <TimeAmount name="leadTime" onChange={handleChange} />
+        <TimeAmount
+          name={SCHEDULE_WINDOW}
+          initialValue={fields[SCHEDULE_WINDOW]}
+          onChange={handleChange}
+        />
       </div>
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-[6px]">
@@ -335,37 +385,52 @@ const BookingPolicies = () => {
             What is your average appointment duration?
           </span>
         </div>
-        <TimeAmount name="leadTime" onChange={handleChange} />
+        <TimeAmount name={SLOT_SIZE} initialValue={fields[SLOT_SIZE]} onChange={handleChange} />
       </div>
+      {hasChanges ? (
+        <div className="flex justify-end pt-8">
+          <button
+            type="button"
+            className={`btn ${busy ? 'busy' : ''}`}
+            onClick={() => update()}
+          >
+            Update
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 };
 
 const ReturnPolicy = ({ company }) => {
-  const [fields, setFields] = useState({
-    effectiveDate,
-    minNoticeTime: '48 Hours',
-    refundPercent: 100,
-    refundDelay: '2 Days',
-    contactEmail: email,
-    contactPhoneNumber: phoneNumber,
-  });
+  const {
+    busy,
+    fields,
+    hasChanges,
+    setFields,
+    update,
+  } = usePrefereceFields([CANCELLATION_WINDOW, REFUND_DELAY, REFUND_PERCENT]);
+  const policies = useMemo(() => {
+    let companyEffectiveDate = company.preferences[camelCase(RETURN_POLICY_EFFECTIVE_DATE)];
+
+    if (companyEffectiveDate) {
+      companyEffectiveDate = new Date(companyEffectiveDate).toLocaleDateString();
+    }
+
+    return {
+      effectiveDate: companyEffectiveDate || effectiveDate,
+      minNoticeTime: fields[CANCELLATION_WINDOW] ? toDisplayTimeUnit(fields[CANCELLATION_WINDOW]) : '48 Hours',
+      refundPercent: fields[REFUND_PERCENT] || fields[REFUND_PERCENT] === 0
+        ? fields[REFUND_PERCENT]
+        : 100,
+      refundDelay: fields[REFUND_DELAY] ? toDisplayTimeUnit(fields[REFUND_DELAY]) : '2 Days',
+      contactEmail: effectiveDate ? company.email : email,
+      contactPhoneNumber: effectiveDate ? company.phoneNumber : phoneNumber,
+    };
+  }, [fields, company]);
   const [tab, setTab] = useState('Edit');
 
-  useEffect(() => {
-    if (company.returnPolicy) {
-      setFields({
-        effectiveDate: new Date(company.returnPolicy.updatedAt).toLocaleDateString(),
-        minNoticeTime: toDisplayTimeUnit(company.returnPolicy.minNoticeTime),
-        refundDelay: toDisplayTimeUnit(company.returnPolicy.refundDelay),
-        refundPercent: company.returnPolicy.refundPercent,
-        contactEmail: company.returnPolicy.contactEmail || company.email,
-        contactPhoneNumber: company.returnPolicy.contactPhoneNumber || company.phoneNumber,
-      });
-    }
-  }, [company]);
-
-  const handleChange = (name, value) => setFields((fields) => ({ fields, [name]: value }));
+  const handleChange = (name, value) => setFields((fields) => ({ ...fields, [name]: value }));
 
   return (
     <>
@@ -382,8 +447,9 @@ const ReturnPolicy = ({ company }) => {
               </span>
             </div>
             <TimeAmount
-              initialValue={company.returnPolicy?.minNoticeTime}
-              onChange={(name, value) => handleChange('minNoticeTime', toTimeFormat(value))}
+              name={CANCELLATION_WINDOW}
+              initialValue={fields[CANCELLATION_WINDOW]}
+              onChange={handleChange}
             />
           </div>
           <div className="flex items-center justify-between">
@@ -396,8 +462,9 @@ const ReturnPolicy = ({ company }) => {
               </span>
             </div>
             <TimeAmount
-              initialValue={company.returnPolicy?.refundDelay}
-              onChange={(name, value) => handleChange('refundDelay', toTimeFormat(value))}
+              name={REFUND_DELAY}
+              initialValue={fields[REFUND_DELAY]}
+              onChange={handleChange}
             />
           </div>
           <div className="flex items-center justify-between">
@@ -412,12 +479,13 @@ const ReturnPolicy = ({ company }) => {
             <div className="flex items-center gap-2">
               <input
                 type="text"
-                value={fields.refundPercent}
+                name={REFUND_PERCENT}
+                value={fields[REFUND_PERCENT] || ''}
                 onChange={({ target: { value } }) => {
                   const val = intVal(value);
 
                   if (val !== null) {
-                    handleChange('refundPercent', val);
+                    handleChange(REFUND_PERCENT, val);
                   }
                 }}
                 className="rounded-3xl w-20 text-center font-medium text-base text-[#5c5c5c] py-[10px] px-4"
@@ -426,15 +494,29 @@ const ReturnPolicy = ({ company }) => {
               <ReceiptPercentIcon className="w-6 h-6 text-[#5c5c5c]" />
             </div>
           </div>
+          {hasChanges ? (
+            <div className="flex justify-end pt-6">
+              <button
+                type="button"
+                className={`btn ${busy ? 'busy' : ''}`}
+                onClick={() => update({
+                  [RETURN_POLICY_EFFECTIVE_DATE]: new Date().toLocaleDateString(),
+                })}
+              >
+                Update
+              </button>
+            </div>
+          ) : null}
         </div>
       </TabBody>
       <TabBody tab={tab} header="Preview">
         <ReturnPolicyComponent
-          minNoticeTime={fields.minNoticeTime}
-          refundDelay={fields.refundDelay}
-          refundPercent={fields.refundPercent}
-          email={fields.contactEmail}
-          phoneNumber={fields.contactPhoneNumber}
+          effectiveDate={policies.effectiveDate}
+          minNoticeTime={policies.minNoticeTime}
+          refundDelay={policies.refundDelay}
+          refundPercent={policies.refundPercent}
+          email={policies.contactEmail}
+          phoneNumber={policies.contactPhoneNumber}
         />
       </TabBody>
     </>
@@ -446,24 +528,24 @@ ReturnPolicy.propTypes = {
 };
 
 const Customization = () => {
-  const [fields, setFields] = useState({
-    preferredLanguage: languages[0],
-    timeFormat: timeFormats[0],
-    weekStartDay: weekdays[1],
-  });
-
-  const fieldKeys = useMemo(() => Object.keys(fields), []);
+  const {
+    busy,
+    fields,
+    hasChanges,
+    setFields,
+    update,
+  } = usePrefereceFields([LANGUAGE, TIME_FORMAT, WEEK_START]);
 
   const handleChange = (name, value) => setFields((fields) => ({ ...fields, [name]: value }));
 
   return (
     <div>
-      <section>
+      <section className="w-[600px]">
         <Heading2>General</Heading2>
         <p className="m-0 text-sm text-[#5c5c5c]">
           Select standard display preference for your booking page
         </p>
-        <div className="w-[600px] flex flex-col gap-5 pt-6">
+        <div className="flex flex-col gap-5 pt-6">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1">
               <span className="font-medium text-base text-[#8e98a8]">
@@ -476,8 +558,8 @@ const Customization = () => {
             <MenuSelect
               className="!rounded-3xl !text-[#5c5c5c] !font-medium !text-base"
               options={languages}
-              name={fieldKeys[0]}
-              value={fields.preferredLanguage}
+              name={LANGUAGE}
+              value={fields[LANGUAGE]}
               onChange={handleChange}
             />
           </div>
@@ -493,8 +575,8 @@ const Customization = () => {
             <MenuSelect
               className="!rounded-3xl !text-[#5c5c5c] !font-medium !text-base"
               options={timeFormats}
-              name={fieldKeys[1]}
-              value={fields.timeFormat}
+              name={TIME_FORMAT}
+              value={fields[TIME_FORMAT]}
               onChange={handleChange}
             />
           </div>
@@ -510,12 +592,23 @@ const Customization = () => {
             <MenuSelect
               className="!rounded-3xl !text-[#5c5c5c] !font-medium !text-base"
               options={weekdays}
-              name={fieldKeys[2]}
-              value={fields.weekStartDay}
-              onChange={handleChange}
+              name={WEEK_START}
+              value={weekdays[fields[WEEK_START] || 0]}
+              onChange={(name, value) => handleChange(name, weekdays.indexOf(value))}
             />
           </div>
         </div>
+        {hasChanges ? (
+          <div className="flex justify-end pt-8">
+            <button
+              type="button"
+              className={`btn ${busy ? 'busy' : ''}`}
+              onClick={() => update()}
+            >
+              Update
+            </button>
+          </div>
+        ) : null}
       </section>
     </div>
   );
@@ -538,7 +631,7 @@ const Bookings = () => {
         <Details company={company} />
       </TabBody>
       <TabBody tab={tab} header={tabs.preferences}>
-        <BookingPolicies />
+        <BookingPreferences />
       </TabBody>
       <TabBody tab={tab} header={tabs.policies}>
         <ReturnPolicy company={company} />

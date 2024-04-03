@@ -1,7 +1,5 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { Heading } from '../../Aside';
-import { selectPreferences, updatePreferencesAsync } from '../../../redux/companySlice';
+import { usePrefereceFields } from '../../../utils/hooks';
 
 const LANGUAGE = 'language';
 const UPDATE = 'update';
@@ -11,31 +9,18 @@ const supportedLaguages = [
   'English (UK)',
 ];
 
-const camelCases = {
-  [LANGUAGE]: LANGUAGE,
-};
-
 const General = () => {
-  const preferences = useSelector(selectPreferences);
-  const [fields, setFields] = useState({
-    [LANGUAGE]: preferences[camelCases[LANGUAGE]],
-  });
-  const [busy, setBusy] = useState(false);
-  const dispatch = useDispatch();
-
-  const changedFields = Object.keys(fields).filter(
-    (key) => preferences[camelCases[key]] !== fields[key],
-  );
-
-  const hasChanges = Object.keys(changedFields).length;
+  const {
+    busy,
+    hasChanges,
+    fields,
+    setFields,
+    update,
+  } = usePrefereceFields([LANGUAGE]);
 
   const handleClick = ({ target: { name } }) => {
     if (name === UPDATE) {
-      if (hasChanges) {
-        setBusy(true);
-        const data = changedFields.reduce((memo, key) => ({ ...memo, [key]: fields[key] }), {});
-        dispatch(updatePreferencesAsync(data, () => setBusy(false)));
-      }
+      update();
     }
   };
 

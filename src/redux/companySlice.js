@@ -41,7 +41,6 @@ const slice = createSlice({
     employees: [],
     customers: [],
     permissions: {},
-    preferences: {},
     openMessages: [],
     maxOpenMessages: 4,
   },
@@ -58,7 +57,6 @@ const slice = createSlice({
       state.employees = payload.employees;
       state.customers = payload.customers;
       state.permissions = payload.permissions;
-      state.preferences = payload.preferences;
       state.authenticating = false;
       storage.setEmployeeToken(payload.token);
     },
@@ -396,9 +394,6 @@ const slice = createSlice({
         }
       }
     },
-    updatePreferences: (state, { payload }) => {
-      state.preferences = { ...state.preferences, ...payload };
-    },
   },
 });
 
@@ -436,7 +431,6 @@ export const {
   setOpenMessages,
   addAppointmentUpdateRequest,
   updateAppointmentUpdateRequest,
-  updatePreferences,
 } = slice.actions;
 
 export const loginAsync = (email, password, callback) => (dispatch) => {
@@ -1788,7 +1782,7 @@ export const updatePreferencesAsync = (data, callback) => (dispatch, getState) =
         ...memo,
         [camelCase(key)]: data[key],
       }), {});
-      dispatch(updatePreferences(newData));
+      dispatch(updateCompany({ preferences: { ...company.preferences, ...newData } }));
       callback(null);
     })
     .catch(({ message }) => {
@@ -1824,8 +1818,6 @@ export const selectEmployees = (state) => state.company.employees;
 export const selectPermissions = (state) => state.company.permissions;
 
 export const selectOpenMessages = (state) => state.company.openMessages;
-
-export const selectPreferences = (state) => state.company.preferences;
 
 export default slice.reducer;
 

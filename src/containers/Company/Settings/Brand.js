@@ -12,7 +12,7 @@ import css from './styles.module.css';
 import config from '../../../config';
 import routes from '../../../routing/routes';
 import Modal from '../../../components/Modal';
-import AddressEditor from '../../AddressEditor';
+import { AddressEditor } from '../../Address';
 import { loadCountriesAsync, selectCountries } from '../../../redux/countriesSlice';
 import LoadingButton from '../../../components/LoadingButton';
 import { updateCompanyAddressAsync, updateCompanyAsync, updateCompanyImages } from '../../../redux/companySlice';
