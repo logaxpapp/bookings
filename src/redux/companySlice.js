@@ -41,6 +41,7 @@ const slice = createSlice({
     employees: [],
     customers: [],
     permissions: {},
+    preferences: {},
     openMessages: [],
     maxOpenMessages: 4,
   },
@@ -57,6 +58,7 @@ const slice = createSlice({
       state.employees = payload.employees;
       state.customers = payload.customers;
       state.permissions = payload.permissions;
+      state.preferences = payload.preferences;
       state.authenticating = false;
       storage.setEmployeeToken(payload.token);
     },
@@ -394,6 +396,9 @@ const slice = createSlice({
         }
       }
     },
+    updatePreferences: (state, { payload }) => {
+      state.preferences = { ...state.preferences, ...payload };
+    },
   },
 });
 
@@ -431,6 +436,7 @@ export const {
   setOpenMessages,
   addAppointmentUpdateRequest,
   updateAppointmentUpdateRequest,
+  updatePreferences,
 } = slice.actions;
 
 export const loginAsync = (email, password, callback) => (dispatch) => {
@@ -1768,6 +1774,29 @@ export const updateReturnPolicyAsync = (
     });
 };
 
+export const updatePreferencesAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  updateResource(token, `companies/${company.id}`, data, true)
+    .then(() => {
+      const newData = Object.keys(data).reduce((memo, key) => ({
+        ...memo,
+        [camelCase(key)]: data[key],
+      }), {});
+      dispatch(updatePreferences(newData));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
 export const selectToken = (state) => state.company.token;
 
 export const selectCompany = (state) => state.company.company;
@@ -1795,6 +1824,8 @@ export const selectEmployees = (state) => state.company.employees;
 export const selectPermissions = (state) => state.company.permissions;
 
 export const selectOpenMessages = (state) => state.company.openMessages;
+
+export const selectPreferences = (state) => state.company.preferences;
 
 export default slice.reducer;
 
