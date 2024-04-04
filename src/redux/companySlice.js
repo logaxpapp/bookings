@@ -19,6 +19,11 @@ const storage = AppStorage.getInstance();
 
 const ACCESS_MESSAGE = 'You do not have access to requested resource!';
 
+const periodTypes = {
+  working_hours: 'workingHours',
+  breaks: 'breaks',
+};
+
 /* eslint-disable no-param-reassign */
 const slice = createSlice({
   name: 'company',
@@ -34,9 +39,12 @@ const slice = createSlice({
     weeklyAppointments: {},
     employee: null,
     employees: [],
+    customers: [],
     permissions: {},
     openMessages: [],
     maxOpenMessages: 4,
+    paymentMethods: [],
+    activities: [],
   },
   reducers: {
     setAuthenticating: (state, { payload }) => {
@@ -49,8 +57,11 @@ const slice = createSlice({
       state.serviceCategories = payload.serviceCategories;
       state.employee = payload.employee;
       state.employees = payload.employees;
+      state.customers = payload.customers;
       state.permissions = payload.permissions;
       state.authenticating = false;
+      state.paymentMethods = payload.paymentMethods;
+      state.activities = payload.activities;
       storage.setEmployeeToken(payload.token);
     },
     teardown: (state) => {
@@ -66,6 +77,8 @@ const slice = createSlice({
       state.employee = null;
       state.employees = [];
       state.permissions = {};
+      state.paymentMethods = [];
+      state.activities = [];
       storage.unsetEmployeeToken();
     },
     setCompany: (state, { payload }) => {
@@ -352,6 +365,17 @@ const slice = createSlice({
     removeEmployee: (state, { payload }) => {
       state.employees = state.employees.filter(({ id }) => id !== payload);
     },
+    addCustomer: (state, { payload }) => {
+      state.customers.push(payload);
+    },
+    updateCustomer: (state, { payload: { id, data } }) => {
+      state.customers = state.customers.map((cus) => (
+        cus.id === id ? data : cus
+      ));
+    },
+    removeCustomer: (state, { payload }) => {
+      state.customers = state.customers.filter(({ id }) => id !== payload);
+    },
     setOpenMessages: (state, { payload }) => {
       state.openMessages = payload;
     },
@@ -404,6 +428,9 @@ export const {
   addEmployee,
   updateEmployee,
   removeEmployee,
+  addCustomer,
+  updateCustomer,
+  removeCustomer,
   openAppointmentMessages,
   closeAppointmentMessage,
   setMaxOpenMessages,
@@ -486,6 +513,86 @@ export const updateCompanyAsync = (data, callback) => (dispatch, getState) => {
     });
 };
 
+export const addCompanyPeriodAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  postResource(token, `companies/${company.id}/periods`, data, true)
+    .then((period) => {
+      const prop = periodTypes[period.type];
+      dispatch(updateCompany({ [prop]: [...company[prop], period] }));
+      callback(null, period);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
+export const deleteCompanyPeriodAsync = (id, type, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  deleteResource(token, `companies/${company.id}/periods/${id}`, true)
+    .then(() => {
+      const prop = periodTypes[type];
+      dispatch(updateCompany({ [prop]: company[prop].filter((period) => period.id !== id) }));
+      callback();
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
+export const addCompanyTimeOffAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  postResource(token, `companies/${company.id}/time-offs`, data, true)
+    .then((timeOff) => {
+      dispatch(updateCompany({ timeOffs: [...company.timeOffs, timeOff] }));
+      callback(null, timeOff);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
+export const deleteCompanyTimeOffAsync = (id, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  deleteResource(token, `companies/${company.id}/time-offs/${id}`, true)
+    .then(() => {
+      dispatch(updateCompany({
+        timeOffs: company.timeOffs.filter((timeOff) => timeOff.id !== id),
+      }));
+      callback();
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
 export const updateCompanyCityAsync = (
   city,
   state,
@@ -531,6 +638,29 @@ export const updateCompanyLocationAsync = (
     .then(() => {
       dispatch(updateCompany({ location: { latitude, longitude } }));
       notification.showSuccess('Location successfully updated.');
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const updateCompanyAddressAsync = (
+  data,
+  callback,
+) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  postResource(token, `companies/${company.id}/address`, data, true)
+    .then((address) => {
+      dispatch(updateCompany({ address }));
+      notification.showSuccess('Address successfully updated.');
       callback(null);
     })
     .catch(({ message }) => {
@@ -764,26 +894,27 @@ export const updateServiceAsync = (data, service, category, callback) => (dispat
         newService.minDeposit = data.min_deposit;
       }
 
-      const services = [];
-      category.services.forEach((serv) => {
-        services.push(
-          serv.id !== service.id
-            ? serv
-            : newService,
-        );
-      });
-
       const categories = [];
-      serviceCategories.forEach((cat) => {
-        categories.push(
-          cat.id !== category.id
-            ? cat
-            : {
-              ...category,
-              services,
-            },
-        );
-      });
+
+      if (data.category_id && data.category_id !== category.id) {
+        serviceCategories.forEach((cat) => {
+          if (cat.id === data.category_id) {
+            categories.push({ ...cat, services: [...cat.services, newService] });
+          } else if (cat.id === category.id) {
+            categories.push(
+              { ...cat, services: cat.services.filter(({ id }) => id !== service.id) },
+            );
+          } else {
+            categories.push(cat);
+          }
+        });
+      } else {
+        serviceCategories.forEach((cat) => categories.push(
+          cat.id === category.id
+            ? { ...cat, services: cat.services.map((s) => (s.id === service.id ? newService : s)) }
+            : cat,
+        ));
+      }
 
       dispatch(setServiceCategories(categories));
 
@@ -1530,6 +1661,140 @@ export const removeEmployeeAsync = (id, callback) => (dispatch, getState) => {
     });
 };
 
+export const createCustomerAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  postResource(token, 'customers', data, true)
+    .then((customer) => {
+      dispatch(addCustomer(customer));
+      callback(null, customer);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const updateCustomerAsync = (id, data, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  updateResource(token, `customers/${id}`, data, true)
+    .then((customer) => {
+      dispatch(updateCustomer({ id, data: customer }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const removeCustomerAsync = (id, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  deleteResource(token, `customers/${id}`, true)
+    .then(() => {
+      dispatch(removeCustomer(id));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const createAdditionalChargeAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  postResource(token, 'additional_charges', data, true)
+    .then((charge) => {
+      dispatch(updateCompany({
+        additionalCharges: [...company.additionalCharges, charge],
+      }));
+      callback(null, charge);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const updateAdditionalChargeAsync = (id, data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  updateResource(token, `additional_charges/${id}`, data, true)
+    .then((updatedCharge) => {
+      dispatch(updateCompany({
+        additionalCharges: company.additionalCharges.map(
+          (charge) => (charge.id === id ? updatedCharge : charge),
+        ),
+      }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const removeAdditionalChargeAsync = (id, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  deleteResource(token, `additional_charges/${id}`, true)
+    .then(() => {
+      dispatch(updateCompany({
+        additionalCharges: company.additionalCharges.filter((charge) => charge.id !== id),
+      }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
 export const updatePasswordAsync = (
   data,
   callback,
@@ -1580,6 +1845,71 @@ export const updateReturnPolicyAsync = (
     });
 };
 
+export const updatePreferencesAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  updateResource(token, `companies/${company.id}`, data, true)
+    .then(() => {
+      const newData = Object.keys(data).reduce((memo, key) => ({
+        ...memo,
+        [camelCase(key)]: data[key],
+      }), {});
+      dispatch(updateCompany({ preferences: { ...company.preferences, ...newData } }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
+export const fetchConnectedAccountAsync = (callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  fetchResources('connected_accounts', token, true)
+    .then((connectedAccounts) => {
+      dispatch(updateCompany({ connectedAccounts }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
+export const updateConnectedAccountAsync = (id, data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  updateResource(token, `connected_accounts/${id}`, data, true)
+    .then(() => {
+      dispatch(updateCompany({
+        connectedAccounts: company.connectedAccounts.map((account) => (
+          account.id === id ? { ...account, ...data } : account
+        )),
+      }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
 export const selectToken = (state) => state.company.token;
 
 export const selectCompany = (state) => state.company.company;
@@ -1600,11 +1930,17 @@ export const selectSubscription = (state) => state.company.subscription;
 
 export const selectEmployee = (state) => state.company.employee;
 
+export const selectCustomers = (state) => state.company.customers;
+
 export const selectEmployees = (state) => state.company.employees;
 
 export const selectPermissions = (state) => state.company.permissions;
 
 export const selectOpenMessages = (state) => state.company.openMessages;
+
+export const selectPaymentMethods = (state) => state.company.paymentMethods;
+
+export const selectActivities = (state) => state.company.activities;
 
 export default slice.reducer;
 

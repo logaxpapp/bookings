@@ -40,6 +40,13 @@
  */
 
 /**
+ * @typedef {Object} Category
+ * @property { number } id
+ * @property { string } name
+ * @property {Service[]} services
+ */
+
+/**
  * @typedef User
  * @property { number } id
  * @property { string } name

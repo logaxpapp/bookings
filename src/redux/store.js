@@ -9,11 +9,13 @@ import subscriptions from './subscriptionsSlice';
 import user, { setUser } from './userSlice';
 import userLocation from './userLocationSlice';
 import userPreferences from './userPreferences';
+import controls from './controls';
 import { notification } from '../utils';
 
 export const createStore = () => configureStore({
   reducer: {
     company,
+    controls,
     countries,
     providers,
     search,

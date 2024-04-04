@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -14,6 +15,7 @@ import {
   dateUtils,
   range,
   TIMEZONE,
+  toWords,
   weekdays,
 } from '../../utils';
 import { appointmentProps } from '../../utils/propTypes';
@@ -263,9 +265,92 @@ EventPanel.propTypes = {
   onClose: PropTypes.func.isRequired,
 };
 
+// const filtered = dEvents.events.filter(({ time: { start } }) => (
+//   start.hour === hour
+// ));
+// return (
+//   <div key={dEvents.key} className={css.weekly_calendar_cell}>
+//     {filtered.map((evt) => (
+//       <EventLabel
+//         key={evt.id}
+//         event={evt}
+//         onClick={handleViewEvent}
+//       />
+//     ))}
+//   </div>
+// );
+
+const CalendarCell = ({ hour, events, onViewEvent }) => {
+  const state = useMemo(() => {
+    const filtered = events.filter(({ time: { start } }) => (
+      start.hour === hour
+    ));
+    let title = '';
+    let period = '';
+
+    if (filtered.length === 1) {
+      title = filtered[0].title;
+      period = `${filtered[0].time.start.text} - ${filtered[0].time.end.text}`;
+    } else if (filtered.length > 1) {
+      period = toWords(filtered.length);
+      period = 'Appointments';
+    }
+
+    return {
+      events: filtered,
+      title,
+      period,
+    };
+  }, [events]);
+  const container = useRef(null);
+
+  const handleClick = () => {
+    onViewEvent(state.events, container.current.getBoundingClientRect());
+  };
+
+  return (
+    <div ref={container} className={css.weekly_calendar_cell} data-hour={hour ? d2(hour) : ''}>
+      {state.events.length ? (
+        <button
+          type="button"
+          className="flex flex-col gap-2 justify-center items-start p-3 text-left w-full h-full rounded bg-[#E9EBF8]"
+          onClick={handleClick}
+        >
+          <span className="font-medium text-sm text-[#171717]">
+            {state.title}
+          </span>
+          <span className="font-normal text-xs text-[#171717]">
+            {state.period}
+          </span>
+        </button>
+      ) : null}
+    </div>
+  );
+};
+
+CalendarCell.propTypes = {
+  hour: PropTypes.number.isRequired,
+  events: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.number,
+    title: PropTypes.string,
+    time: PropTypes.shape({
+      start: PropTypes.shape({
+        hour: PropTypes.number,
+        text: PropTypes.string,
+      }),
+      end: PropTypes.shape({
+        text: PropTypes.string,
+      }),
+    }),
+  })).isRequired,
+  onViewEvent: PropTypes.func.isRequired,
+};
+
 const WeeklyCalendar = ({ date, events }) => {
   const [currentWeekEvents, setCurrentWeekEvents] = useState([]);
   const [eventWrapper, setEventWrapper] = useState(null);
+  const [sidebarEvents, setSidebarEvents] = useState(null);
+  const sidebarRef = useRef(null);
   const panel = useRef(null);
   const { width } = useWindowSize();
   const [mini, setMini] = useState(false);
@@ -302,10 +387,14 @@ const WeeklyCalendar = ({ date, events }) => {
     }
 
     setCurrentWeekEvents(currentWeekEvents);
-  }, [mini, date, events, setCurrentWeekEvents]);
+  }, [mini, date, events]);
 
-  const handleViewEvent = useCallback((event, rect) => {
-    setEventWrapper({ event: event.appointment, elementRect: rect });
+  const handleViewEvent = useCallback((events, rect) => {
+    if (events.length === 1) {
+      setEventWrapper({ event: events[0].appointment, elementRect: rect });
+    } else if (events.length > 1) {
+      setSidebarEvents(events);
+    }
   }, []);
 
   return (
@@ -329,27 +418,50 @@ const WeeklyCalendar = ({ date, events }) => {
                 className={css.weekly_calendar_row}
                 data-hour={hour ? d2(hour) : ''}
               >
-                {currentWeekEvents.map((dEvents) => {
-                  const filtered = dEvents.events.filter(({ time: { start } }) => (
-                    start.hour === hour
-                  ));
-                  return (
-                    <div key={dEvents.key} className={css.weekly_calendar_cell}>
-                      {filtered.map((evt) => (
-                        <EventLabel
-                          key={evt.id}
-                          event={evt}
-                          onClick={handleViewEvent}
-                        />
-                      ))}
-                    </div>
-                  );
-                })}
+                {currentWeekEvents.map((dEvents) => (
+                  <CalendarCell
+                    key={dEvents.key}
+                    hour={hour}
+                    events={dEvents.events}
+                    onViewEvent={handleViewEvent}
+                  />
+                ))}
               </div>
             ))}
           </div>
         </div>
       </section>
+      <div
+        ref={sidebarRef}
+        className="absolute right-0 top-0 h-full w-60 pointer-events-none overflow-hidden"
+      >
+        <div
+          className={`w-full h-full overflow-auto bg-white transition-transform ${sidebarEvents ? 'translate-x-0' : 'translate-x-full'} p-5 relative pointer-events-auto`}
+        >
+          {sidebarEvents ? (
+            <>
+              {sidebarEvents.map((event) => (
+                <button
+                  key={event.id}
+                  type="button"
+                  onClick={() => setEventWrapper({
+                    event: events[0].appointment,
+                    elementRect: sidebarRef.current.getBoundingClientRect(),
+                  })}
+                  className="flex flex-col gap-2 justify-center items-start p-3 text-left w-full min-h-[72px] border-b border-[#E9EBF8]"
+                >
+                  <span className="font-medium text-sm text-[#171717]">
+                    {event.title}
+                  </span>
+                  <span className="font-normal text-xs text-[#171717]">
+                    {`${event.start.text} - ${event.end.text}`}
+                  </span>
+                </button>
+              ))}
+            </>
+          ) : null}
+        </div>
+      </div>
       {eventWrapper ? (
         <EventPanel eventWrapper={eventWrapper} onClose={clearEventWrapper} />
       ) : null}

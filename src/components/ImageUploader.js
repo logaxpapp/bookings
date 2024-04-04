@@ -128,7 +128,7 @@ const BUTTON_TEXT = 'Upload Image';
 const ASPECT_RATIO = 1;
 const MAX_IMAGE_HEIGHT = 180;
 
-const ImageUploader = ({
+export const ImageUploader = ({
   onValidate,
   onClose,
   onSubmit,

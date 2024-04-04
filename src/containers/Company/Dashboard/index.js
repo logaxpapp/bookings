@@ -13,6 +13,15 @@ import WeeklyCalendar from '../../WeeklyCalendar';
 import { paths } from '../../../components/svg';
 import { appointmentProps } from '../../../utils/propTypes';
 import Aside, { Heading } from '../../Aside';
+import { DatePicker2 } from '../../../components/DatePicker';
+
+/**
+ * @param {Date} date
+ */
+const formatter = (date) => date.toLocaleDateString('en-us', {
+  year: 'numeric',
+  month: 'long',
+});
 
 /**
  * @param {Object} props
@@ -123,13 +132,8 @@ AppointmentPanel.propTypes = {
 };
 
 const Dashboard = () => {
-  const [date] = useState(new Date());
+  const [date, setDate] = useState(new Date());
   const [events, setEvents] = useState([]);
-  const [state] = useState({
-    mini: false,
-    isDrawerOpen: true,
-    asideClass: css.dashboard_aside,
-  });
   const appointments = useSelector(selectWeeklyAppointments);
   const [sunday, setSunday] = useState();
   const dispatch = useDispatch();
@@ -155,13 +159,20 @@ const Dashboard = () => {
       const date = new Date(key);
       const result = [...memo];
       appointments[key].forEach((appointment) => {
+        const time = new Date(appointment.timeSlot.time);
         result.push({
           id: appointment.id,
           title: appointment.timeSlot.service.name,
           date,
           time: {
             start: {
-              hour: new Date(appointment.timeSlot.time).getHours(),
+              hour: time.getHours(),
+              text: time.toLocaleTimeString(),
+            },
+            end: {
+              text: new Date(
+                time.getTime() + (1000 * appointment.timeSlot.service.duration),
+              ).toLocaleTimeString(),
             },
           },
           appointment,
@@ -172,12 +183,27 @@ const Dashboard = () => {
   }, [appointments]);
 
   return (
-    <div className="flex-1 h-full flex">
+    <div className="flex-1 h-full w-full flex overflow-hidden">
       <Aside>
         <Heading>My calendars</Heading>
       </Aside>
-      <div className={`${css.dashboard_main} ${state.mini ? css.mini : ''}`}>
-        <WeeklyCalendar date={date} events={events} />
+      <div className="overflow-hidden flex-1 h-full flex flex-col">
+        <div className="w-full py-3 px-6 flex justify-end">
+          <DatePicker2
+            initialDate={date}
+            onChange={setDate}
+            style={{
+              border: 'none',
+              fontWeight: 'bold',
+              paddingTop: 0,
+              paddingBottom: 0,
+            }}
+            dateFormatter={formatter}
+          />
+        </div>
+        <div className="flex-1 overflow-hidden w-full">
+          <WeeklyCalendar date={date} events={events} />
+        </div>
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ import {
   notification,
 } from '../../../utils';
 import { isImage, uploadFile } from '../../../lib/CloudinaryUtils';
-import ImageUploader from '../../../components/ImageUploader';
+import { ImageUploader } from '../../../components/ImageUploader';
 import defaultImages from '../../../utils/defaultImages';
 import { AccentRadioButton, Switch } from '../../../components/Inputs';
 import GridPanel from '../../../components/GridPanel';

@@ -1,4 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { selectUser } from '../redux/userSlice';
@@ -12,7 +17,7 @@ import BlankPage from '../components/BlankPage';
 import { Loader } from '../components/LoadingSpinner';
 import { useDialog } from '../lib/Dialog';
 import defaultImages from './defaultImages';
-import { currencyHelper, notification } from '.';
+import { camelCase, currencyHelper, notification } from '.';
 import paystackIcon from '../assets/images/paystack.png';
 import stripeIcon from '../assets/images/stripe-icon.png';
 import { serviceProps } from './propTypes';
@@ -20,6 +25,7 @@ import payments from '../payments';
 import { loadIPLocationAsync, setLoading } from '../redux/userLocationSlice';
 import { CompanyRefundPolicy } from '../containers/ReturnPolicy';
 import { SvgButton, colors, paths } from '../components/svg';
+import { selectCompany, updatePreferencesAsync } from '../redux/companySlice';
 
 /* eslint-disable no-nested-ternary */
 
@@ -424,6 +430,58 @@ export const useBook = () => {
   }, [getUserInfo]);
 
   return book;
+};
+
+/**
+ * @param {Array<string>} keys field keys
+ */
+export const usePrefereceFields = (keys) => {
+  const [busy, setBusy] = useState(false);
+  const company = useSelector(selectCompany);
+  const camelCases = useMemo(() => keys.reduce((memo, key) => ({
+    ...memo,
+    [key]: camelCase(key),
+  }), {}), []);
+  const [fields, setFields] = useState(() => keys.reduce((memo, key) => ({
+    ...memo,
+    [key]: company.preferences[camelCases[key]],
+  }), {}));
+  const { data, hasChanges } = useMemo(() => {
+    const changed = keys.reduce((memo, key) => {
+      const rslt = memo;
+      if (company.preferences[camelCases[key]] !== fields[key]) {
+        rslt[key] = fields[key];
+      }
+
+      return rslt;
+    }, {});
+
+    return { data: changed, hasChanges: !!Object.keys(changed).length };
+  }, [fields, company.preferences]);
+  const dispatch = useDispatch();
+
+  const update = useCallback((extras = null) => {
+    if (!hasChanges) {
+      return;
+    }
+
+    const params = extras ? { ...data, ...extras } : data;
+
+    setBusy(true);
+    dispatch(updatePreferencesAsync(params, () => {
+      setBusy(false);
+    }));
+  }, [data, hasChanges]);
+
+  return {
+    busy,
+    data,
+    fields,
+    hasChanges,
+    preferences: company.preferences,
+    setFields,
+    update,
+  };
 };
 
 /* eslint-enable no-nested-ternary */

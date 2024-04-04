@@ -1,14 +1,15 @@
 import {
+  Fragment,
   useCallback,
   useEffect,
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Outlet, useLocation } from 'react-router';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 // eslint-disable-next-line import/no-extraneous-dependencies
-import { Menu } from '@headlessui/react';
+import { Menu, Transition } from '@headlessui/react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { BellIcon } from '@heroicons/react/20/solid';
 import oldCss from './oldStyles.module.css';
@@ -18,6 +19,7 @@ import Header from '../Header';
 import {
   closeAppointmentMessage,
   fetchCompanyAsync,
+  logout,
   selectCompany,
   selectEmployee,
   selectOpenMessages,
@@ -36,6 +38,8 @@ import BlankPageContainer from '../../components/BlankPageContainer';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import LogoLink from '../../components/LogoLink';
 import UserMenu from '../../components/UserMenu';
+import EmptyListPanel from '../../components/EmptyListPanel';
+import logoutIcon from '../../assets/images/logout.svg';
 
 const storage = AppStorage.getInstance();
 
@@ -43,52 +47,70 @@ const mainLinks = [
   {
     title: 'Dashboard',
     route: routes.company.absolute.dashboard,
-    className: `${css.main_link} ${css.calendar}`,
-    isActive: (pathname) => pathname === routes.company.absolute.dashboard,
+    getClass: (path) => `${css.main_link} ${css.calendar} ${path === routes.company.absolute.dashboard ? css.active : ''}`,
   },
   {
     title: 'Services',
-    route: routes.company.absolute.setup,
-    className: `${css.main_link} ${css.list}`,
-    isActive: (pathname) => pathname.startsWith(routes.company.absolute.setup),
+    route: routes.company.services.home,
+    getClass: (path) => `${css.main_link} ${css.list} ${path.startsWith(routes.company.absolute.services.home) ? css.active : ''}`,
   },
   {
     title: 'Customers',
-    route: routes.company.absolute.settings.base,
-    className: `${css.main_link} ${css.users}`,
-    isActive: (pathname) => pathname.startsWith(routes.company.absolute.settings.base),
+    route: routes.company.absolute.customers,
+    getClass: (path) => `${css.main_link} ${css.users} ${path === routes.company.absolute.customers ? css.active : ''}`,
   },
-  {
-    title: 'TODO',
-    route: routes.company.absolute.dashboard,
-    className: `${css.main_link} ${css.dashboard}`,
-    isActive: (pathname) => pathname === routes.company.absolute.dashboard,
-  },
+  // {
+  //   title: 'TODO',
+  //   route: routes.company.absolute.dashboard,
+  //   getClass: (path) => `${css.main_link} ${css.dashboard}
+  // ${path === routes.company.absolute.dashboard ? css.active : ''}`,
+  // },
   {
     title: 'Settings',
-    route: routes.company.absolute.dashboard,
-    className: `${css.main_link} ${css.settings}`,
-    isActive: (pathname) => pathname === routes.company.absolute.dashboard,
+    route: routes.company.absolute.settings.base,
+    getClass: (path) => `${css.main_link} ${css.settings} ${path.startsWith(routes.company.absolute.settings.base) ? css.active : ''}`,
   },
 ];
 
-const MainLinks = ({ path }) => (
-  <aside className="flex md:flex-col px-6 py-10 gap-3 border-e w-[80px]">
-    {mainLinks.map(({
-      className,
-      isActive,
-      route,
-      title,
-    }) => (
-      <Link
-        key={title}
-        title={title}
-        to={route}
-        className={`${className} ${isActive(path) ? css.active : ''}`}
-      />
-    ))}
-  </aside>
-);
+const MainLinks = ({ path }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const signout = () => {
+    dispatch(logout());
+    navigate(routes.home);
+  };
+
+  return (
+    <aside className="grid grid-cols-5 md:flex md:flex-col px-6 py-3 md:py-10 gap-3 border-e w-full md:w-[80px]">
+      {mainLinks.map(({
+        getClass,
+        route,
+        title,
+      }) => (
+        <Link
+          key={title}
+          title={title}
+          to={route}
+          className={getClass(path)}
+        />
+      ))}
+      <button
+        aria-label="Logout"
+        type="button"
+        className={css.main_link}
+        onClick={signout}
+        style={{ padding: 6 }}
+      >
+        <img
+          alt="logout"
+          src={logoutIcon}
+          className="w-full h-full"
+        />
+      </button>
+    </aside>
+  );
+};
 
 MainLinks.propTypes = {
   path: PropTypes.string.isRequired,
@@ -318,6 +340,7 @@ const RestrictedCompany2 = ({ company, pathname }) => {
               </Link>
             ))}
             <button
+              aria-label="more"
               type="button"
               className="main-aside-link overflow-menu-open-btn"
               onClick={toggleOverflow}
@@ -360,7 +383,7 @@ const Notifications = () => (
       </Menu.Button>
     </div>
 
-    {/* <Transition
+    <Transition
       as={Fragment}
       enter="transition ease-out duration-100"
       enterFrom="transform opacity-0 scale-95"
@@ -370,27 +393,16 @@ const Notifications = () => (
       leaveTo="transform opacity-0 scale-95"
     >
       <Menu.Items
-        className="absolute right-0 z-10 mt-2 w-56 origin-top-right
-        rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        className="absolute right-0 z-10 mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none w-min"
       >
-        <div className="py-1">
-          <Menu.Item>
-            {({ active }) => (
-              <button
-                type="button"
-                className={classNames(
-                  active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                  'block w-full px-4 py-2 text-left text-sm',
-                )}
-                onClick={onLogout}
-              >
-                Sign out
-              </button>
-            )}
-          </Menu.Item>
+        <div className="py-4 w-80">
+          <EmptyListPanel
+            text="🎉 You've checked all your notifications and there's nothing new to report."
+            textClass="font-normal text-lg"
+          />
         </div>
       </Menu.Items>
-    </Transition> */}
+    </Transition>
   </Menu>
 );
 
@@ -408,7 +420,7 @@ const RestrictedCompany = ({ company, pathname }) => {
   }, []);
 
   return (
-    <div className="flex flex-col w-full h-screen overflow-hidden relative">
+    <div className="flex flex-col w-full h-screen overflow-hidden relative" id="company-panel">
       <header className="flex justify-between items-center h-16 px-8 border-b">
         <div className="w-[326px] h-16 flex items-center border-e">
           <LogoLink />

@@ -1,18 +1,117 @@
 import {
-  useCallback, useEffect, useState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useOutletContext } from 'react-router';
-import { Link, Navigate, Outlet } from 'react-router-dom';
+import {
+  Link,
+  Navigate,
+  Outlet,
+  useNavigate,
+} from 'react-router-dom';
+import PropTypes from 'prop-types';
 import css from './styles.module.css';
 import { FieldEditor } from '../../../components/TextBox';
-import { selectPermissions, updateCompanyAsync } from '../../../redux/companySlice';
+import { logout, selectPermissions, updateCompanyAsync } from '../../../redux/companySlice';
 import routes from '../../../routing/routes';
 import { capitalize } from '../../../utils';
 import { Ring } from '../../../components/LoadingButton';
+import Aside, { Heading } from '../../Aside';
 
 const ABOUT_US = 'about_us';
 const SAVE = 'save';
+const links = {
+  Settings: [
+    {
+      title: 'Brand',
+      to: routes.company.settings.brand,
+    },
+    {
+      title: 'Profile',
+      to: routes.company.settings.profile,
+    },
+    {
+      title: 'Your Team',
+      to: routes.company.settings.team,
+    },
+    {
+      title: 'Services',
+      to: routes.company.settings.services,
+    },
+    {
+      title: 'General',
+      to: routes.company.settings.general,
+    },
+  ],
+  MANAGE: [
+    {
+      title: 'Booking Page',
+      to: routes.company.settings.page,
+    },
+    {
+      title: 'Payments',
+      to: routes.company.settings.payments,
+    },
+    {
+      title: 'Reports',
+      to: routes.company.settings.reports,
+    },
+    {
+      title: 'Billing',
+      to: routes.company.settings.billing,
+    },
+    {
+      title: 'Notifications',
+      to: routes.company.settings.notifications,
+    },
+    {
+      title: 'Reviews',
+      to: routes.company.settings.reviews,
+    },
+  ],
+  OTHERS: [
+    {
+      title: 'Downloads',
+      to: routes.company.settings.downloads,
+    },
+    {
+      title: 'Activities',
+      to: routes.company.settings.activities,
+    },
+    {
+      title: 'Refer a friend',
+      to: routes.company.settings.refer,
+    },
+  ],
+};
+
+const linkGroups = Object.keys(links);
+
+const Menu = ({ title, to, pathname }) => {
+  const className = useMemo(() => {
+    let name = css.menu;
+    if (pathname === `/companies/settings${to ? '/' : ''}${to}`) {
+      name = `${name} ${css.active}`;
+    }
+
+    return name;
+  }, [pathname, to]);
+
+  return (
+    <Link to={to} className={className}>
+      <span>{title}</span>
+    </Link>
+  );
+};
+
+Menu.propTypes = {
+  title: PropTypes.string.isRequired,
+  pathname: PropTypes.string.isRequired,
+  to: PropTypes.string.isRequired,
+};
 
 const menus = [
   {
@@ -144,7 +243,7 @@ export const CompanyDetailsSettings = () => {
   );
 };
 
-const CompanySettings = () => {
+export const CompanySettings2 = () => {
   const [links, setLinks] = useState([]);
   const [company] = useOutletContext();
   const { pathname } = useLocation();
@@ -173,6 +272,49 @@ const CompanySettings = () => {
       </nav>
       <Outlet context={[company]} />
     </main>
+  );
+};
+
+const CompanySettings = () => {
+  const [company] = useOutletContext();
+  const { pathname } = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const signout = () => {
+    dispatch(logout());
+    navigate(routes.home);
+  };
+
+  return (
+    <div className="flex-1 h-full flex" id="service-container-id">
+      <Aside>
+        <div className="flex flex-col gap-5">
+          {linkGroups.map((group) => (
+            <div key={group}>
+              <Heading>{group}</Heading>
+              {links[group].map((link) => (
+                <Menu key={link.title} title={link.title} to={link.to} pathname={pathname} />
+              ))}
+              {group === 'OTHERS' ? (
+                <button
+                  type="button"
+                  className={css.menu}
+                  onClick={signout}
+                >
+                  Logout
+                </button>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      </Aside>
+      <main className="flex-1 h-full bg-[#fafafa] px-7 py-10">
+        <div className="bg-white w-full h-full rounded-lg p-6">
+          <Outlet context={[company]} />
+        </div>
+      </main>
+    </div>
   );
 };
 
