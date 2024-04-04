@@ -44,6 +44,7 @@ const slice = createSlice({
     openMessages: [],
     maxOpenMessages: 4,
     paymentMethods: [],
+    activities: [],
   },
   reducers: {
     setAuthenticating: (state, { payload }) => {
@@ -60,6 +61,7 @@ const slice = createSlice({
       state.permissions = payload.permissions;
       state.authenticating = false;
       state.paymentMethods = payload.paymentMethods;
+      state.activities = payload.activities;
       storage.setEmployeeToken(payload.token);
     },
     teardown: (state) => {
@@ -76,6 +78,7 @@ const slice = createSlice({
       state.employees = [];
       state.permissions = {};
       state.paymentMethods = [];
+      state.activities = [];
       storage.unsetEmployeeToken();
     },
     setCompany: (state, { payload }) => {
@@ -1936,6 +1939,8 @@ export const selectPermissions = (state) => state.company.permissions;
 export const selectOpenMessages = (state) => state.company.openMessages;
 
 export const selectPaymentMethods = (state) => state.company.paymentMethods;
+
+export const selectActivities = (state) => state.company.activities;
 
 export default slice.reducer;
 

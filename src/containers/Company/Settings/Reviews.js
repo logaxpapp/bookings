@@ -3,12 +3,25 @@ import { Heading, Heading1 } from '../../Aside';
 import { Switch } from '../../../components/Inputs';
 import MenuSelect from '../../../components/MenuSelect';
 import emptyPayments from '../../../assets/images/payments.png';
+import { usePrefereceFields } from '../../../utils/hooks';
+
+const ENABLE_REVIEWS = 'enable_reviews';
 
 const filters = ['All Reviews', 'Pending Reviews'];
 
 const Reviews = () => {
-  const [enabled, setEnabled] = useState(true);
   const [filter, setFilter] = useState(filters[1]);
+  const {
+    busy,
+    fields,
+    hasChanges,
+    setFields,
+    update,
+  } = usePrefereceFields([ENABLE_REVIEWS]);
+
+  const handleChecked = ({ target: { name, checked } }) => setFields(
+    (fields) => ({ ...fields, [name]: checked }),
+  );
 
   return (
     <div className="w-full h-full overflow-auto">
@@ -33,11 +46,22 @@ const Reviews = () => {
               </span>
             </div>
             <Switch
-              name="enabled"
-              checked={enabled}
-              onChange={({ target: { checked } }) => setEnabled(checked)}
+              name={ENABLE_REVIEWS}
+              checked={fields[ENABLE_REVIEWS]}
+              onChange={handleChecked}
             />
           </div>
+          {hasChanges ? (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                className={`btn ${busy ? 'busy' : ''}`}
+                onClick={() => update()}
+              >
+                Update
+              </button>
+            </div>
+          ) : null}
           <div className="flex justify-between items-center">
             <span className="font-semibold text-sm text-[#5c5c5c]">
               Reviews

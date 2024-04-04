@@ -1,15 +1,10 @@
 import { useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import { Heading1 } from '../../Aside';
-
-const allActivities = [
-  {
-    date: '2024-03-07T17:46:21.659+01:00',
-    by: 'Ujah',
-    description: 'Created Service Crew Cut under category hairstyles',
-  },
-];
+import { selectActivities } from '../../../redux/companySlice';
 
 const Activities = () => {
+  const allActivities = useSelector(selectActivities);
   const [activities, dates] = useMemo(() => {
     const sorted = [...allActivities];
     sorted.sort(
@@ -40,7 +35,9 @@ const Activities = () => {
       }
 
       arr.push({
-        ...act,
+        id: act.id,
+        description: act.description,
+        by: `${act.employee.firstname} ${act.employee.lastname}`,
         time,
       });
     });
