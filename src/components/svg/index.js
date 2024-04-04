@@ -169,6 +169,7 @@ export const SvgButton = ({
 
   return (
     <button
+      aria-label={title}
       //  eslint-ignore-next-line
       type={type === 'submit' ? 'submit' : 'button'}
       name={name}

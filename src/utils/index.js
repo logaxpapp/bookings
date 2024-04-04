@@ -515,3 +515,54 @@ export const notification = {
   showSuccess: (msg) => toast(msg, toastOptions.SUCCESS),
   showWarning: (msg) => toast(msg, toastOptions.WARNING),
 };
+
+export const classNames = (...classes) => classes.filter(Boolean).join(' ');
+
+export const toWords = (() => {
+  const singleDigits = [
+    '', 'One', 'Two', 'Three', 'Four',
+    'Five', 'Six', 'Seven', 'Eight', 'Nine',
+  ];
+  const doubleDigits = [
+    'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen',
+    'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen',
+  ];
+  const belowHundred = [
+    'Twenty', 'Thirty', 'Forty', 'Fifty',
+    'Sixty', 'Seventy', 'Eighty', 'Ninety',
+  ];
+
+  const translate = (n) => {
+    if (n === 0) return 'Zero';
+
+    let word = '';
+    if (n < 10) {
+      word = `${singleDigits[n]} `;
+    } else if (n < 20) {
+      word = `${doubleDigits[n - 10]} `;
+    } else if (n < 100) {
+      const rem = translate(n % 10);
+      word = `${belowHundred[(n - (n % 10)) / 10 - 2]} ${rem}`;
+    } else if (n < 1000) {
+      word = `${singleDigits[Math.trunc(n / 100)]} Hundred ${translate(n % 100)}`;
+    } else if (n < 1000000) {
+      word = `${translate(Number.parseInt(n / 1000, 10))} Thousand ${translate(n % 1000)}`;
+    } else if (n < 1000000000) {
+      word = `${translate(Number.parseInt(n / 1000000, 10))} Million ${translate(n % 1000000)}`;
+    } else {
+      word = `${translate(Number.parseInt(n / 1000000000, 10))} Billion ${translate(n % 1000000000)}`;
+    }
+    return word.trim();
+  };
+
+  return translate;
+})();
+
+export const addressText = (address) => {
+  let addr = '';
+  if (address) {
+    addr = `${address.line1}${address.line2 ? ` ${address.line2},` : ''}, ${address.city.name}, ${address.city.state.name}, ${address.city.state.country.name}`;
+  }
+
+  return addr;
+};

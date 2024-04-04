@@ -23,7 +23,7 @@
 	border-radius: 1em;
 	flex-shrink: 0;
 	position: relative;
-	width: 5em;
+	width: 4.5em;
 	height: 2em;
 }
 
@@ -34,7 +34,7 @@
 	position: absolute;
 	top: 0.25em;
 	left: 0.25em;
-	width: 4.5em;
+	width: 4em;
 	height: 1.5em;
 }
 
@@ -54,7 +54,7 @@
 	top: 0.25em;
 	right: 0;
 	left: 0.25em;
-	width: 4.5em;
+	width: 4em;
 	height: 1.5em;
 	z-index: 1;
 }

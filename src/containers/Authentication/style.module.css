@@ -96,10 +96,9 @@
 
 .chooser_link {
   position: relative;
-  width: 310px;
+  width: 380px;
   padding: 16px 32px;
-  border-radius: 4px;
-  border: 1px solid #f56a41;
+  border-radius: 24px;
   color: var(--primary-color-dark);
   font-weight: bold;
   font-size: 1.4rem;
@@ -108,8 +107,16 @@
   cursor: pointer;
 }
 
+.chooser_link.user {
+  background-color: #89E101;
+}
+
+.chooser_link.provider {
+  border: 1.5px solid #00000080;
+}
+
 .chooser_link:hover {
-  background-color: #f56a41;
+  transform: scale(1.05);
 }
 
 .success_panel {

@@ -1,3 +1,105 @@
+.menu {
+  width: 201px;
+  padding: 10px 24px 10px 12px;
+  border-radius: 8px;
+  display: flex;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: Plus Jakarta Sans;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0em;
+  text-align: left;
+  color: #8e98a8;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.menu.active {
+  color: #2e2e2e;
+}
+
+.menu.active,
+.menu:hover {
+  background-color: #e6e8eB;
+}
+
+.menu::before {
+  content: '';
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  background-color: #8e98a8;
+  mask: url(../../../assets/images/settings-item.svg);
+}
+
+.menu.active::before {
+  background-color: #2e2e2e;
+}
+
+.field {
+  position: relative;
+}
+
+.field::before {
+  content: '';
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  background-size: 100% 100%;
+}
+
+.field.slogan::before {
+  display: none;
+}
+
+.field.phone::before {
+  background-image: url(../../../assets/images/phone.svg);
+}
+
+.field.email::before {
+  background-image: url(../../../assets/images/email.svg);
+}
+
+.field.url::before {
+  background-image: url(../../../assets/images/link.svg);
+}
+
+.field.currency::before {
+  background-image: url(../../../assets/images/currency.svg);
+}
+
+.field.location::before {
+  background-image: url(../../../assets/images/location.svg);
+}
+
+.integration_text::before,
+.integration_btn::before {
+  content: '';
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  background-size: cover;
+}
+
+.integration_text.calendar::before {
+  background-image: url(../../../assets/images/calendar.svg);
+}
+
+.integration_btn.google::before,
+.integration_text.google::before {
+  background-image: url(../../../assets/images/google-icon.svg);
+}
+
+.integration_btn.office::before,
+.integration_text.office::before {
+  background-image: url(../../../assets/images/microsoft-office-icon.svg);
+}
+
 .main {
   position: relative;
   width: 100%;

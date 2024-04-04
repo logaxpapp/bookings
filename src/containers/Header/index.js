@@ -1,4 +1,5 @@
 import {
+  Fragment,
   useCallback,
   useEffect,
   useState,
@@ -10,6 +11,9 @@ import {
   useNavigate,
 } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Menu, Transition } from '@headlessui/react';
+import { ChevronDownIcon } from '@heroicons/react/20/solid';
+
 import css from './style.module.css';
 import lx from '../../assets/images/logaxp.png';
 import routes from '../../routing/routes';
@@ -25,14 +29,11 @@ import {
 } from '../../redux/companySlice';
 import Modal from '../../components/Modal';
 import { SvgButton, paths } from '../../components/svg';
-import { useDialog } from '../../lib/Dialog';
-import PasswordEditor from '../PasswordEditor';
 import AuthTypeChooser from '../Authentication/AuthTypeChooser';
+import UserMenu from '../../components/UserMenu';
+import PasswordEditorDialog from '../Authentication/PasswordEditor';
 
-const CHANGE_PASSWORD = 'change_password';
-const DASHBOARD_BTN = 'password_btn';
 const LOGIN = 'login';
-const LOGOUT = 'logout';
 const REGISTER = 'register';
 
 export const DrawerNavBar = ({
@@ -125,88 +126,80 @@ DrawerNavBar.defaultProps = {
   dashboardPath: '',
 };
 
-const UserMenu = ({
-  isSignedIn,
-  logout,
-  changePassword,
-  dashboardLink,
-}) => {
-  const navigate = useNavigate();
+const classNames = (...classes) => classes.filter(Boolean).join(' ');
 
-  const handleClick = useCallback(({ target: { name } }) => {
-    if (name === LOGOUT) {
-      logout();
-    } else if (name === CHANGE_PASSWORD) {
-      changePassword();
-    } else if (name === DASHBOARD_BTN) {
-      navigate(dashboardLink);
-    }
-  }, []);
-
-  if (!isSignedIn) {
-    return (
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={css.globe}>
-        <title>earth</title>
-        <path fill="currentColor" d="M17.9,17.39C17.64,16.59 16.89,16 16,16H15V13A1,1 0 0,0 14,12H8V10H10A1,1 0 0,0 11,9V7H13A2,2 0 0,0 15,5V4.59C17.93,5.77 20,8.64 20,12C20,14.08 19.2,15.97 17.9,17.39M11,19.93C7.05,19.44 4,16.08 4,12C4,11.38 4.08,10.78 4.21,10.21L9,15V16A2,2 0 0,0 11,18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
-      </svg>
-    );
+const LoginMenu = ({ signedIn }) => {
+  if (signedIn) {
+    return null;
   }
 
   return (
-    <div className={css.user_menu}>
-      <svg viewBox="0 0 24 24" width={24} height={24} className="pointer-events-none">
-        <path color="currentColor" d={paths.account} />
-      </svg>
-      <div
-        role="menu"
-        className={`context-menu ${css.user_menu_popup}`}
-      >
-        <button
-          role="menuitem"
-          type="button"
-          name={DASHBOARD_BTN}
-          className="menu-item"
-          onMouseDown={handleClick}
-        >
-          My Dashboard
-        </button>
-        <button
-          role="menuitem"
-          type="button"
-          name={CHANGE_PASSWORD}
-          className="menu-item"
-          onMouseDown={handleClick}
-        >
-          Change Password
-        </button>
-        <button
-          role="menuitem"
-          type="button"
-          name={LOGOUT}
-          className="menu-item"
-          onMouseDown={handleClick}
-        >
-          Logout
-        </button>
+    <Menu as="div" className="relative inline-block text-left">
+      <div>
+        <Menu.Button className="inline-flex w-full justify-center gap-6 rounded-md bg-[#89E101] px-4 py-3 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-[#89E101] hover:bg-[#5bc746]">
+          <span>Login</span>
+          <ChevronDownIcon className="-mr-1 h-5 w-5 text-white" aria-hidden="true" />
+        </Menu.Button>
       </div>
-    </div>
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-100"
+        enterFrom="transform opacity-0 scale-95"
+        enterTo="transform opacity-100 scale-100"
+        leave="transition ease-in duration-75"
+        leaveFrom="transform opacity-100 scale-100"
+        leaveTo="transform opacity-0 scale-95"
+      >
+        <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none min-w-min">
+          <div className="py-1">
+            <Menu.Item>
+              {({ active }) => (
+                <Link
+                  className={classNames(
+                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    'block px-4 py-2 text-left text-lg whitespace-nowrap w-[280px]',
+                  )}
+                  to={routes.company.absolute.login}
+                >
+                  Login as Service Provider
+                </Link>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              {({ active }) => (
+                <Link
+                  className={classNames(
+                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                    'block w-full px-4 py-2 text-left text-lg',
+                  )}
+                  to={routes.user.login}
+                >
+                  Login as User
+                </Link>
+              )}
+            </Menu.Item>
+          </div>
+        </Menu.Items>
+      </Transition>
+    </Menu>
   );
 };
 
-UserMenu.propTypes = {
-  isSignedIn: PropTypes.bool.isRequired,
-  dashboardLink: PropTypes.string.isRequired,
-  logout: PropTypes.func.isRequired,
-  changePassword: PropTypes.func.isRequired,
+LoginMenu.propTypes = {
+  signedIn: PropTypes.bool,
+};
+
+LoginMenu.defaultProps = {
+  signedIn: false,
 };
 
 const Header = ({ transparent }) => {
   const [state, setState] = useState({ signedIn: false, dashboardPath: '' });
   const [authChooserParams, setAuthChooserParams] = useState(null);
+  const [isUpdatingPassword, setUpdatingPassword] = useState(false);
   const user = useSelector(selectUser);
   const company = useSelector(selectCompany);
   const { pathname } = useLocation();
-  const dialog = useDialog();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -226,25 +219,14 @@ const Header = ({ transparent }) => {
     }
   }, [company, user, setState]);
 
-  const logout = useCallback(() => {
+  const logout = () => {
     if (company) {
       dispatch(logoutCompany());
     } else if (user) {
       dispatch(logoutUser());
     }
     navigate(routes.home);
-  }, [user, company]);
-
-  const changePassword = useCallback(() => {
-    let popup;
-    const handleClose = () => popup.close();
-    popup = dialog.show(
-      <PasswordEditor
-        onClose={handleClose}
-        updatePassword={user ? updateUserPassword : updateCompanyPassword}
-      />,
-    );
-  }, [user]);
+  };
 
   const handleClick = useCallback((e) => {
     e.preventDefault();
@@ -314,36 +296,7 @@ const Header = ({ transparent }) => {
             </li>
           </ul>
           <ul className={css.menu}>
-            {state.signedIn ? null : (
-              <li className={`${css.has_sub_menu_d1} ${css.menu_item}`}>
-                <Link
-                  name={LOGIN}
-                  to={routes.login}
-                  className={css.menu_link}
-                  onClick={handleClick}
-                >
-                  Login
-                </Link>
-                <ul className={`list ${css.sub_menu_d1}`}>
-                  <li>
-                    <Link
-                      to={routes.company.absolute.login}
-                      className={css.sub_menu_link}
-                    >
-                      Service Provider Login
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to={routes.user.login}
-                      className={css.sub_menu_link}
-                    >
-                      User Login
-                    </Link>
-                  </li>
-                </ul>
-              </li>
-            )}
+            <LoginMenu signedIn={state.signedIn} />
             <li>
               <button
                 type="button"
@@ -354,12 +307,7 @@ const Header = ({ transparent }) => {
                 Get Started
               </button>
             </li>
-            <UserMenu
-              isSignedIn={state.signedIn}
-              dashboardLink={state.dashboardPath}
-              logout={logout}
-              changePassword={changePassword}
-            />
+            <UserMenu color={transparent ? '#fff' : '#011c39'} />
           </ul>
         </div>
       </nav>
@@ -367,13 +315,16 @@ const Header = ({ transparent }) => {
         isLoggedIn={state.signedIn}
         dashboardPath={state.dashboardPath}
         logout={logout}
-        changePassword={changePassword}
+        changePassword={() => setUpdatingPassword(true)}
       />
       <Modal
         isOpen={!!authChooserParams}
         parentSelector={() => document.body}
         onRequestClose={() => setAuthChooserParams(null)}
-        style={{ content: { maxWidth: 'max-content' } }}
+        style={{
+          content: { maxWidth: 'max-content', borderRadius: 24 },
+          overlay: { zIndex: 100 },
+        }}
         shouldCloseOnEsc
         shouldCloseOnOverlayClick
       >
@@ -384,6 +335,11 @@ const Header = ({ transparent }) => {
           />
         ) : null}
       </Modal>
+      <PasswordEditorDialog
+        isOpen={isUpdatingPassword}
+        onClose={() => setUpdatingPassword(false)}
+        updatePassword={user ? updateUserPassword : updateCompanyPassword}
+      />
     </header>
   );
 };

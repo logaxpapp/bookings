@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import {
   useCallback,
   useEffect,
@@ -16,6 +17,7 @@ import PropTypes from 'prop-types';
 import css from './style.module.css';
 import {
   closeAppointmentMessage,
+  fetchUserAsync,
   loadAppointmentsAsync,
   openAppointmentMessages,
   selectAppointments,
@@ -54,9 +56,13 @@ import { DateButton } from '../../components/Buttons';
 import { useWindowSize } from '../../lib/hooks';
 import MessagePanel from '../../components/MessagePanel';
 import AppointmentsPanel from './AppointmentsPanel';
-import PasswordEditor from '../PasswordEditor';
 import WebSocketManager from './WebSockManager';
 import { getUserLocation, loadIPLocationAsync } from '../../redux/userLocationSlice';
+import AppStorage from '../../utils/appStorage';
+import BlankPageContainer from '../../components/BlankPageContainer';
+import PasswordEditorDialog from '../Authentication/PasswordEditor';
+
+const storage = AppStorage.getInstance();
 
 const APPOINTMENTS = 'appointments';
 const BOOKMARKS = 'Bookmarks';
@@ -68,7 +74,6 @@ const LATITUDE = 'latitude';
 const LONGITUDE = 'longitude';
 const MODE = 'mode';
 const OPEN_CITY_DIALOG = 'open_city_dialog';
-const OPEN_PASSWORD_EDITOR = 'open_password_editor';
 const REFRESH_LOCATION = 'refresh_location';
 const SAVE = 'save';
 const SEARCH_TERM = 'search_term';
@@ -771,22 +776,12 @@ Preferences.propTypes = {
 };
 
 const Details = ({ user }) => {
+  const [isUpdatingPassword, setUpdatingPassword] = useState(false);
   const dispatch = useDispatch();
-  const dialog = useDialog();
 
   const handleUpdate = useCallback((name, value, callback) => dispatch(
     updateUserAsync({ [name]: value }, callback),
   ), []);
-
-  const handleClick = useCallback(({ target: { name } }) => {
-    if (name === OPEN_PASSWORD_EDITOR) {
-      let popup;
-      const handleClose = () => popup.close();
-      popup = dialog.show(
-        <PasswordEditor onClose={handleClose} updatePassword={updatePasswordAsync} />,
-      );
-    }
-  }, []);
 
   return (
     <section className={css.settings_section}>
@@ -796,10 +791,9 @@ const Details = ({ user }) => {
         </h1>
         <SvgButton
           type="button"
-          name={OPEN_PASSWORD_EDITOR}
           title="Change Password"
           path={paths.lockReset}
-          onClick={handleClick}
+          onClick={() => setUpdatingPassword(true)}
           sm
         />
       </header>
@@ -843,6 +837,11 @@ const Details = ({ user }) => {
           />
         </div>
       </div>
+      <PasswordEditorDialog
+        isOpen={isUpdatingPassword}
+        onClose={() => setUpdatingPassword(false)}
+        updatePassword={updatePasswordAsync}
+      />
     </section>
   );
 };
@@ -1140,15 +1139,42 @@ RestrictedUserPage.propTypes = {
 const User = () => {
   const user = useSelector(selectUser);
   const location = useLocation();
+  const [state, setState] = useState({ loading: true, error: '' });
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const token = storage.getEmployeeToken();
+    if (token) {
+      dispatch(fetchUserAsync(token, (err) => {
+        setState({ loading: false, error: err });
+      }));
+    } else {
+      setState({ loading: false, error: 'No Token Found' });
+    }
+  }, []);
+
+  if (state.loading) {
+    return (
+      <BlankPageContainer>
+        <LoadingSpinner>
+          <span>Loading ...</span>
+        </LoadingSpinner>
+      </BlankPageContainer>
+    );
+  }
 
   if (!user) {
-    return (
-      <Navigate
-        to={routes.user.login}
-        state={{ referrer: location.pathname }}
-        replace
-      />
-    );
+    if (state.error) {
+      return (
+        <Navigate
+          to={routes.user.login}
+          state={{ referrer: location.pathname }}
+          replace
+        />
+      );
+    }
+
+    return null;
   }
 
   return <RestrictedUserPage user={user} />;

@@ -12,6 +12,9 @@ import {
   LOCAL_TIME_DIFFERENCE,
   notification,
 } from '../utils';
+import AppStorage from '../utils/appStorage';
+
+const storage = AppStorage.getInstance();
 
 const ACCESS_MESSAGE = 'You do not have access to requested resource!';
 
@@ -33,6 +36,11 @@ const slice = createSlice({
     },
     setUser: (state, { payload }) => {
       state.user = payload;
+      if (payload) {
+        storage.setUserToken(payload.token);
+      } else {
+        storage.unsetUserToken();
+      }
       state.authenticating = false;
     },
     setAuthenticationError: (state, { payload }) => {
@@ -228,6 +236,21 @@ export const loginAsync = (email, password, callback) => (dispatch) => {
     })
     .catch(({ message }) => {
       dispatch(setAuthenticationError(message));
+      if (callback) {
+        callback(message);
+      }
+    });
+};
+
+export const fetchUserAsync = (token, callback) => (dispatch) => {
+  fetchResources('users/auth/re-auth', token, true)
+    .then((data) => {
+      dispatch(setUser({ ...data, token }));
+      if (callback) {
+        callback(null);
+      }
+    })
+    .catch(({ message }) => {
       if (callback) {
         callback(message);
       }

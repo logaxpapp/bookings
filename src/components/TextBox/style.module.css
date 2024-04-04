@@ -17,8 +17,9 @@
 
 .input_wrap {
   position: relative;
-  background-color: #fefeff;
-  padding: 10px 16px;
+  background-color: #f2eff5;
+  padding: 12px 16px;
+  border-radius: 4px;
 }
 
 .input {

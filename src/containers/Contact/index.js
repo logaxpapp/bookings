@@ -200,17 +200,17 @@ const Contact = () => {
             </div>
             <ul className={`list horizontal ${css.social_media}`}>
               <li>
-                <a className={css.contact_link} href="#id" target="_blank">
+                <a aria-label="facebook" className={css.contact_link} href="#id" target="_blank">
                   <i className="fab fa-facebook" aria-hidden="true" />
                 </a>
               </li>
               <li>
-                <a className={css.contact_link} href="#id" target="_blank">
+                <a aria-label="twitter" className={css.contact_link} href="#id" target="_blank">
                   <i className="fab fa-twitter" aria-hidden="true" />
                 </a>
               </li>
               <li>
-                <a className={css.contact_link} href="#id" target="_blank">
+                <a aria-label="instagram" className={css.contact_link} href="#id" target="_blank">
                   <i className="fab fa-instagram" aria-hidden="true" />
                 </a>
               </li>

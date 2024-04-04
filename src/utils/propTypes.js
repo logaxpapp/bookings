@@ -7,6 +7,14 @@ export const childrenProps = PropTypes.oneOfType([
   PropTypes.arrayOf(PropTypes.elementType),
 ]);
 
+export const periodProps = PropTypes.shape({
+  id: PropTypes.number,
+  start: PropTypes.number,
+  end: PropTypes.number,
+  weekday: PropTypes.string,
+  type: PropTypes.string,
+});
+
 export const plainCityProps = PropTypes.shape({
   id: PropTypes.number,
   name: PropTypes.string,
@@ -93,6 +101,8 @@ export const companyProps = PropTypes.shape({
   country: countryProps,
   location: locationProps,
   serviceCategories: PropTypes.arrayOf(serviceCategoryProps),
+  workingHours: PropTypes.arrayOf(periodProps),
+  breaks: PropTypes.arrayOf(periodProps),
 });
 
 export const servicePropsEx = PropTypes.shape({

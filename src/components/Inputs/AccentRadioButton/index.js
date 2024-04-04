@@ -46,6 +46,7 @@ const AccentRadioButton = ({
         onChange={onChange}
         value={value}
         disabled={disabled}
+        className="clip"
       />
       <span className={css.radio} style={{ width: radioSize, height: radioSize }} />
       <span className={css.label} style={lStyle}>{label}</span>

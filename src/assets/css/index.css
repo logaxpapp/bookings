@@ -327,6 +327,37 @@ a {
   background-color: #045033;
 }
 
+.btn {
+  padding-block: 12px;
+  padding-inline: 24px;
+  border-radius: 10px;
+  background-color: #011c39;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s linear;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.btn.danger {
+  background-color: #b61818;
+}
+
+.btn.busy::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  background-color: #fff;
+  mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+  mask-image: url(../images/ring.webp);
+  animation: spin normal 1s infinite linear;
+}
+
 .calendar-date-icon {
   position: relative;
   top: 0;
@@ -454,6 +485,15 @@ input:-webkit-autofill:active {
   border-radius: 8px;
 }
 
+.text-input {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-size: 1.2rem;
+  border: 1px solid #ceebd8;
+  border-radius: 6px;
+}
+
 .bold-select-wrap {
   display: flex;
   flex-direction: column;
@@ -467,10 +507,29 @@ input:-webkit-autofill:active {
 
 .bold-select {
   display: block;
+  width: 100%;
   border: 1px solid #ceebd8;
   border-radius: 6px;
   position: relative;
   cursor: pointer;
+}
+
+.bold-select.caret {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 8px;
+  gap: 12px;
+}
+
+.bold-select.caret::after {
+  content: '';
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  background-size: 100% 100%;
+  background-image: url(../../assets/images/caret-down.svg);
 }
 
 .bold-select > select {
@@ -480,10 +539,15 @@ input:-webkit-autofill:active {
   padding: 16px 26px 16px 16px;
   margin: 0;
   width: 100%;
+  flex: 1;
   font-family: inherit;
   font-size: 1.1rem;
   cursor: inherit;
   line-height: inherit;
+}
+
+.bold-select.caret > select {
+  margin-right: -32px;
 }
 
 .bold-select > select::-ms-expand {
@@ -561,5 +625,14 @@ input:-webkit-autofill:active {
 @keyframes animloader {
   to {
     background-position: 185px 0, center 0, center 115px, center 142px;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

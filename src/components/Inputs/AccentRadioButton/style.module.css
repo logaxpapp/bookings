@@ -1,11 +1,8 @@
 .accent_radio_btn_label {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.accent_radio_btn_label input[type="radio"] {
-  display: none;
 }
 
 .accent_radio_btn_label input[type="radio"] + span.radio {
@@ -16,7 +13,7 @@
 
 .accent_radio_btn_label input[type="radio"]:checked + span.radio {
   position: relative;
-  background-color: var(--color-accent);
+  background-color: "#89e101";
 }
 
 .accent_radio_btn_label input[type="radio"]:checked + span.radio::after {
