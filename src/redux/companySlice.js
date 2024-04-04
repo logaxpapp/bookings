@@ -43,6 +43,7 @@ const slice = createSlice({
     permissions: {},
     openMessages: [],
     maxOpenMessages: 4,
+    paymentMethods: [],
   },
   reducers: {
     setAuthenticating: (state, { payload }) => {
@@ -58,6 +59,7 @@ const slice = createSlice({
       state.customers = payload.customers;
       state.permissions = payload.permissions;
       state.authenticating = false;
+      state.paymentMethods = payload.paymentMethods;
       storage.setEmployeeToken(payload.token);
     },
     teardown: (state) => {
@@ -73,6 +75,7 @@ const slice = createSlice({
       state.employee = null;
       state.employees = [];
       state.permissions = {};
+      state.paymentMethods = [];
       storage.unsetEmployeeToken();
     },
     setCompany: (state, { payload }) => {
@@ -1718,6 +1721,77 @@ export const removeCustomerAsync = (id, callback) => (dispatch, getState) => {
     });
 };
 
+export const createAdditionalChargeAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  postResource(token, 'additional_charges', data, true)
+    .then((charge) => {
+      dispatch(updateCompany({
+        additionalCharges: [...company.additionalCharges, charge],
+      }));
+      callback(null, charge);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const updateAdditionalChargeAsync = (id, data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  updateResource(token, `additional_charges/${id}`, data, true)
+    .then((updatedCharge) => {
+      dispatch(updateCompany({
+        additionalCharges: company.additionalCharges.map(
+          (charge) => (charge.id === id ? updatedCharge : charge),
+        ),
+      }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
+export const removeAdditionalChargeAsync = (id, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  deleteResource(token, `additional_charges/${id}`, true)
+    .then(() => {
+      dispatch(updateCompany({
+        additionalCharges: company.additionalCharges.filter((charge) => charge.id !== id),
+      }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
 export const updatePasswordAsync = (
   data,
   callback,
@@ -1791,6 +1865,48 @@ export const updatePreferencesAsync = (data, callback) => (dispatch, getState) =
     });
 };
 
+export const fetchConnectedAccountAsync = (callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  fetchResources('connected_accounts', token, true)
+    .then((connectedAccounts) => {
+      dispatch(updateCompany({ connectedAccounts }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
+export const updateConnectedAccountAsync = (id, data, callback) => (dispatch, getState) => {
+  const { company: { token, company } } = getState();
+
+  if (!token) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  updateResource(token, `connected_accounts/${id}`, data, true)
+    .then(() => {
+      dispatch(updateCompany({
+        connectedAccounts: company.connectedAccounts.map((account) => (
+          account.id === id ? { ...account, ...data } : account
+        )),
+      }));
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      callback(message);
+    });
+};
+
 export const selectToken = (state) => state.company.token;
 
 export const selectCompany = (state) => state.company.company;
@@ -1818,6 +1934,8 @@ export const selectEmployees = (state) => state.company.employees;
 export const selectPermissions = (state) => state.company.permissions;
 
 export const selectOpenMessages = (state) => state.company.openMessages;
+
+export const selectPaymentMethods = (state) => state.company.paymentMethods;
 
 export default slice.reducer;
 

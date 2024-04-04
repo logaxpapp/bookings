@@ -1,15 +1,20 @@
 import { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Heading } from '../../Aside';
-import { selectServiceCategories } from '../../../redux/companySlice';
+import { selectServiceCategories, selectToken } from '../../../redux/companySlice';
 import { DatePicker2 } from '../../../components/DatePicker';
 import emptyPayments from '../../../assets/images/payments.png';
+import EmptyListPanel from '../../../components/EmptyListPanel';
+import { fetchResources } from '../../../api';
+import { notification } from '../../../utils';
 
 const SERVICES = 'services';
 
 const today = new Date();
 
 const Reports = () => {
+  const [busy, setBusy] = useState(false);
+  const [reports, setReports] = useState(null);
   const categories = useSelector(selectServiceCategories);
   const services = useMemo(() => categories.reduce(
     (memo, cat) => [...memo, ...cat.services], [],
@@ -19,6 +24,7 @@ const Reports = () => {
     start: today,
     end: today,
   });
+  const token = useSelector(selectToken);
 
   const handleValueChange = ({ target: { name, value } }) => {
     if (name === SERVICES) {
@@ -26,8 +32,22 @@ const Reports = () => {
     }
   };
 
+  const generateReport = () => {
+    setBusy(true);
+    const path = `reports/company?start=${dates.start}&end=${dates.end}&service=${service?.id || 'all'}`;
+    fetchResources(path, token, true)
+      .then((reports) => {
+        setReports(reports);
+        setBusy(false);
+      })
+      .catch(({ message }) => {
+        setBusy(false);
+        notification.showError(message?.substring(0, 200));
+      });
+  };
+
   return (
-    <section className="w-full h-full flex-1 max-w-[800px] flex flex-col gap-8">
+    <section className="w-full h-full flex-1 max-w-[800px] flex flex-col gap-8 overflow-auto">
       <Heading>Reports</Heading>
       <div className="flex flex-col gap-16">
         <div className="w-full flex flex-wrap items-center gap-4">
@@ -54,29 +74,38 @@ const Reports = () => {
             initialDate={dates.end}
             onChange={(date) => setDates((dates) => ({ ...dates, end: date }))}
           />
-          <button
-            type="button"
-            className="bg-[#011c39] text-white rounded-[10px] py-4 px-10 text-base font-medium"
-          >
+          <button type="button" className={`btn ${busy ? 'busy' : ''}`} onClick={generateReport}>
             Generate
           </button>
         </div>
-        <section className="w-[600px] flex-1 flex flex-col justify-center items-center gap-7">
-          <div className="w-max flex flex-col items-center gap-7">
-            <header className="flex flex-col items-center gap-3">
-              <Heading>No Report genrated</Heading>
-              <p className="m-0 w-80 text-center">
-                Select a date range and click &quot;Generate&quot;
-              </p>
-            </header>
-            <img
-              aria-hidden="true"
-              src={emptyPayments}
-              className="w-44 h-44"
-              alt="empty"
-            />
-          </div>
-        </section>
+        {reports ? (
+          <>
+            {reports.length ? (
+              <section>
+                <h1>You have some report generated</h1>
+              </section>
+            ) : (
+              <EmptyListPanel text="No reports found for the given date range" />
+            )}
+          </>
+        ) : (
+          <section className="w-[600px] flex-1 flex flex-col justify-center items-center gap-7">
+            <div className="w-max flex flex-col items-center gap-7">
+              <header className="flex flex-col items-center gap-3">
+                <Heading>No Report genrated</Heading>
+                <p className="m-0 w-80 text-center">
+                  Select a date range and click &quot;Generate&quot;
+                </p>
+              </header>
+              <img
+                aria-hidden="true"
+                src={emptyPayments}
+                className="w-44 h-44"
+                alt="empty"
+              />
+            </div>
+          </section>
+        )}
       </div>
     </section>
   );

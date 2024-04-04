@@ -172,6 +172,74 @@ export const parseDuration = (str) => {
   return rslt;
 };
 
+/**
+ * @param {string} str
+ */
+export const getAmount = (str) => {
+  if (!str) {
+    return 0;
+  }
+
+  if (typeof str === 'number') {
+    return str;
+  }
+
+  const parts = str.split('.').map((p) => (Number.isNaN(p) ? 0 : Number.parseInt(p, 10)));
+  if (!parts.length) {
+    return 0;
+  }
+
+  let amount = 100 * parts[0];
+  if (parts.length > 1) {
+    amount += parts[1];
+  }
+
+  return amount;
+};
+
+/**
+ * @param {string} str
+ */
+export const getDuration = (str) => {
+  if (!str) {
+    return 0;
+  }
+  if (typeof str === 'number') {
+    return 3600 * str;
+  }
+  const parts = str.split(':').map((p) => (Number.isNaN(p) ? 0 : Number.parseInt(p, 10)));
+  if (!parts.length) {
+    return 0;
+  }
+
+  let duration = 3600 * parts[0];
+  if (parts.length > 1) {
+    duration += 60 * parts[1];
+  }
+  if (parts.length > 2) {
+    duration += parts[2];
+  }
+
+  return duration;
+};
+
+export const getDurationText = (num) => {
+  let number = Number.parseInt(num, 10);
+  let duration = '0:';
+  if (number >= 3600) {
+    duration = `${Math.floor(number / 3600)}:`;
+    number %= 3600;
+  }
+
+  duration = `${duration}${Math.floor(number / 60)}`;
+  number %= 60;
+  if (number) {
+    duration = `${duration}:${number}`;
+  }
+
+  return duration;
+};
+
 const ErrorComponent = ({ error, hideErrorOnNull }) => {
   if (hideErrorOnNull) {
     if (error) {
