@@ -3,6 +3,25 @@ import { useState } from 'react';
 import { Heading1, Heading2 } from '../../Aside';
 import { TabBody, TabHeaders } from '../../../components/TabControl';
 import { TimeAmount } from '../../CustomInputs';
+import { usePrefereceFields } from '../../../utils/hooks';
+
+const NOTIFICATION_MODE = 'notification_mode';
+const NOTIFY_STAFF_ON_NEW_APPOINTMENT = 'notify_staff_on_new_appointment';
+const NOTIFY_STAFF_ON_EDIT_APPOINTMENT = 'notify_staff_on_edit_appointment';
+const NOTIFY_STAFF_ON_CANCEL_APPOINTMENT = 'notify_staff_on_cancel_appointment';
+const STAFF_NOTIFICATION_LEAD_TIME = 'staff_notification_lead_time';
+const NOTIFY_CLIENT_ON_NEW_APPOINTMENT = 'notify_client_on_new_appointment';
+const NOTIFY_CLIENT_ON_EDIT_APPOINTMENT = 'notify_client_on_edit_appointment';
+const NOTIFY_CLIENT_ON_CANCEL_APPOINTMENT = 'notify_client_on_cancel_appointment';
+const CLIENT_NOTIFICATION_LEAD_TIME = 'client_notification_lead_time';
+const NOTIFICATION_SENDER_NAME = 'notification_sender_name';
+const NOTIFICATION_SIGNATURE = 'notification_signature';
+
+const notificationModes = {
+  ALL: 'all',
+  FOCUS: 'focus',
+  NONE: 'none',
+};
 
 const tabs = {
   home: 'My Notifications',
@@ -13,17 +32,14 @@ const tabs = {
 
 const headers = Object.values(tabs);
 
-const notificationModes = {
-  all: 'All',
-  focus: 'Focus Mode',
-  none: 'None',
-};
-
 const Personalization = () => {
-  const [fields, setFields] = useState({
-    name: 'Ujah Emmanuel',
-    signature: 'Thanks,\nUjah',
-  });
+  const {
+    busy,
+    fields,
+    hasChanges,
+    setFields,
+    update,
+  } = usePrefereceFields([NOTIFICATION_SENDER_NAME, NOTIFICATION_SIGNATURE]);
 
   const handleChange = ({ target: { name, value } }) => setFields(
     (fields) => ({ ...fields, [name]: value }),
@@ -35,9 +51,9 @@ const Personalization = () => {
         <span className="label">Sender Name</span>
         <input
           type="text"
-          name="name"
+          name={NOTIFICATION_SENDER_NAME}
           className="text-input bg-[#f8fafc] text-[#011c39] font-medium -tracking-[2%]"
-          value={fields.name}
+          value={fields[NOTIFICATION_SENDER_NAME]}
           onChange={handleChange}
           style={{ fontSize: 14 }}
         />
@@ -45,24 +61,41 @@ const Personalization = () => {
       <label className="bold-select-wrap">
         <span className="label">Email Signature</span>
         <textarea
-          name="signature"
-          value={fields.signature}
+          name={NOTIFICATION_SIGNATURE}
+          value={fields[NOTIFICATION_SIGNATURE]}
           onChange={handleChange}
           className="w-full resize-none h-32 rounded-lg p-4 bg-[#f8fafc] text-[#011c39] font-medium text-sm"
           style={{ border: '1px solid #cbd5e1' }}
         />
       </label>
+      {hasChanges ? (
+        <div className="flex justify-end pt-6">
+          <button
+            type="button"
+            className={`btn ${busy ? 'busy' : ''}`}
+            onClick={() => update()}
+          >
+            Update
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 };
 
 const Customers = () => {
-  const [fields, setFields] = useState({
-    confirmations: true,
-    updates: true,
-    cancellations: true,
-    email: true,
-  });
+  const {
+    busy,
+    fields,
+    hasChanges,
+    setFields,
+    update,
+  } = usePrefereceFields([
+    NOTIFY_CLIENT_ON_CANCEL_APPOINTMENT,
+    NOTIFY_CLIENT_ON_EDIT_APPOINTMENT,
+    NOTIFY_CLIENT_ON_NEW_APPOINTMENT,
+    CLIENT_NOTIFICATION_LEAD_TIME,
+  ]);
 
   const handleChange = ({ target: { checked, name } }) => setFields(
     (fields) => ({ ...fields, [name]: checked }),
@@ -81,9 +114,9 @@ const Customers = () => {
           <label className="relative flex items-center gap-3 cursor-pointer">
             <span
               aria-hidden="true"
-              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields.confirmations ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
+              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields[NOTIFY_CLIENT_ON_NEW_APPOINTMENT] ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
             >
-              {fields.confirmations ? (
+              {fields[NOTIFY_CLIENT_ON_NEW_APPOINTMENT] ? (
                 <span
                   className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
                 >
@@ -93,8 +126,8 @@ const Customers = () => {
             </span>
             <input
               type="checkbox"
-              name="confirmations"
-              checked={fields.confirmations}
+              name={NOTIFY_CLIENT_ON_NEW_APPOINTMENT}
+              checked={fields[NOTIFY_CLIENT_ON_NEW_APPOINTMENT]}
               className="clip"
               onChange={handleChange}
             />
@@ -110,9 +143,9 @@ const Customers = () => {
           <label className="relative flex items-center gap-3 cursor-pointer">
             <span
               aria-hidden="true"
-              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields.updates ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
+              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields[NOTIFY_CLIENT_ON_EDIT_APPOINTMENT] ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
             >
-              {fields.updates ? (
+              {fields[NOTIFY_CLIENT_ON_EDIT_APPOINTMENT] ? (
                 <span
                   className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
                 >
@@ -122,8 +155,8 @@ const Customers = () => {
             </span>
             <input
               type="checkbox"
-              name="updates"
-              checked={fields.updates}
+              name={NOTIFY_CLIENT_ON_EDIT_APPOINTMENT}
+              checked={fields[NOTIFY_CLIENT_ON_EDIT_APPOINTMENT]}
               className="clip"
               onChange={handleChange}
             />
@@ -139,9 +172,9 @@ const Customers = () => {
           <label className="relative flex items-center gap-3 cursor-pointer">
             <span
               aria-hidden="true"
-              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields.cancellations ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
+              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields[NOTIFY_CLIENT_ON_CANCEL_APPOINTMENT] ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
             >
-              {fields.cancellations ? (
+              {fields[NOTIFY_CLIENT_ON_CANCEL_APPOINTMENT] ? (
                 <span
                   className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
                 >
@@ -151,165 +184,8 @@ const Customers = () => {
             </span>
             <input
               type="checkbox"
-              name="cancellations"
-              checked={fields.cancellations}
-              className="clip"
-              onChange={handleChange}
-            />
-            <div className="flex flex-col gap-1">
-              <span className="font-semibold text-base text-[#8e98ab]">
-                Cancellation
-              </span>
-              <span className="font-normal text-xs text-[#5c5cc]">
-                Automate notifications for cancelled bookings
-              </span>
-            </div>
-          </label>
-        </div>
-      </section>
-      <section className="flex flex-col gap-4">
-        <header className="flex flex-col gap-1">
-          <Heading2>Reminders</Heading2>
-          <p className="m-0 font-normal text-sm text=[#5c5c5c]">
-            Keep customers in the loop with automatic reminders for upcoming bookings
-          </p>
-        </header>
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-6 justify-between">
-            <label className="relative flex-1 flex items-center gap-3 cursor-pointer">
-              <span
-                aria-hidden="true"
-                className={`w-5 h-5 rounded-md flex justify-center items-center ${fields.email ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
-              >
-                {fields.email ? (
-                  <span
-                    className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
-                  >
-                    &#10003;
-                  </span>
-                ) : null}
-              </span>
-              <input
-                type="checkbox"
-                name="email"
-                checked={fields.email}
-                className="clip"
-                onChange={handleChange}
-              />
-              <div className="flex flex-col gap-1">
-                <span className="font-semibold text-base text-[#8e98ab]">
-                  Email
-                </span>
-                <span className="font-normal text-xs text-[#5c5cc]">
-                  prior to appointment
-                </span>
-              </div>
-            </label>
-            <TimeAmount initialValue="1h" />
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-};
-
-const Staff = () => {
-  const [fields, setFields] = useState({
-    confirmations: true,
-    updates: true,
-    cancellations: true,
-    email: true,
-  });
-
-  const handleChange = ({ target: { checked, name } }) => setFields(
-    (fields) => ({ ...fields, [name]: checked }),
-  );
-
-  return (
-    <div className="flex flex-col gap-10 w-full max-w-[600px]">
-      <section className="flex flex-col gap-4">
-        <header className="flex flex-col gap-1">
-          <Heading2>Updates</Heading2>
-          <p className="m-0 font-normal text-sm text=[#5c5c5c]">
-            Automate notifications for new, edited and cancelled bookings
-          </p>
-        </header>
-        <div className="flex flex-col gap-4">
-          <label className="relative flex items-center gap-3 cursor-pointer">
-            <span
-              aria-hidden="true"
-              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields.confirmations ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
-            >
-              {fields.confirmations ? (
-                <span
-                  className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
-                >
-                  &#10003;
-                </span>
-              ) : null}
-            </span>
-            <input
-              type="checkbox"
-              name="confirmations"
-              checked={fields.confirmations}
-              className="clip"
-              onChange={handleChange}
-            />
-            <div className="flex flex-col gap-1">
-              <span className="font-semibold text-base text-[#8e98ab]">
-                Confirmation
-              </span>
-              <span className="font-normal text-xs text-[#5c5cc]">
-                Automate notifications for new appointments
-              </span>
-            </div>
-          </label>
-          <label className="relative flex items-center gap-3 cursor-pointer">
-            <span
-              aria-hidden="true"
-              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields.updates ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
-            >
-              {fields.updates ? (
-                <span
-                  className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
-                >
-                  &#10003;
-                </span>
-              ) : null}
-            </span>
-            <input
-              type="checkbox"
-              name="updates"
-              checked={fields.updates}
-              className="clip"
-              onChange={handleChange}
-            />
-            <div className="flex flex-col gap-1">
-              <span className="font-semibold text-base text-[#8e98ab]">
-                Changes
-              </span>
-              <span className="font-normal text-xs text-[#5c5cc]">
-                Automate notifications for edited or rescheduled bookings
-              </span>
-            </div>
-          </label>
-          <label className="relative flex items-center gap-3 cursor-pointer">
-            <span
-              aria-hidden="true"
-              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields.cancellations ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
-            >
-              {fields.cancellations ? (
-                <span
-                  className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
-                >
-                  &#10003;
-                </span>
-              ) : null}
-            </span>
-            <input
-              type="checkbox"
-              name="cancellations"
-              checked={fields.cancellations}
+              name={NOTIFY_CLIENT_ON_CANCEL_APPOINTMENT}
+              checked={fields[NOTIFY_CLIENT_ON_CANCEL_APPOINTMENT]}
               className="clip"
               onChange={handleChange}
             />
@@ -336,9 +212,9 @@ const Staff = () => {
             <label className="relative flex-1 flex items-center gap-3 cursor-pointer">
               <span
                 aria-hidden="true"
-                className={`w-5 h-5 rounded-md flex justify-center items-center ${fields.email ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
+                className={`w-5 h-5 rounded-md flex justify-center items-center ${fields[CLIENT_NOTIFICATION_LEAD_TIME] ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
               >
-                {fields.email ? (
+                {fields[CLIENT_NOTIFICATION_LEAD_TIME] ? (
                   <span
                     className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
                   >
@@ -349,9 +225,15 @@ const Staff = () => {
               <input
                 type="checkbox"
                 name="email"
-                checked={fields.email}
+                checked={fields[CLIENT_NOTIFICATION_LEAD_TIME]}
                 className="clip"
-                onChange={handleChange}
+                onChange={({ target: { checked } }) => {
+                  if (checked) {
+                    setFields((fields) => ({ ...fields, [CLIENT_NOTIFICATION_LEAD_TIME]: '1h' }));
+                  } else {
+                    setFields((fields) => ({ ...fields, [CLIENT_NOTIFICATION_LEAD_TIME]: '' }));
+                  }
+                }}
               />
               <div className="flex flex-col gap-1">
                 <span className="font-semibold text-base text-[#8e98ab]">
@@ -362,20 +244,217 @@ const Staff = () => {
                 </span>
               </div>
             </label>
-            <TimeAmount initialValue="1h" />
+            <TimeAmount initialValue={fields[CLIENT_NOTIFICATION_LEAD_TIME || '']} />
           </div>
         </div>
       </section>
+      {hasChanges ? (
+        <div className="flex justify-end pt-8">
+          <button
+            type="button"
+            className={`btn ${busy ? 'busy' : ''}`}
+            onClick={() => update()}
+          >
+            Update
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
+const Staff = () => {
+  const {
+    busy,
+    fields,
+    hasChanges,
+    setFields,
+    update,
+  } = usePrefereceFields([
+    NOTIFY_STAFF_ON_CANCEL_APPOINTMENT,
+    NOTIFY_STAFF_ON_EDIT_APPOINTMENT,
+    NOTIFY_STAFF_ON_NEW_APPOINTMENT,
+    STAFF_NOTIFICATION_LEAD_TIME,
+  ]);
+
+  const handleChange = ({ target: { checked, name } }) => setFields(
+    (fields) => ({ ...fields, [name]: checked }),
+  );
+
+  return (
+    <div className="flex flex-col gap-10 w-full max-w-[600px]">
+      <section className="flex flex-col gap-4">
+        <header className="flex flex-col gap-1">
+          <Heading2>Updates</Heading2>
+          <p className="m-0 font-normal text-sm text=[#5c5c5c]">
+            Automate notifications for new, edited and cancelled bookings
+          </p>
+        </header>
+        <div className="flex flex-col gap-4">
+          <label className="relative flex items-center gap-3 cursor-pointer">
+            <span
+              aria-hidden="true"
+              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields[NOTIFY_STAFF_ON_NEW_APPOINTMENT] ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
+            >
+              {fields[NOTIFY_STAFF_ON_NEW_APPOINTMENT] ? (
+                <span
+                  className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
+                >
+                  &#10003;
+                </span>
+              ) : null}
+            </span>
+            <input
+              type="checkbox"
+              name={NOTIFY_STAFF_ON_NEW_APPOINTMENT}
+              checked={fields[NOTIFY_STAFF_ON_NEW_APPOINTMENT]}
+              className="clip"
+              onChange={handleChange}
+            />
+            <div className="flex flex-col gap-1">
+              <span className="font-semibold text-base text-[#8e98ab]">
+                Confirmation
+              </span>
+              <span className="font-normal text-xs text-[#5c5cc]">
+                Automate notifications for new appointments
+              </span>
+            </div>
+          </label>
+          <label className="relative flex items-center gap-3 cursor-pointer">
+            <span
+              aria-hidden="true"
+              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields[NOTIFY_STAFF_ON_EDIT_APPOINTMENT] ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
+            >
+              {fields[NOTIFY_STAFF_ON_EDIT_APPOINTMENT] ? (
+                <span
+                  className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
+                >
+                  &#10003;
+                </span>
+              ) : null}
+            </span>
+            <input
+              type="checkbox"
+              name={NOTIFY_STAFF_ON_EDIT_APPOINTMENT}
+              checked={fields[NOTIFY_STAFF_ON_EDIT_APPOINTMENT]}
+              className="clip"
+              onChange={handleChange}
+            />
+            <div className="flex flex-col gap-1">
+              <span className="font-semibold text-base text-[#8e98ab]">
+                Changes
+              </span>
+              <span className="font-normal text-xs text-[#5c5cc]">
+                Automate notifications for edited or rescheduled bookings
+              </span>
+            </div>
+          </label>
+          <label className="relative flex items-center gap-3 cursor-pointer">
+            <span
+              aria-hidden="true"
+              className={`w-5 h-5 rounded-md flex justify-center items-center ${fields[NOTIFY_STAFF_ON_CANCEL_APPOINTMENT] ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
+            >
+              {fields[NOTIFY_STAFF_ON_CANCEL_APPOINTMENT] ? (
+                <span
+                  className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
+                >
+                  &#10003;
+                </span>
+              ) : null}
+            </span>
+            <input
+              type="checkbox"
+              name={NOTIFY_STAFF_ON_CANCEL_APPOINTMENT}
+              checked={fields[NOTIFY_STAFF_ON_CANCEL_APPOINTMENT]}
+              className="clip"
+              onChange={handleChange}
+            />
+            <div className="flex flex-col gap-1">
+              <span className="font-semibold text-base text-[#8e98ab]">
+                Cancellation
+              </span>
+              <span className="font-normal text-xs text-[#5c5cc]">
+                Automate notifications for cancelled bookings
+              </span>
+            </div>
+          </label>
+        </div>
+      </section>
+      <section className="flex flex-col gap-4">
+        <header className="flex flex-col gap-1">
+          <Heading2>Reminders</Heading2>
+          <p className="m-0 font-normal text-sm text=[#5c5c5c]">
+            Keep staff in the loop with automatic reminders for upcoming bookings
+          </p>
+        </header>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-6 justify-between">
+            <label className="relative flex-1 flex items-center gap-3 cursor-pointer">
+              <span
+                aria-hidden="true"
+                className={`w-5 h-5 rounded-md flex justify-center items-center ${fields[STAFF_NOTIFICATION_LEAD_TIME] ? 'bg-[#89e101]' : 'border border-[#5c5c5c]'}`}
+              >
+                {fields[STAFF_NOTIFICATION_LEAD_TIME] ? (
+                  <span
+                    className="block w-3 h-3 text-white font-bold text-[12px] translate-x-[2px]"
+                  >
+                    &#10003;
+                  </span>
+                ) : null}
+              </span>
+              <input
+                type="checkbox"
+                name="email"
+                checked={fields[STAFF_NOTIFICATION_LEAD_TIME]}
+                className="clip"
+                onChange={({ target: { checked } }) => {
+                  if (checked) {
+                    setFields((fields) => ({ ...fields, [STAFF_NOTIFICATION_LEAD_TIME]: '1h' }));
+                  } else {
+                    setFields((fields) => ({ ...fields, [STAFF_NOTIFICATION_LEAD_TIME]: '' }));
+                  }
+                }}
+              />
+              <div className="flex flex-col gap-1">
+                <span className="font-semibold text-base text-[#8e98ab]">
+                  Email
+                </span>
+                <span className="font-normal text-xs text-[#5c5cc]">
+                  prior to appointment
+                </span>
+              </div>
+            </label>
+            <TimeAmount initialValue={fields[STAFF_NOTIFICATION_LEAD_TIME || '']} />
+          </div>
+        </div>
+      </section>
+      {hasChanges ? (
+        <div className="flex justify-end pt-8">
+          <button
+            type="button"
+            className={`btn ${busy ? 'busy' : ''}`}
+            onClick={() => update()}
+          >
+            Update
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 };
 
 const Home = () => {
-  const [mode, setMode] = useState(notificationModes.all);
+  const {
+    busy,
+    fields,
+    hasChanges,
+    setFields,
+    update,
+  } = usePrefereceFields([NOTIFICATION_MODE]);
 
   const handleChange = ({ target: { checked, name } }) => {
     if (checked) {
-      setMode(notificationModes[name]);
+      setFields((fields) => ({ ...fields, [NOTIFICATION_MODE]: name }));
     }
   };
 
@@ -393,7 +472,7 @@ const Home = () => {
             aria-hidden="true"
             className="w-5 h-5 rounded-full border border-[#5c5c5c] flex justify-center items-center"
           >
-            {mode === notificationModes.all ? (
+            {fields[NOTIFICATION_MODE] === notificationModes.ALL ? (
               <span
                 className="block w-3 h-3 rounded-full bg-[#89e101]"
               />
@@ -401,8 +480,8 @@ const Home = () => {
           </span>
           <input
             type="radio"
-            name="all"
-            checked={mode === notificationModes.all}
+            name={notificationModes.ALL}
+            checked={fields[NOTIFICATION_MODE] === notificationModes.ALL}
             className="clip"
             onChange={handleChange}
           />
@@ -420,7 +499,7 @@ const Home = () => {
             aria-hidden="true"
             className="w-5 h-5 rounded-full border border-[#5c5c5c] flex justify-center items-center"
           >
-            {mode === notificationModes.focus ? (
+            {fields[NOTIFICATION_MODE] === notificationModes.FOCUS ? (
               <span
                 className="block w-3 h-3 rounded-full bg-[#89e101]"
               />
@@ -428,8 +507,8 @@ const Home = () => {
           </span>
           <input
             type="radio"
-            name="focus"
-            checked={mode === notificationModes.focus}
+            name={notificationModes.FOCUS}
+            checked={fields[NOTIFICATION_MODE] === notificationModes.FOCUS}
             className="clip"
             onChange={handleChange}
           />
@@ -447,7 +526,7 @@ const Home = () => {
             aria-hidden="true"
             className="w-5 h-5 rounded-full border border-[#5c5c5c] flex justify-center items-center"
           >
-            {mode === notificationModes.none ? (
+            {fields[NOTIFICATION_MODE] === notificationModes.NONE ? (
               <span
                 className="block w-3 h-3 rounded-full bg-[#89e101]"
               />
@@ -455,8 +534,8 @@ const Home = () => {
           </span>
           <input
             type="radio"
-            name="none"
-            checked={mode === notificationModes.none}
+            name={notificationModes.NONE}
+            checked={fields[NOTIFICATION_MODE] === notificationModes.NONE}
             className="clip"
             onChange={handleChange}
           />
@@ -470,6 +549,17 @@ const Home = () => {
           </div>
         </label>
       </div>
+      {hasChanges ? (
+        <div className="flex justify-end pt-8">
+          <button
+            type="button"
+            className={`btn ${busy ? 'busy' : ''}`}
+            onClick={() => update()}
+          >
+            Update
+          </button>
+        </div>
+      ) : null}
     </section>
   );
 };
