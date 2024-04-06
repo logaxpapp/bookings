@@ -458,12 +458,17 @@ RestrictedCompany.propTypes = {
 const Company = () => {
   const company = useSelector(selectCompany);
   const location = useLocation();
-  const [state, setState] = useState({ loading: true, error: '' });
+  const [state, setState] = useState({ loading: false, error: '' });
   const dispatch = useDispatch();
 
   useEffect(() => {
+    if (company) {
+      return;
+    }
+
     const token = storage.getEmployeeToken();
     if (token) {
+      setState({ loading: true, error: '' });
       dispatch(fetchCompanyAsync(token, (err) => {
         setState({ loading: false, error: err });
       }));

@@ -534,18 +534,29 @@ export const loginAsync = (email, password, callback) => (dispatch) => {
     });
 };
 
+let fetchingCompany = false;
+
 export const fetchCompanyAsync = (token, callback) => (dispatch) => {
+  if (fetchingCompany) {
+    return;
+  }
+
+  fetchingCompany = true;
+
   fetchResources('companies/auth/re-auth', token, true)
     .then((data) => {
-      dispatch(setup({ ...data, token }));
+      dispatch(setup(data));
+      storage.setEmployeeToken(token);
       if (callback) {
         callback(null);
       }
+      fetchingCompany = false;
     })
     .catch(({ message }) => {
       if (callback) {
         callback(message);
       }
+      fetchingCompany = false;
     });
 };
 
