@@ -13,6 +13,7 @@ import PropTypes from 'prop-types';
 import { Loader as GoogleLoader } from '@googlemaps/js-api-loader';
 import css from './style.module.css';
 import {
+  addressText,
   currencyHelper,
   d2,
   dateUtils,
@@ -535,6 +536,10 @@ const ProviderPage2 = ({ provider }) => {
     service: null,
     mode: serviceDisplayModes.none,
   });
+  const { address, profilePicture } = useMemo(() => ({
+    address: addressText(provider.address),
+    profilePicture: provider.profilePicture || defaultImages.profile,
+  }), [provider]);
   const container = useRef(null);
   const { width } = useWindowSize();
   const dialog = useDialog();
@@ -597,11 +602,11 @@ const ProviderPage2 = ({ provider }) => {
       >
         <div className={css.heading_wrap}>
           <h1 className={css.heading}>{provider.name}</h1>
-          <span>{provider.address}</span>
+          <span>{address}</span>
         </div>
         <div className={css.profile_picture_wrap}>
           <img
-            src={provider.profilePicture || defaultImages.profile}
+            src={profilePicture}
             className={css.profile_picture}
             alt={provider.name}
           />

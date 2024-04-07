@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import css from './style.module.css';
 import { useWindowSize } from '../../lib/hooks';
 import {
+  addressText,
   currencyHelper,
   // currencyHelper,
   d2,
@@ -84,7 +85,7 @@ const EventPanel = ({ eventWrapper, onClose }) => {
       serviceName: appointment.timeSlot.service.name,
       clientName: `${appointment.customer.lastname} ${appointment.customer.firstname}`,
       companyName: appointment.timeSlot.service.company.name,
-      venue: appointment.timeSlot.service.company.address,
+      venue: addressText(appointment.timeSlot.service.company.address),
       time: new Date(appointment.timeSlot.time).toLocaleString(),
       price: currencyHelper.toString(
         appointment.timeSlot.service.price,
