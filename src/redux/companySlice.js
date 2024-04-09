@@ -181,9 +181,14 @@ const slice = createSlice({
       state.appointments[date] = appointments;
     },
     addAppointment: (state, { payload }) => {
-      const date = dateUtils.toNormalizedString(payload.timeSlots.time);
+      const date = dateUtils.toNormalizedString(payload.timeSlot.time);
       if (state.appointments[date]) {
         state.appointments[date].push(payload);
+      }
+      if (state.weeklyAppointments[date]) {
+        state.weeklyAppointments[date].push(payload);
+      } else {
+        state.weeklyAppointments[date] = [payload];
       }
     },
     updateAppointment: (state, { payload: { newAppointment, oldAppointment } }) => {
@@ -1381,8 +1386,27 @@ export const loadAppointmentsForWekAsync = (weekStartDate, callback) => (dispatc
     });
 };
 
+export const createCustomAppointmentAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    callback({ message: 'UnAuthorized!' });
+    return;
+  }
+
+  postResource(token, 'appointments/custom', data, true)
+    .then((appointment) => {
+      dispatch(addAppointment(appointment));
+      callback(null, appointment);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while creating appointment!');
+      callback(message);
+    });
+};
+
 export const updateAppointmentAsync = (
-  status,
+  data,
   appointment,
   callback,
 ) => (dispatch, getState) => {
@@ -1395,9 +1419,9 @@ export const updateAppointmentAsync = (
     return;
   }
 
-  updateResource(token, `appointments/${appointment.id}`, { status }, true)
+  updateResource(token, `appointments/${appointment.id}`, data, true)
     .then(() => {
-      const newAppointment = { ...appointment, status };
+      const newAppointment = { ...appointment, ...data };
 
       dispatch(updateAppointment({ newAppointment, oldAppointment: appointment }));
 
