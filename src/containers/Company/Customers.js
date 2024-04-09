@@ -36,9 +36,10 @@ const ADDRESS_LINE2 = 'line2';
 const CITY = 'city';
 const COUNTRY = 'country';
 const EMAIL = 'email';
-const FULLNAME = 'fullname';
+const FIRSTNAME = 'firstname';
 const IMPORT_CSV = 'import_csv';
 const IMPORT_GOOGLE_CONTACT = 'import_google_contact';
+const LASTNAME = 'lastname';
 const PHONE_NUMBER = 'phone_number';
 const STATE = 'state';
 const ZIP_CODE = 'zip_code';
@@ -47,7 +48,8 @@ const customers = [];
 
 const customerProps = PropTypes.shape({
   id: PropTypes.number,
-  fullname: PropTypes.string,
+  firstname: PropTypes.string,
+  lastname: PropTypes.string,
   email: PropTypes.string,
   phoneNumber: PropTypes.string,
   address: PropTypes.shape({
@@ -71,7 +73,7 @@ const customerProps = PropTypes.shape({
 });
 
 const customerFields = [
-  'fullname', 'email', 'phone_number',
+  'firstname', 'lastname', 'email', 'phone_number',
   'country', 'state', 'city', 'address_line1',
   'address_line2', 'zip_code',
 ];
@@ -83,7 +85,8 @@ const CustomerEditor = ({
   setBusy,
 }) => {
   const [fields, setFields] = useState({
-    [FULLNAME]: '',
+    [FIRSTNAME]: '',
+    [LASTNAME]: '',
     [EMAIL]: '',
     [PHONE_NUMBER]: '',
     [ADDRESS_LINE1]: '',
@@ -91,7 +94,8 @@ const CustomerEditor = ({
     [ZIP_CODE]: '',
   });
   const [errors, setErrors] = useState({
-    [FULLNAME]: '',
+    [FIRSTNAME]: '',
+    [LASTNAME]: '',
     [EMAIL]: '',
     [PHONE_NUMBER]: '',
     [ADDRESS_LINE1]: '',
@@ -134,7 +138,8 @@ const CustomerEditor = ({
             line1: customer.address?.line1 || '',
             line2: customer.address?.line2 || '',
             zip_code: customer.address?.zipCode || '',
-            fullname: customer.fullname || '',
+            firstname: customer.firstname || '',
+            lastname: customer.lastname || '',
             email: customer.email || '',
             phone_number: customer.phoneNumber || '',
           });
@@ -196,8 +201,12 @@ const CustomerEditor = ({
 
     const errors = {};
 
-    if (!fields.fullname || fields.fullname < 2) {
-      errors[FULLNAME] = 'Fullname MUST be at least 2 characters!';
+    if (!fields.firstname || fields.firstname.length < 2) {
+      errors[FIRSTNAME] = 'Firstname MUST be at least 2 characters!';
+    }
+
+    if (!fields.lastname || fields.lastname.length < 2) {
+      errors[LASTNAME] = 'Lastname MUST be at least 2 characters!';
     }
 
     if (!matchesEmail(fields.email)) {
@@ -253,11 +262,19 @@ const CustomerEditor = ({
       </h1>
       <Input
         type="text"
-        name={FULLNAME}
-        value={fields[FULLNAME]}
-        label="Fullname"
+        name={FIRSTNAME}
+        value={fields[FIRSTNAME]}
+        label="Firstname"
         onChange={handleFieldChange}
-        error={errors.fullname}
+        error={errors.firstname}
+      />
+      <Input
+        type="text"
+        name={LASTNAME}
+        value={fields[LASTNAME]}
+        label="Lastname"
+        onChange={handleFieldChange}
+        error={errors.lastname}
       />
       <Input
         type="email"
@@ -533,7 +550,7 @@ const CustomerCard = ({
       className="px-6 py-5 rounded-lg border border-[#CBD5E1] bg-[#F8FAFC] relative"
     >
       <h1 className="font-semibold text-xl text-[#011c39]">
-        {customer.fullname}
+        {`${customer.firstname} ${customer.lastname}`}
       </h1>
       <div className="flex flex-col gap-5 text-[#011c39]">
         <CustomerFieldRow text={customer.email} icon={emailIcon} />

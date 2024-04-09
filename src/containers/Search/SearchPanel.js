@@ -23,6 +23,7 @@ import {
 import defaultImages from '../../utils/defaultImages';
 import LoadingSpinner, { Loader, useBusyDialog } from '../../components/LoadingSpinner';
 import {
+  addressText,
   currencyHelper,
   d2,
   dateUtils,
@@ -494,21 +495,20 @@ export const useTimeSlotsDialog = () => {
 
 const ServicePanel = ({ service }) => {
   const [index, setIndex] = useState(0);
-  const [images, setImages] = useState([{
-    id: 0,
-    url: defaultImages.randomServiceImage(),
-  }]);
-  const [price, setPrice] = useState('');
-  const [profilePicture, setProfilePicture] = useState('');
+  const {
+    address,
+    images,
+    price,
+    profilePicture,
+  } = useMemo(() => ({
+    address: addressText(service.company.address),
+    images: service.images.length
+      ? service.images
+      : [{ id: 0, url: defaultImages.randomServiceImage() }],
+    price: currencyHelper.toString(service.price, service.company.country.currencySymbol),
+    profilePicture: service.company.profilePicture || defaultImages.profile,
+  }), [service]);
   const [isTimeSlotOpen, setTimeSlotOpen] = useState(false);
-
-  useEffect(() => {
-    if (service.images.length) {
-      setImages(service.images);
-    }
-    setPrice(currencyHelper.toString(service.price, service.company.country.currencySymbol));
-    setProfilePicture(service.company.profilePicture || defaultImages.profile);
-  }, []);
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === INCREMENT) {
@@ -587,7 +587,7 @@ const ServicePanel = ({ service }) => {
                 {service.company.name}
               </span>
               <span className={css.service_provider_profile_address}>
-                {service.company.address}
+                {address}
               </span>
             </div>
           </Link>
@@ -712,14 +712,14 @@ ServiceCard.propTypes = {
 };
 
 const CompanyServicesPanel = ({ companyServices }) => {
-  const [profilePicture, setProfilePicture] = useState('');
+  // const [profilePicture, setProfilePicture] = useState('');
+  const { address, profilePicture } = useMemo(() => ({
+    address: addressText(companyServices.company.address),
+    profilePicture: companyServices.company.profilePicture || defaultImages.profile,
+  }), [companyServices]);
   const busyDialog = useBusyDialog();
   const slotsDialog = useTimeSlotsDialog();
   const book = useBook();
-
-  useEffect(() => {
-    setProfilePicture(companyServices.company.profilePicture || defaultImages.profile);
-  }, [companyServices]);
 
   const handleBook = useCallback((service) => {
     const popup = slotsDialog.show(service, (slot) => {
@@ -749,7 +749,7 @@ const CompanyServicesPanel = ({ companyServices }) => {
           </div>
           <h1 className={css.company_services_heading}>{companyServices.company.name}</h1>
           <p className={css.company_address}>
-            <span>{companyServices.company.address}</span>
+            <span>{address}</span>
           </p>
         </Link>
       </header>

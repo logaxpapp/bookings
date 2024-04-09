@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Header from '../Header';
 import SearchPanel from './SearchPanel';
+import PublicRouteContainer from '../PublicRouteContainer';
 
 const Search = () => {
   const [params, setParams] = useState(null);
@@ -20,10 +21,12 @@ const Search = () => {
 
   if (params.cityId) {
     return (
-      <div className="container">
-        <Header />
-        <SearchPanel term={params.term} cityId={Number.parseInt(params.cityId, 10)} />
-      </div>
+      <PublicRouteContainer>
+        <div className="container">
+          <Header />
+          <SearchPanel term={params.term} cityId={Number.parseInt(params.cityId, 10)} />
+        </div>
+      </PublicRouteContainer>
     );
   }
 

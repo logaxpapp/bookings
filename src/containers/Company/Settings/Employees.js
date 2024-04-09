@@ -5,6 +5,7 @@ import {
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useOutletContext } from 'react-router';
 import PropTypes from 'prop-types';
 import { Menu, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon, PlusIcon } from '@heroicons/react/24/outline';
@@ -378,6 +379,7 @@ const Employees = () => {
   const [deleteModal, setDeleteModal] = useState({ busy: false, isOpen: false, employee: null });
   const employees = useSelector(selectEmployees);
   const permissions = useSelector(selectPermissions);
+  const [company] = useOutletContext();
   const dispatch = useDispatch();
 
   const handleClick = ({ target: { name } }) => {
@@ -418,6 +420,11 @@ const Employees = () => {
 
   const deleteEmployee = () => {
     if (!deleteModal.employee) {
+      return;
+    }
+
+    if (deleteModal.employee.email === company.email) {
+      notification.showError('You CANNOT delete this employee because they are the companies super admin. Please contact support@logaxp.com');
       return;
     }
 

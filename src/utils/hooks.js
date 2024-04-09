@@ -17,7 +17,12 @@ import BlankPage from '../components/BlankPage';
 import { Loader } from '../components/LoadingSpinner';
 import { useDialog } from '../lib/Dialog';
 import defaultImages from './defaultImages';
-import { camelCase, currencyHelper, notification } from '.';
+import {
+  addressText,
+  camelCase,
+  currencyHelper,
+  notification,
+} from '.';
 import paystackIcon from '../assets/images/paystack.png';
 import stripeIcon from '../assets/images/stripe-icon.png';
 import { serviceProps } from './propTypes';
@@ -166,6 +171,9 @@ const PaymentDialog = ({
 }) => {
   const [busy, setBusy] = useState(true);
   const [policyMode, setPolicyMode] = useState(false);
+  const { address } = useMemo(() => ({
+    address: addressText(service.company.address),
+  }), [service]);
 
   const togglePolicyMode = useCallback(() => setPolicyMode((mode) => !mode));
 
@@ -181,7 +189,7 @@ const PaymentDialog = ({
     setBusy(true);
     handler.deposit(token, slotId, data, {
       companyName: service.company.name,
-      companyAddress: service.company.address,
+      companyAddress: addressText(service.company.address),
       companyProfilePicture: service.company.profilePicture || defaultImages.profile,
     }, () => {
       setBusy(false);
@@ -234,7 +242,7 @@ const PaymentDialog = ({
               </div>
               <div style={styles.companyDetails}>
                 <span style={styles.companyName}>{service.company.name}</span>
-                <span style={styles.companyAddress}>{service.company.address}</span>
+                <span style={styles.companyAddress}>{address}</span>
               </div>
             </article>
             <div style={styles.serviceDeposit}>
