@@ -239,7 +239,7 @@ export const DatePicker2 = ({
           leaveFrom="opacity-100 translate-y-0"
           leaveTo="opacity-0 translate-y-1"
         >
-          <Popover.Panel className="absolute left-1/2 z-50 mt-3 -translate-x-1/2 transform px-4 py-3 shadow-xl bg-white">
+          <Popover.Panel className="absolute left-0 z-50 mt-3 -translate-x-1/2 px-4 py-3 shadow-xl bg-white">
             <DatePicker initialDate={date} onDateChange={handleDateChange} />
           </Popover.Panel>
         </Transition>

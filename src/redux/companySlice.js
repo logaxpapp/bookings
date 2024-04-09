@@ -44,7 +44,17 @@ const slice = createSlice({
     openMessages: [],
     maxOpenMessages: 4,
     paymentMethods: [],
-    activities: [],
+    mostRecentActivities: [],
+    activities: {
+      data: {},
+      dates: [],
+      state: {
+        loading: false,
+        loaded: false,
+        nextPage: 1,
+        totalPages: 0,
+      },
+    },
   },
   reducers: {
     setAuthenticating: (state, { payload }) => {
@@ -61,7 +71,7 @@ const slice = createSlice({
       state.permissions = payload.permissions;
       state.authenticating = false;
       state.paymentMethods = payload.paymentMethods;
-      state.activities = payload.activities;
+      state.mostRecentActivities = payload.activities;
       storage.setEmployeeToken(payload.token);
     },
     teardown: (state) => {
@@ -78,7 +88,17 @@ const slice = createSlice({
       state.employees = [];
       state.permissions = {};
       state.paymentMethods = [];
-      state.activities = [];
+      state.mostRecentActivities = [];
+      state.activities = {
+        data: {},
+        dates: [],
+        state: {
+          loading: false,
+          loaded: false,
+          nextPage: 1,
+          totalPages: 0,
+        },
+      };
       storage.unsetEmployeeToken();
     },
     setCompany: (state, { payload }) => {
@@ -161,9 +181,14 @@ const slice = createSlice({
       state.appointments[date] = appointments;
     },
     addAppointment: (state, { payload }) => {
-      const date = dateUtils.toNormalizedString(payload.timeSlots.time);
+      const date = dateUtils.toNormalizedString(payload.timeSlot.time);
       if (state.appointments[date]) {
         state.appointments[date].push(payload);
+      }
+      if (state.weeklyAppointments[date]) {
+        state.weeklyAppointments[date].push(payload);
+      } else {
+        state.weeklyAppointments[date] = [payload];
       }
     },
     updateAppointment: (state, { payload: { newAppointment, oldAppointment } }) => {
@@ -400,6 +425,62 @@ const slice = createSlice({
         }
       }
     },
+    setActivityLoading: (state, { payload }) => {
+      state.activities = {
+        ...state.activities,
+        state: {
+          ...state.activities.state,
+          loading: payload,
+        },
+      };
+    },
+    updateActivities: (state, { payload }) => {
+      const sorted = payload.data;
+      sorted.sort(
+        (a1, a2) => new Date(a1.date).getTime() - new Date(a2.date).getTime(),
+      );
+
+      const resultObject = { ...state.activities.data };
+
+      sorted.forEach((act) => {
+        const date = new Date(act.date);
+        const dateString = date.toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+        const time = date.toLocaleTimeString('en-US', {
+          hour12: true,
+          hour: 'numeric',
+          minute: 'numeric',
+        });
+
+        let arr = resultObject[dateString];
+
+        if (!arr) {
+          arr = [];
+          resultObject[dateString] = arr;
+        }
+
+        arr.push({
+          id: act.id,
+          description: act.description,
+          by: `${act.employee.firstname} ${act.employee.lastname}`,
+          time,
+        });
+      });
+
+      state.activities = {
+        data: resultObject,
+        dates: Object.keys(resultObject),
+        state: {
+          loading: false,
+          loaded: true,
+          ...payload.meta,
+        },
+      };
+    },
   },
 });
 
@@ -437,6 +518,8 @@ export const {
   setOpenMessages,
   addAppointmentUpdateRequest,
   updateAppointmentUpdateRequest,
+  setActivityLoading,
+  updateActivities,
 } = slice.actions;
 
 export const loginAsync = (email, password, callback) => (dispatch) => {
@@ -456,18 +539,29 @@ export const loginAsync = (email, password, callback) => (dispatch) => {
     });
 };
 
+let fetchingCompany = false;
+
 export const fetchCompanyAsync = (token, callback) => (dispatch) => {
+  if (fetchingCompany) {
+    return;
+  }
+
+  fetchingCompany = true;
+
   fetchResources('companies/auth/re-auth', token, true)
     .then((data) => {
-      dispatch(setup({ ...data, token }));
+      dispatch(setup(data));
+      storage.setEmployeeToken(token);
       if (callback) {
         callback(null);
       }
+      fetchingCompany = false;
     })
     .catch(({ message }) => {
       if (callback) {
         callback(message);
       }
+      fetchingCompany = false;
     });
 };
 
@@ -1292,8 +1386,27 @@ export const loadAppointmentsForWekAsync = (weekStartDate, callback) => (dispatc
     });
 };
 
+export const createCustomAppointmentAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    callback({ message: 'UnAuthorized!' });
+    return;
+  }
+
+  postResource(token, 'appointments/custom', data, true)
+    .then((appointment) => {
+      dispatch(addAppointment(appointment));
+      callback(null, appointment);
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while creating appointment!');
+      callback(message);
+    });
+};
+
 export const updateAppointmentAsync = (
-  status,
+  data,
   appointment,
   callback,
 ) => (dispatch, getState) => {
@@ -1306,9 +1419,9 @@ export const updateAppointmentAsync = (
     return;
   }
 
-  updateResource(token, `appointments/${appointment.id}`, { status }, true)
+  updateResource(token, `appointments/${appointment.id}`, data, true)
     .then(() => {
-      const newAppointment = { ...appointment, status };
+      const newAppointment = { ...appointment, ...data };
 
       dispatch(updateAppointment({ newAppointment, oldAppointment: appointment }));
 
@@ -1910,6 +2023,67 @@ export const updateConnectedAccountAsync = (id, data, callback) => (dispatch, ge
     });
 };
 
+let loadingActiities = false;
+
+export const loadActivitiesAsync = (callback) => (dispatch, getState) => {
+  if (loadingActiities) {
+    if (callback) {
+      callback();
+    }
+
+    return;
+  }
+
+  loadingActiities = true;
+
+  const {
+    company: {
+      token,
+      activities: {
+        state: {
+          loading,
+          nextPage,
+        },
+      },
+    },
+  } = getState();
+
+  if (!token) {
+    loadingActiities = false;
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+
+    return;
+  }
+
+  if (loading || !nextPage) {
+    loadingActiities = false;
+    if (callback) {
+      callback();
+      return;
+    }
+  }
+
+  dispatch(setActivityLoading(true));
+
+  fetchResources(`activities?page=${nextPage}`, token, true)
+    .then((activities) => {
+      dispatch(updateActivities(activities));
+      loadingActiities = false;
+      if (callback) {
+        callback(null);
+      }
+    })
+    .catch(({ message }) => {
+      notification.showError('An error occurred while performing action!');
+      loadingActiities = false;
+      if (callback) {
+        callback(message);
+      }
+    });
+};
+
 export const selectToken = (state) => state.company.token;
 
 export const selectCompany = (state) => state.company.company;
@@ -1939,6 +2113,8 @@ export const selectPermissions = (state) => state.company.permissions;
 export const selectOpenMessages = (state) => state.company.openMessages;
 
 export const selectPaymentMethods = (state) => state.company.paymentMethods;
+
+export const selectMostRecentActivities = (state) => state.company.mostRecentActivities;
 
 export const selectActivities = (state) => state.company.activities;
 

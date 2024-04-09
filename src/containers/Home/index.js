@@ -26,6 +26,8 @@ import { loadCountriesAsync, selectCountries } from '../../redux/countriesSlice'
 import { useUserLocation } from '../../redux/userLocationSlice';
 import { notification } from '../../utils';
 import { cityProps } from '../../utils/propTypes';
+import PublicRouteContainer from '../PublicRouteContainer';
+import Recommended from './Recommended';
 
 const CITY = 'city';
 const COUNTRY = 'country';
@@ -594,18 +596,21 @@ const WhyChooseUs = () => (
 );
 
 const Home = () => (
-  <div className={css.container}>
-    <HeroSection />
-    <TrustedBy />
-    <Steps />
-    <WhyChooseUs />
-    <GrowWithUs />
-    <SubscriptionPanel />
-    <FindServices />
-    <Testimonial />
-    <FrequentQuestions />
-    <Footer />
-  </div>
+  <PublicRouteContainer>
+    <div className={css.container}>
+      <HeroSection />
+      <Recommended />
+      <TrustedBy />
+      <Steps />
+      <WhyChooseUs />
+      <GrowWithUs />
+      <SubscriptionPanel />
+      <FindServices />
+      <Testimonial />
+      <FrequentQuestions />
+      <Footer />
+    </div>
+  </PublicRouteContainer>
 );
 
 export default Home;
