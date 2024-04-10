@@ -13,8 +13,7 @@ import {
   UserPasswordEditorDialog,
 } from '../containers/Authentication/PasswordEditor';
 import routes from '../routing/routes';
-
-const classNames = (...classes) => classes.filter(Boolean).join(' ');
+import { classNames } from '../utils';
 
 const UserMenuComponent = ({
   dashboardPath,

@@ -627,7 +627,7 @@ const ServiceRow = ({
       <td>{params.price}</td>
       <td>{params.duration}</td>
       <td>{params.deposit}</td>
-      <td aria-label="description" className="control">
+      <td aria-label="show details" className="control">
         <SvgButton
           type="button"
           name={SHOW_DETAILS}

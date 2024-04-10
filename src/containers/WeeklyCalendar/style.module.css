@@ -12,6 +12,7 @@
 }
 
 .horizontal_scroller {
+  position: relative;
   width: 100%;
   height: 100%;
   overflow-y: hidden;
@@ -122,12 +123,9 @@
 
 .weekly_calendar_cell {
   position: relative;
-  min-height: 48px;
+  height: 84px;
   width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  padding: 4px;
   border-left: 1px solid #eee;
 }
 

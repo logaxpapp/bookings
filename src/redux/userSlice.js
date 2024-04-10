@@ -242,18 +242,27 @@ export const loginAsync = (email, password, callback) => (dispatch) => {
     });
 };
 
+let fetchingUser = false;
+
 export const fetchUserAsync = (token, callback) => (dispatch) => {
+  if (fetchingUser) {
+    return;
+  }
+
+  fetchingUser = true;
   fetchResources('users/auth/re-auth', token, true)
     .then((data) => {
       dispatch(setUser({ ...data, token }));
       if (callback) {
         callback(null);
       }
+      fetchingUser = false;
     })
     .catch(({ message }) => {
       if (callback) {
         callback(message);
       }
+      fetchingUser = false;
     });
 };
 

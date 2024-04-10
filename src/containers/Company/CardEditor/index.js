@@ -3,6 +3,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -10,7 +11,7 @@ import { useOutletContext } from 'react-router';
 import QRCode from 'qrcode.react';
 import { toPng } from 'html-to-image';
 import css from './style.module.css';
-import { notification } from '../../../utils';
+import { addressText, notification } from '../../../utils';
 import defaultImages from '../../../utils/defaultImages';
 import AppStorage from '../../../utils/appStorage';
 import BlendedImageBackground from '../../../components/BlendedImageBackground';
@@ -50,6 +51,9 @@ const CardEditor = () => {
   const [colors, setColors] = useState(defaultColors);
   const cardRef = useRef();
   const [company] = useOutletContext();
+  const { address } = useMemo(() => ({
+    address: addressText(company.address),
+  }), [company]);
 
   useEffect(() => {
     if (company.profilePicture) {
@@ -180,7 +184,7 @@ const CardEditor = () => {
                   style={{ minWidth: 18, minHeight: 18 }}
                   sm
                 />
-                <p className={css.info}>{company.address}</p>
+                <p className={css.info}>{address}</p>
               </div>
             </div>
           </div>

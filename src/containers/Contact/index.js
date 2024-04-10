@@ -5,6 +5,7 @@ import TextBox, { matchesEmail } from '../../components/TextBox';
 import { notification } from '../../utils';
 import Header from '../Header';
 import LoadingButton from '../../components/LoadingButton';
+import PublicRouteContainer from '../PublicRouteContainer';
 
 const NAME = 'name';
 const EMAIL = 'email';
@@ -80,145 +81,147 @@ const Contact = () => {
   }, [name, email, subject, content, setErrors, setBusy]);
 
   return (
-    <div className={css.container}>
-      <div className={css.header}>
-        <Header />
-      </div>
-      <div className={css.body_wrap}>
-        <div className={`${css.row} ${css.body}`}>
-          <div className={`${css.formWrap} ${css.flexColumn}`}>
-            <h3 className={css.main_heading}>Get in touch</h3>
-            <form method="POST" name="contactForm" className={css.contactForm} noValidate="novalidate" onSubmit={handleSubmit}>
-              <div className={css.formRow}>
+    <PublicRouteContainer>
+      <div className={css.container}>
+        <div className={css.header}>
+          <Header />
+        </div>
+        <div className={css.body_wrap}>
+          <div className={`${css.row} ${css.body}`}>
+            <div className={`${css.formWrap} ${css.flexColumn}`}>
+              <h3 className={css.main_heading}>Get in touch</h3>
+              <form method="POST" name="contactForm" className={css.contactForm} noValidate="novalidate" onSubmit={handleSubmit}>
+                <div className={css.formRow}>
+                  <div className={css.formGroup}>
+                    <TextBox
+                      type="text"
+                      name={NAME}
+                      id={NAME}
+                      label="Name"
+                      value={name}
+                      error={errors.name ? 'Please enter your name!' : null}
+                      style={{ border: '1px solid #efefef' }}
+                      containerStyle={{ marginBottom: 0 }}
+                      onChange={handleTextChange}
+                      hideOnNull
+                    />
+                  </div>
+                  <div className={`${css.formGroup} ${css.ml10px}`}>
+                    <TextBox
+                      type="email"
+                      name={EMAIL}
+                      id={EMAIL}
+                      label="Email"
+                      value={email}
+                      error={errors.email ? 'Invalid Email Address!' : null}
+                      style={{ border: '1px solid #efefef' }}
+                      containerStyle={{ marginBottom: 0 }}
+                      onChange={handleTextChange}
+                      hideOnNull
+                    />
+                  </div>
+                </div>
                 <div className={css.formGroup}>
                   <TextBox
                     type="text"
-                    name={NAME}
-                    id={NAME}
-                    label="Name"
-                    value={name}
-                    error={errors.name ? 'Please enter your name!' : null}
+                    name={SUBJECT}
+                    id={SUBJECT}
+                    label="Subject"
+                    value={subject}
+                    error={errors.name ? 'Please enter a subject!' : null}
                     style={{ border: '1px solid #efefef' }}
                     containerStyle={{ marginBottom: 0 }}
                     onChange={handleTextChange}
                     hideOnNull
                   />
                 </div>
-                <div className={`${css.formGroup} ${css.ml10px}`}>
-                  <TextBox
-                    type="email"
-                    name={EMAIL}
-                    id={EMAIL}
-                    label="Email"
-                    value={email}
-                    error={errors.email ? 'Invalid Email Address!' : null}
-                    style={{ border: '1px solid #efefef' }}
-                    containerStyle={{ marginBottom: 0 }}
-                    onChange={handleTextChange}
-                    hideOnNull
+                <div className={`${css.formGroup} ${css.contentGroup}`}>
+                  <span className={css.label}>Message</span>
+                  <textarea name={CONTENT} className={css.content} value={content} placeholder="Message" onChange={handleTextChange} />
+                  {errors.content && (
+                    <span className={`${css.label} ${css.error}`}>
+                      Please enter message
+                    </span>
+                  )}
+                </div>
+                <div className={`${css.formGroup} ${css.controls}`}>
+                  <LoadingButton
+                    type="submit"
+                    label="Send Message"
+                    loading={busy}
+                    styles={{
+                      fontSize: 14,
+                      marginTop: 16,
+                      width: 128,
+                    }}
                   />
                 </div>
-              </div>
-              <div className={css.formGroup}>
-                <TextBox
-                  type="text"
-                  name={SUBJECT}
-                  id={SUBJECT}
-                  label="Subject"
-                  value={subject}
-                  error={errors.name ? 'Please enter a subject!' : null}
-                  style={{ border: '1px solid #efefef' }}
-                  containerStyle={{ marginBottom: 0 }}
-                  onChange={handleTextChange}
-                  hideOnNull
-                />
-              </div>
-              <div className={`${css.formGroup} ${css.contentGroup}`}>
-                <span className={css.label}>Message</span>
-                <textarea name={CONTENT} className={css.content} value={content} placeholder="Message" onChange={handleTextChange} />
-                {errors.content && (
-                  <span className={`${css.label} ${css.error}`}>
-                    Please enter message
-                  </span>
-                )}
-              </div>
-              <div className={`${css.formGroup} ${css.controls}`}>
-                <LoadingButton
-                  type="submit"
-                  label="Send Message"
-                  loading={busy}
-                  styles={{
-                    fontSize: 14,
-                    marginTop: 16,
-                    width: 128,
-                  }}
-                />
-              </div>
-            </form>
-          </div>
-          <div className={css.aside}>
-            <div>
-              <h3 className={css.aside_heading}>Let&apos;s Connect</h3>
-              <div className={css.dBox}>
-                <div className={css.icon}>
-                  <i className="fas fa-phone" aria-hidden="true" />
-                </div>
-                <div className={css.text}>
-                  <p>
-                    <span className={css.boxLabel}>Phone:</span>
-                    <span>Available On Request</span>
-                  </p>
-                </div>
-              </div>
-              <a
-                href="mailto:enquiries@logaxp.com"
-                className={css.dBox}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <div className={css.icon}>
-                  <i className="fas fa-envelope" aria-hidden="true" />
-                </div>
-                <div className={css.text}>
-                  <p>
-                    <span className={css.boxLabel}>Email:</span>
-                    <span>enquiries@logaxp.com</span>
-                  </p>
-                </div>
-              </a>
-              <a href="https://logaxp.com" target="_blank" rel="noreferrer" className={css.dBox}>
-                <div className={css.icon}>
-                  <i className="fa fa-globe" aria-hidden="true" />
-                </div>
-                <div className={css.text}>
-                  <p>
-                    <span className={css.boxLabel}>Website:</span>
-                    <span>logaxp.com</span>
-                  </p>
-                </div>
-              </a>
+              </form>
             </div>
-            <ul className={`list horizontal ${css.social_media}`}>
-              <li>
-                <a aria-label="facebook" className={css.contact_link} href="#id" target="_blank">
-                  <i className="fab fa-facebook" aria-hidden="true" />
+            <div className={css.aside}>
+              <div>
+                <h3 className={css.aside_heading}>Let&apos;s Connect</h3>
+                <div className={css.dBox}>
+                  <div className={css.icon}>
+                    <i className="fas fa-phone" aria-hidden="true" />
+                  </div>
+                  <div className={css.text}>
+                    <p>
+                      <span className={css.boxLabel}>Phone:</span>
+                      <span>Available On Request</span>
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href="mailto:enquiries@logaxp.com"
+                  className={css.dBox}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <div className={css.icon}>
+                    <i className="fas fa-envelope" aria-hidden="true" />
+                  </div>
+                  <div className={css.text}>
+                    <p>
+                      <span className={css.boxLabel}>Email:</span>
+                      <span>enquiries@logaxp.com</span>
+                    </p>
+                  </div>
                 </a>
-              </li>
-              <li>
-                <a aria-label="twitter" className={css.contact_link} href="#id" target="_blank">
-                  <i className="fab fa-twitter" aria-hidden="true" />
+                <a href="https://logaxp.com" target="_blank" rel="noreferrer" className={css.dBox}>
+                  <div className={css.icon}>
+                    <i className="fa fa-globe" aria-hidden="true" />
+                  </div>
+                  <div className={css.text}>
+                    <p>
+                      <span className={css.boxLabel}>Website:</span>
+                      <span>logaxp.com</span>
+                    </p>
+                  </div>
                 </a>
-              </li>
-              <li>
-                <a aria-label="instagram" className={css.contact_link} href="#id" target="_blank">
-                  <i className="fab fa-instagram" aria-hidden="true" />
-                </a>
-              </li>
-            </ul>
+              </div>
+              <ul className={`list horizontal ${css.social_media}`}>
+                <li>
+                  <a aria-label="facebook" className={css.contact_link} href="#id" target="_blank">
+                    <i className="fab fa-facebook" aria-hidden="true" />
+                  </a>
+                </li>
+                <li>
+                  <a aria-label="twitter" className={css.contact_link} href="#id" target="_blank">
+                    <i className="fab fa-twitter" aria-hidden="true" />
+                  </a>
+                </li>
+                <li>
+                  <a aria-label="instagram" className={css.contact_link} href="#id" target="_blank">
+                    <i className="fab fa-instagram" aria-hidden="true" />
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </PublicRouteContainer>
   );
 };
 

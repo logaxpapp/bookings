@@ -1,0 +1,14 @@
+.rdw-editor-wrapper {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rdw-editor-toolbar {
+  margin-bottom: 0 !important;
+}
+
+.DraftEditor-root {
+  height: auto !important;
+}

@@ -24,11 +24,15 @@ export const loadCountriesAsync = (callback) => (dispatch) => {
   fetchResources('countries', null, true)
     .then((countries) => {
       dispatch(setItems(countries));
-      callback(null);
+      if (callback) {
+        callback(null);
+      }
     })
     .catch(({ message }) => {
       notification.showError(message);
-      callback(message);
+      if (callback) {
+        callback(message);
+      }
     });
 };
 

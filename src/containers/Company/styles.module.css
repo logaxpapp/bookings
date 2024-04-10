@@ -8,6 +8,7 @@
   background-color: transparent;
   background-size: 100% 100%;
   transition: all 0.3s ease-in-out;
+  margin-inline: auto;
 }
 
 .main_link.active,
@@ -33,4 +34,8 @@
 
 .main_link.settings {
   background-image: url(../../assets/images/settings.svg);
+}
+
+.main_link.logout {
+  background-image: url(../../assets/images/logout.svg);
 }

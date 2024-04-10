@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import {
   useCallback,
   useEffect,
@@ -14,7 +15,7 @@ import {
   colors,
   paths,
 } from '../../../components/svg';
-import { DateButton, NewLink, TimePicker } from '../../../components/Buttons';
+import { TimePicker } from '../../../components/Buttons';
 import {
   dateToNormalizedString,
   dateUtils,
@@ -43,6 +44,7 @@ import PageHeader from '../../PageHeader';
 import GridPanel from '../../../components/GridPanel';
 import { useHover } from '../../../lib/hooks';
 import { FieldEditor } from '../../../components/TextBox';
+import { DatePicker2 } from '../../../components/DatePicker';
 
 const AUTO = 'auto';
 const CATEGORY = 'category';
@@ -64,6 +66,16 @@ const SERVICE = 'service';
 const START_DATE = 'start_date';
 const TIME = 'time';
 const UPDATE = 'update';
+
+/**
+ * @param {Date} date
+ */
+const formatter = (date) => date.toLocaleDateString('en-us', {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
 
 const TimeSlotRow = ({
   slot,
@@ -115,7 +127,7 @@ const TimeSlotRow = ({
               sm
             />
           </td>
-          <td aria-label="edit" className="control">
+          <td aria-label="delete" className="control">
             <SvgButton
               type="button"
               name={DELETE}
@@ -1361,10 +1373,8 @@ const TimeSlots = () => {
   }, [checkedSlots, date, confirmDialog]);
 
   return (
-    <section className={`${css.content} ${css.overflow_hidden}`}>
-      <PageHeader title="Timeslots">
-        <NewLink to={routes.company.absolute.settings.newTimeSlots} text="New Time Slot" />
-      </PageHeader>
+    <section className={`${css.content} ${css.overflow_hidden} p-6`}>
+      <PageHeader title="Timeslots" />
       <div className={css.column_screen}>
         {!categories.length ? (
           <div className={`${css.empty_notice} ${css.time_slot_empty_pad}`}>
@@ -1373,19 +1383,19 @@ const TimeSlots = () => {
         ) : (
           <>
             <div className={css.time_slot_selects_block}>
-              <div className={css.time_slot_select_wrap}>
-                <div className={css.time_slot_select_label}>Select Category</div>
-                <div className="select">
+              <label className="bold-select-wrap">
+                <span className="label">Select Category</span>
+                <div className="bold-select caret">
                   <select name={CATEGORY} value={selectedCategory.id} onChange={handleValueChange}>
                     {categories.map((cat) => (
                       <option key={cat.id} value={cat.id}>{cat.name}</option>
                     ))}
                   </select>
                 </div>
-              </div>
-              <div className={css.time_slot_select_wrap}>
-                <div className={css.time_slot_select_label}>Select Service</div>
-                <div className="select">
+              </label>
+              <label className="bold-select-wrap">
+                <span className="label">Select Service</span>
+                <div className="bold-select caret">
                   <select
                     name={SERVICE}
                     value={selectedService ? selectedService.id : undefined}
@@ -1396,10 +1406,14 @@ const TimeSlots = () => {
                     ))}
                   </select>
                 </div>
-              </div>
-              <div className={css.time_slot_select_wrap}>
-                <div className={css.time_slot_select_label}>Date</div>
-                <DateButton date={date} onChange={setDate} />
+              </label>
+              <div className="bold-select-wrap">
+                <div className="label">Date</div>
+                <DatePicker2
+                  initialDate={new Date(date)}
+                  dateFormatter={formatter}
+                  onChange={setDate}
+                />
               </div>
             </div>
             {!selectedService ? (

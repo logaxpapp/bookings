@@ -32,6 +32,8 @@ import { SvgButton, paths } from '../../components/svg';
 import AuthTypeChooser from '../Authentication/AuthTypeChooser';
 import UserMenu from '../../components/UserMenu';
 import PasswordEditorDialog from '../Authentication/PasswordEditor';
+import { selectReAuthenticating } from '../../redux/controls';
+import { Ring } from '../../components/LoadingButton';
 
 const LOGIN = 'login';
 const REGISTER = 'register';
@@ -129,8 +131,18 @@ DrawerNavBar.defaultProps = {
 const classNames = (...classes) => classes.filter(Boolean).join(' ');
 
 const LoginMenu = ({ signedIn }) => {
+  const loading = useSelector(selectReAuthenticating);
+
   if (signedIn) {
     return null;
+  }
+
+  if (loading) {
+    return (
+      <div className="bg-white py-2 px-5 rounded border border-slate-200">
+        <Ring size={18} color="#306cb5" />
+      </div>
+    );
   }
 
   return (
