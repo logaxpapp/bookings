@@ -627,6 +627,9 @@ const Bookings = () => {
       <TabBody tab={tab} header={tabs.customization}>
         <Customization company={company} />
       </TabBody>
+      <TabBody tab={tab} header={tabs.policies}>
+        <ReturnPolicy company={company} />
+      </TabBody>
     </section>
   );
 };
@@ -637,9 +640,6 @@ const Bookings = () => {
       </TabBody>
       <TabBody tab={tab} header={tabs.preferences}>
         <BookingPreferences />
-      </TabBody>
-      <TabBody tab={tab} header={tabs.policies}>
-        <ReturnPolicy company={company} />
       </TabBody>
  */
 
