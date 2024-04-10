@@ -318,7 +318,7 @@ const EmployeeRow = ({
       <td>{employee.email}</td>
       {isAdmin ? (
         <>
-          <td className="control">
+          <td aria-label="edit" className="control">
             <SvgButton
               type="button"
               name={UPDATE}
@@ -328,7 +328,7 @@ const EmployeeRow = ({
               sm
             />
           </td>
-          <td className="control">
+          <td aria-label="delete" className="control">
             <SvgButton
               type="button"
               name={DELETE}

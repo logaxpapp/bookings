@@ -89,7 +89,7 @@ const ServiceCategories = () => {
                 {categories.map((cat) => (
                   <tr key={cat.id}>
                     <td>{cat.name}</td>
-                    <td className="control">
+                    <td aria-label="edit" className="control">
                       <SvgButton
                         type="button"
                         name={cat.id}
@@ -99,7 +99,7 @@ const ServiceCategories = () => {
                         sm
                       />
                     </td>
-                    <td className="control">
+                    <td aria-label="delete" className="control">
                       <SvgButton
                         type="button"
                         name={cat.id}

@@ -895,6 +895,7 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
           </section>
           <header className={css.body_header}>
             <h1 className={css.services_heading}>Services</h1>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
             <label className={css.search_wrap} htmlFor={SEARCH}>
               <input
                 type="search"

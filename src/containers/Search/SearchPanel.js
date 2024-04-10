@@ -535,6 +535,7 @@ const ServicePanel = ({ service }) => {
         <div className={css.picture_nav_wrap}>
           <nav className={css.picture_nav}>
             <button
+              aria-label="decrement"
               type="button"
               name={DECREMENT}
               className={css.picture_nav_btn}
@@ -546,6 +547,7 @@ const ServicePanel = ({ service }) => {
               </svg>
             </button>
             <button
+              aria-label="increment"
               type="button"
               name={INCREMENT}
               className={css.picture_nav_btn}
@@ -817,6 +819,7 @@ const PlaceHolder = ({ initialTerm, onSearch }) => {
             placeholder="What are you looking for?"
           />
           <button
+            aria-label="search"
             type="submit"
             className={css.search_btn}
           >

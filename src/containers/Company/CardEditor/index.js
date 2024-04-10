@@ -258,6 +258,7 @@ const CardEditor = () => {
             </div>
             <div className={css.config_controls}>
               <button
+                aria-label="save"
                 type="button"
                 name={SAVE}
                 className={css.config_control_btn}
@@ -270,6 +271,7 @@ const CardEditor = () => {
                 />
               </button>
               <button
+                aria-label="reset"
                 type="button"
                 name={RESET}
                 className={`${css.config_control_btn} ${css.red}`}

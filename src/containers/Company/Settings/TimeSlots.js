@@ -105,7 +105,7 @@ const TimeSlotRow = ({
       <td>{datetime.time}</td>
       {excludeActions ? null : (
         <>
-          <td className="control">
+          <td aria-label="edit" className="control">
             <SvgButton
               type="button"
               name={EDIT}
@@ -115,7 +115,7 @@ const TimeSlotRow = ({
               sm
             />
           </td>
-          <td className="control">
+          <td aria-label="edit" className="control">
             <SvgButton
               type="button"
               name={DELETE}
@@ -331,7 +331,7 @@ const AutoTimeSlotRow = ({
           </section>
         </hoverContext.Menu>
       </td>
-      <td>
+      <td aria-label="delete">
         <SvgButton
           type="button"
           name={DELETE}

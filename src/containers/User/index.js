@@ -874,6 +874,7 @@ const SearchBar = () => {
         ref={form}
         onSubmit={handleSubmit}
       >
+        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
         <label htmlFor={SEARCH_TERM} className={css.search_box}>
           <input
             type="search"

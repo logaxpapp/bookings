@@ -73,6 +73,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, menu: Menu }) => {
           type="button"
           ref={trigger}
           onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label="toggle sidebar"
           aria-controls="sidebar"
           aria-expanded={sidebarOpen}
           className="block lg:hidden"

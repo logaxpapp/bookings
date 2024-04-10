@@ -52,6 +52,7 @@ const BreadCrumb = ({ name, handleInputChange }) => {
             <div className="relative">
               <button
                 type="button"
+                aria-label="menu"
                 className="absolute left-0 top-1/2 -translate-y-1/2"
               >
                 <svg

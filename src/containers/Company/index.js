@@ -318,6 +318,7 @@ const RestrictedCompany2 = ({ company, pathname }) => {
               </Link>
             ))}
             <button
+              aria-label="more"
               type="button"
               className="main-aside-link overflow-menu-open-btn"
               onClick={toggleOverflow}

@@ -36,6 +36,7 @@ const DropdownNotification = () => {
     <li className="relative">
       <button
         type="button"
+        aria-label="toggle dropdown"
         ref={trigger}
         onClick={() => {
           setNotifying(false);

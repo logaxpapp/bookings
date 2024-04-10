@@ -627,7 +627,7 @@ const ServiceRow = ({
       <td>{params.price}</td>
       <td>{params.duration}</td>
       <td>{params.deposit}</td>
-      <td className="control">
+      <td aria-label="description" className="control">
         <SvgButton
           type="button"
           name={SHOW_DETAILS}
@@ -637,7 +637,7 @@ const ServiceRow = ({
           sm
         />
       </td>
-      <td className="control">
+      <td aria-label="edit" className="control">
         <SvgButton
           type="button"
           name={EDIT}
@@ -647,7 +647,7 @@ const ServiceRow = ({
           sm
         />
       </td>
-      <td className="control">
+      <td aria-label="Manage Service Images" className="control">
         <SvgLink
           to={routes.company.absolute.settings.serviceImages(service.id)}
           title="Manage Service Images"
@@ -655,7 +655,7 @@ const ServiceRow = ({
           sm
         />
       </td>
-      <td className="control">
+      <td aria-label="delete" className="control">
         <SvgButton
           type="button"
           name={DELETE}
