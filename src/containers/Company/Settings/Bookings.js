@@ -180,7 +180,7 @@ const Details = ({ company }) => {
   }, [company]);
   const [busy, setBusy] = useState(false);
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
-  const [about, setAbout] = useState('');
+  const [about, setAbout] = useState(company.about || '');
   const allCountries = useSelector(selectCountries);
   const countries = useMemo(() => {
     const cs = [];
@@ -197,10 +197,6 @@ const Details = ({ company }) => {
   const dispatch = useDispatch();
 
   useEffect(() => dispatch(loadCountriesAsync()), []);
-
-  useEffect(() => {
-    setAbout(company.about || '');
-  }, [company]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -337,6 +333,7 @@ Details.propTypes = {
   company: companyProps.isRequired,
 };
 
+// eslint-disable-next-line no-unused-vars
 const BookingPreferences = () => {
   const {
     busy,
@@ -627,7 +624,15 @@ const Bookings = () => {
         </div>
       </header>
       <TabHeaders tab={tab} setTab={setTab} headers={headers} />
-      <TabBody tab={tab} header={tabs.overview}>
+      <TabBody tab={tab} header={tabs.customization}>
+        <Customization company={company} />
+      </TabBody>
+    </section>
+  );
+};
+
+/**
+ * <TabBody tab={tab} header={tabs.overview}>
         <Details company={company} />
       </TabBody>
       <TabBody tab={tab} header={tabs.preferences}>
@@ -636,11 +641,6 @@ const Bookings = () => {
       <TabBody tab={tab} header={tabs.policies}>
         <ReturnPolicy company={company} />
       </TabBody>
-      <TabBody tab={tab} header={tabs.customization}>
-        <Customization company={company} />
-      </TabBody>
-    </section>
-  );
-};
+ */
 
 export default Bookings;
