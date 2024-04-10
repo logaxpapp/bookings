@@ -624,20 +624,20 @@ const Bookings = () => {
         </div>
       </header>
       <TabHeaders tab={tab} setTab={setTab} headers={headers} />
-      <TabBody tab={tab} header={tabs.customization}>
-        <Customization company={company} />
+      <TabBody tab={tab} header={tabs.overview}>
+        <Details company={company} />
       </TabBody>
       <TabBody tab={tab} header={tabs.policies}>
         <ReturnPolicy company={company} />
+      </TabBody>
+      <TabBody tab={tab} header={tabs.customization}>
+        <Customization company={company} />
       </TabBody>
     </section>
   );
 };
 
 /**
- * <TabBody tab={tab} header={tabs.overview}>
-        <Details company={company} />
-      </TabBody>
       <TabBody tab={tab} header={tabs.preferences}>
         <BookingPreferences />
       </TabBody>
