@@ -25,12 +25,12 @@ import LoadingButton from '../../../components/LoadingButton';
 import { ReturnPolicyComponent } from './ReturnPolicy';
 import MenuSelect from '../../../components/MenuSelect';
 import {
-  Field,
+  // Field,
   intVal,
   TimeAmount,
   toDisplayTimeUnit,
 } from '../../CustomInputs';
-// import { AddressFields } from '../../Address';
+import { AddressFields } from '../../Address';
 import { loadCountriesAsync, selectCountries } from '../../../redux/countriesSlice';
 import { usePrefereceFields } from '../../../utils/hooks';
 
@@ -182,7 +182,6 @@ const Details = ({ company }) => {
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
   const [about, setAbout] = useState(company.about || '');
   const allCountries = useSelector(selectCountries);
-  // eslint-disable-next-line no-unused-vars
   const countries = useMemo(() => {
     const cs = [];
 
@@ -208,7 +207,6 @@ const Details = ({ company }) => {
     }, 5000);
   };
 
-  // eslint-disable-next-line no-unused-vars
   const handleUpdateAddress = (data, callback) => dispatch(
     updateCompanyAddressAsync(data, callback),
   );
@@ -254,26 +252,26 @@ const Details = ({ company }) => {
           <h2 className="m-0 font-bold text-xs text-[#011c39]">
             MAIN DETAILS
           </h2>
-          <div className="flex flex-col gap-4 pl-4">
+          {/* <div className="flex flex-col gap-4 pl-4">
             <Field initialValue={company.name} name="name" title="Brand Name" />
             <Field title="Phone" initialValue={company.phoneNumber} />
             <Field title="Primary Email" initialValue={company.email} />
             <Field title="Industry" initialValue={company.category} name="category" />
             <Field title="Currency" initialValue={fields.currency} />
-          </div>
+          </div> */}
         </div>
       </section>
       <div className="pr-6">
-        {/* <AddressFields
+        <AddressFields
           address={company.address}
           busy={busy}
           countries={countries}
           onEdit={handleUpdateAddress}
-        /> */}
+        />
       </div>
       <section className="pt-10 px-6 relative flex flex-col gap-4">
         <h1 className="clip">Extras</h1>
-        <Field name="slogan" title="Slogan" initialValue={company.slogan || ''} />
+        {/* <Field name="slogan" title="Slogan" initialValue={company.slogan || ''} /> */}
         <div className="bold-select-wrap">
           <div className="flex items-center gap-12">
             <span className="label">
