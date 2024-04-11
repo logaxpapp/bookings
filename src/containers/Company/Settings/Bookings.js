@@ -126,7 +126,7 @@ const Banner = ({ company, viewOnly }) => {
         <div className="w-full h-full flex justify-center items-center bg-[#e6e8eb]">
           <button
             type="button"
-            onClick={setModalOpen(true)}
+            onClick={() => setModalOpen(true)}
             className="py-2 px-8 bg-white rounded-3xl font-medium text-sm flex items-center gap-1 text-[#5c5c5c]"
           >
             <img aria-hidden="true" className="w-5 h-5" src={plus} alt="plus" />
@@ -137,7 +137,7 @@ const Banner = ({ company, viewOnly }) => {
       {viewOnly ? null : (
         <Modal
           isOpen={isModalOpen || busy}
-          parentSelector={() => document.querySelector('#company-cover-image-panel')}
+          parentSelector={() => document.querySelector('#root')}
           onRequestClose={() => {
             if (!busy) {
               setModalOpen(false);
@@ -243,7 +243,7 @@ const Details = ({ company }) => {
       <section className="pt-10">
         <Heading>Your Brand Details</Heading>
         <div className="pt-4">
-          {/* <Banner company={company} /> */}
+          <Banner company={company} />
           <div className="translate-x-11 -translate-y-1/2">
             <ProfilePicture company={company} />
           </div>
@@ -271,7 +271,7 @@ const Details = ({ company }) => {
       </div>
       <section className="pt-10 px-6 relative flex flex-col gap-4">
         <h1 className="clip">Extras</h1>
-        {/* <Field name="slogan" title="Slogan" initialValue={company.slogan || ''} /> */}
+        <Field name="slogan" title="Slogan" initialValue={company.slogan || ''} />
         <div className="bold-select-wrap">
           <div className="flex items-center gap-12">
             <span className="label">
