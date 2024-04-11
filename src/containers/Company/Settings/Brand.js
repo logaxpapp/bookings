@@ -187,7 +187,7 @@ export const ProfilePicture = ({ company, viewOnly }) => {
   };
 
   return (
-    <div className="relative min-w-fit w-[84px] h-[84px]" id="company-profile-picture">
+    <div className="relative min-w-fit w-[84px] h-[84px]">
       <div className="w-[84px] h-[84px] flex justify-center items-center bg-[#5c5c5c] overflow-hidden rounded-full relative">
         {company.profilePicture ? (
           <img alt={initials} src={company.profilePicture} className="w-full h-full rounded-full flex-1" />
@@ -212,7 +212,7 @@ export const ProfilePicture = ({ company, viewOnly }) => {
       {viewOnly ? null : (
         <Modal
           isOpen={editing || busy}
-          parentSelector={() => document.querySelector('#company-profile-picture')}
+          parentSelector={() => document.querySelector('#root')}
           onRequestClose={() => {
             if (!busy) {
               setEditing(false);

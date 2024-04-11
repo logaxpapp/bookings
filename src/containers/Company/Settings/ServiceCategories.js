@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import css from './styles.module.css';

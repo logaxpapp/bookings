@@ -272,10 +272,6 @@ export const AddressFields = ({
     return fs;
   }, [address]);
 
-  if (!address) {
-    return null;
-  }
-
   const handleEdit = (data) => {
     setBusy(true);
     onEdit(data, (err) => {

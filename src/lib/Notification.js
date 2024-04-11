@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint react/prop-types: 0 */
 
 import { useCallback, useEffect, useState } from 'react';

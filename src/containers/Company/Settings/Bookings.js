@@ -126,7 +126,7 @@ const Banner = ({ company, viewOnly }) => {
         <div className="w-full h-full flex justify-center items-center bg-[#e6e8eb]">
           <button
             type="button"
-            onClick={setModalOpen(true)}
+            onClick={() => setModalOpen(true)}
             className="py-2 px-8 bg-white rounded-3xl font-medium text-sm flex items-center gap-1 text-[#5c5c5c]"
           >
             <img aria-hidden="true" className="w-5 h-5" src={plus} alt="plus" />
@@ -137,7 +137,7 @@ const Banner = ({ company, viewOnly }) => {
       {viewOnly ? null : (
         <Modal
           isOpen={isModalOpen || busy}
-          parentSelector={() => document.querySelector('#company-cover-image-panel')}
+          parentSelector={() => document.querySelector('#root')}
           onRequestClose={() => {
             if (!busy) {
               setModalOpen(false);
@@ -180,7 +180,7 @@ const Details = ({ company }) => {
   }, [company]);
   const [busy, setBusy] = useState(false);
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
-  const [about, setAbout] = useState('');
+  const [about, setAbout] = useState(company.about || '');
   const allCountries = useSelector(selectCountries);
   const countries = useMemo(() => {
     const cs = [];
@@ -197,10 +197,6 @@ const Details = ({ company }) => {
   const dispatch = useDispatch();
 
   useEffect(() => dispatch(loadCountriesAsync()), []);
-
-  useEffect(() => {
-    setAbout(company.about || '');
-  }, [company]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -337,6 +333,7 @@ Details.propTypes = {
   company: companyProps.isRequired,
 };
 
+// eslint-disable-next-line no-unused-vars
 const BookingPreferences = () => {
   const {
     busy,
