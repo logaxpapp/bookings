@@ -193,6 +193,12 @@ export const Field = ({
   const [value, setValue] = useState(initialValue);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (name) {
+      setValue(initialValue);
+    }
+  }, [initialValue]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
