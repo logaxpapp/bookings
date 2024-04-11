@@ -30,7 +30,7 @@ import {
   TimeAmount,
   toDisplayTimeUnit,
 } from '../../CustomInputs';
-import { AddressFields } from '../../Address';
+// import { AddressFields } from '../../Address';
 import { loadCountriesAsync, selectCountries } from '../../../redux/countriesSlice';
 import { usePrefereceFields } from '../../../utils/hooks';
 
@@ -182,6 +182,7 @@ const Details = ({ company }) => {
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
   const [about, setAbout] = useState(company.about || '');
   const allCountries = useSelector(selectCountries);
+  // eslint-disable-next-line no-unused-vars
   const countries = useMemo(() => {
     const cs = [];
 
@@ -207,6 +208,7 @@ const Details = ({ company }) => {
     }, 5000);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleUpdateAddress = (data, callback) => dispatch(
     updateCompanyAddressAsync(data, callback),
   );
@@ -262,12 +264,12 @@ const Details = ({ company }) => {
         </div>
       </section>
       <div className="pr-6">
-        <AddressFields
+        {/* <AddressFields
           address={company.address}
           busy={busy}
           countries={countries}
           onEdit={handleUpdateAddress}
-        />
+        /> */}
       </div>
       <section className="pt-10 px-6 relative flex flex-col gap-4">
         <h1 className="clip">Extras</h1>
@@ -624,6 +626,9 @@ const Bookings = () => {
         </div>
       </header>
       <TabHeaders tab={tab} setTab={setTab} headers={headers} />
+      <TabBody tab={tab} header={tabs.overview}>
+        <Details company={company} />
+      </TabBody>
       <TabBody tab={tab} header={tabs.preferences}>
         <BookingPreferences />
       </TabBody>
@@ -636,11 +641,5 @@ const Bookings = () => {
     </section>
   );
 };
-
-/**
-  <TabBody tab={tab} header={tabs.overview}>
-    <Details company={company} />
-  </TabBody>
- */
 
 export default Bookings;
