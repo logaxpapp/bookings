@@ -20,7 +20,7 @@ import { ImageUploader } from '../../../components/ImageUploader';
 import { fileSize, isImage, uploadFile } from '../../../lib/CloudinaryUtils';
 import { updateCompanyAddressAsync, updateCompanyImages } from '../../../redux/companySlice';
 import { camelCase, notification } from '../../../utils';
-// import { ProfilePicture } from './Brand';
+import { ProfilePicture } from './Brand';
 import LoadingButton from '../../../components/LoadingButton';
 import { ReturnPolicyComponent } from './ReturnPolicy';
 import MenuSelect from '../../../components/MenuSelect';
@@ -243,10 +243,10 @@ const Details = ({ company }) => {
       <section className="pt-10">
         <Heading>Your Brand Details</Heading>
         <div className="pt-4">
-          {/* <Banner company={company} />
+          {/* <Banner company={company} /> */}
           <div className="translate-x-11 -translate-y-1/2">
             <ProfilePicture company={company} />
-          </div> */}
+          </div>
         </div>
         <div className="flex flex-col gap-4 pr-6">
           <h2 className="m-0 font-bold text-xs text-[#011c39]">
