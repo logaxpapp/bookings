@@ -9,19 +9,18 @@ const UserHome = () => {
   const [search] = useOutletContext();
   return (
     <>
-      {!search && (
-      <FullCalendar
-        plugins={[dayGridPlugin]}
-        initialView="dayGridMonth"
-        weekends={false}
-        events={[
-          { title: 'event 1', date: '2019-04-01' },
-          { title: 'event 2', date: '2019-04-02' },
-        ]}
-      />
-      )}
-      {search && (
-      <SearchResult />
+      {search ? (
+        <SearchResult />
+      ) : (
+        <FullCalendar
+          plugins={[dayGridPlugin]}
+          initialView="dayGridMonth"
+          weekends={false}
+          events={[
+            { title: 'event 1', date: '2019-04-12' },
+            { title: 'event 2', date: '2019-04-13' },
+          ]}
+        />
       )}
     </>
   );

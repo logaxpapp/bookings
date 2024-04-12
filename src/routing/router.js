@@ -18,12 +18,12 @@ import Services, { ServicesDashboard } from '../containers/Company/Services';
 import TimeSlots, { NewTimeSlot } from '../containers/Company/Services/TimeSlots';
 import CompanySettings from '../containers/Company/Settings';
 import Setup from '../containers/Company/Setup';
-import User from '../containers/User';
-import UserDashboard from '../containers/User/Dashboard';
+// import User from '../containers/User';
+// import UserDashboard from '../containers/User/Dashboard';
 import Error404 from '../containers/Error404';
 import Subscriptions from '../containers/Subscriptions';
-import UserSearch from '../containers/User/Search';
-import Provider from '../containers/User/Provider';
+// import UserSearch from '../containers/User/Search';
+// import Provider from '../containers/User/Provider';
 import AccountLinksRefresh from '../containers/Company/Stripe/AccountLinksRefresh';
 import AccountLinksReturn from '../containers/Company/Stripe/AccountLinksReturn';
 import StripeDepositPaymentWindow from '../containers/Company/Stripe/DepositPaymentWindow';
@@ -121,15 +121,15 @@ const router = createBrowserRouter([
     element: <Search />,
   },
   {
-    path: 'layouts',
+    path: routes.user.base,
     element: <UserLayout menu={UserMenu} />,
     children: [
       {
-        path: '',
+        path: routes.user.dashboard.home,
         element: <UserHome />,
       },
       {
-        path: 'setting',
+        path: routes.user.dashboard.settings,
         element: <Settings />,
       },
     ],
@@ -253,24 +253,6 @@ const router = createBrowserRouter([
       {
         path: routes.company.returnPolicy,
         element: <CompanyReturnPolicy />,
-      },
-    ],
-  },
-  {
-    path: routes.user.base,
-    element: <User />,
-    children: [
-      {
-        path: '',
-        element: <UserDashboard />,
-      },
-      {
-        path: routes.user.dashboard.search,
-        element: <UserSearch />,
-      },
-      {
-        path: routes.user.dashboard.providers(':provider_id'),
-        element: <Provider />,
       },
     ],
   },

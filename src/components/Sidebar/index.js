@@ -6,6 +6,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 // eslint-disable-next-line import/no-named-as-default-member
 import SidebarLinkGroup from './SidebarLinkGroup';
 import Logo from '../../assets/images/loga_icon.png';
+import routes from '../../routing/routes';
 // import setting from '../../assets/images/settings-3110.svg';
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen, menu: Menu }) => {
@@ -195,7 +196,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, menu: Menu }) => {
             <ul className="mb-6 flex flex-col absolute bottom-0 gap-1.5">
               <li className="my-2">
                 <NavLink
-                  to="/profile"
+                  to={routes.user.dashboard.absolute.settings}
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-black dark:text-white duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
                     pathname.includes('profile') && 'bg-graydark dark:bg-meta-4'
                   }`}
@@ -217,7 +218,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, menu: Menu }) => {
                       fill=""
                     />
                   </svg>
-                  Setting
+                  Settings
                 </NavLink>
               </li>
               <li className="my-2">
