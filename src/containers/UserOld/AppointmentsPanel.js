@@ -259,7 +259,7 @@ UpdateRequestPanel.propTypes = {
   appointment: appointmentProps.isRequired,
 };
 
-export const UpdateRequestsPanel = ({ appointment, onClose }) => {
+const UpdateRequestsPanel = ({ appointment, onClose }) => {
   const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
   const [requestComment, setRequestComment] = useState('');
   const [submittingRequest, setSubmittingRequest] = useState(false);
@@ -406,7 +406,7 @@ UpdateRequestsPanel.propTypes = {
  * @param {Object} props
  * @param {import('../../types').Appointment} props.appointment
  */
-export const AppointmentPanel = ({
+const AppointmentPanel = ({
   appointment,
   onOpenMessages,
   onShowRequests,

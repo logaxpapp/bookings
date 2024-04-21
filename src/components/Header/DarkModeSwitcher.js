@@ -6,7 +6,7 @@ const DarkModeSwitcher = () => {
   const [colorMode, setColorMode] = useColorMode();
 
   return (
-    <li>
+    <div>
       <label
         className={`relative m-0 block h-7.5 w-14 rounded-full ${
           colorMode === 'dark' ? 'bg-primary' : 'bg-stroke'
@@ -60,7 +60,7 @@ const DarkModeSwitcher = () => {
           </span>
         </span>
       </label>
-    </li>
+    </div>
   );
 };
 

@@ -15,7 +15,7 @@ Heading.defaultProps = {
 };
 
 export const Heading1 = ({ children }) => (
-  <h1 className="font-bold text-xl text-[#011c39] -tracking-[3%] m-0">
+  <h1 className="font-bold text-xl text-[#011c39] dark:text-white -tracking-[3%] m-0">
     {children}
   </h1>
 );
@@ -29,7 +29,7 @@ Heading1.defaultProps = {
 };
 
 export const Heading2 = ({ children }) => (
-  <h1 className="font-semibold text-lg text-[#5c5c5c] m-0">
+  <h1 className="font-semibold text-lg text-[#5c5c5c] dark:text-white m-0">
     {children}
   </h1>
 );
@@ -43,7 +43,7 @@ Heading2.defaultProps = {
 };
 
 const Aside = ({ children }) => (
-  <aside className="w-[278px] bg-white h-full ps-5 py-10 overflow-auto border-r">
+  <aside className="w-[278px] bg-white h-full ps-5 py-10 overflow-auto border-r border-slate-200">
     {children}
   </aside>
 );

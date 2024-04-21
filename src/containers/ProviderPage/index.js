@@ -9,7 +9,7 @@ import {
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Loader as GoogleLoader } from '@googlemaps/js-api-loader';
 import css from './style.module.css';
 import {
@@ -18,6 +18,7 @@ import {
   d2,
   dateUtils,
   imageColors,
+  rootSelector,
 } from '../../utils';
 import {
   companyProps,
@@ -41,9 +42,10 @@ import Footer from '../Footer';
 import Error404 from '../Error404';
 import { ReturnPolicyComponent } from '../ReturnPolicy';
 import { useDialog } from '../../lib/Dialog';
-import { ServiceCard, useTimeSlotsDialog } from '../Search/SearchPanel';
+import { ServicePanel } from '../Search/SearchPanel';
 import { getApiKeysAsync } from '../../redux/apiKeys';
-import { useBoldDialog } from '../../components/CustomDialogs';
+import Modal from '../../components/Modal';
+import { Input } from '../../components/TextBox';
 
 const CLOSE_WINDOW = 'close window';
 const CATEGORY = 'category';
@@ -54,7 +56,7 @@ const VIEW_IMAGES = 'view images';
 const VIEW_SLOTS = 'view slots';
 
 const weekDays = [
-  'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+  'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday',
 ];
 
 let loader;
@@ -94,7 +96,7 @@ const GoogleMap = ({ latitude, longitude }) => {
     } catch {
       // No action required
     }
-  });
+  }, []);
 
   useEffect(() => {
     if (latitude === null || longitude === null) {
@@ -133,19 +135,13 @@ GoogleMap.defaultProps = {
 };
 
 const officeHour = (secs) => {
-  let mins = Math.floor(secs / 60);
-  let hrs = Math.floor(mins / 60);
-  let ap = 'AM';
-  mins %= 60;
-  if (hrs >= 12) {
-    ap = 'PM';
+  const today = new Date();
+  const date = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, secs);
+  let parts = date.toLocaleTimeString().split(' ');
+  const ap = parts.pop();
+  parts = parts[0].split(':');
 
-    if (hrs > 12) {
-      hrs %= 12;
-    }
-  }
-
-  return `${d2(hrs)}:${d2(mins)}${ap}`;
+  return `${parts.filter((p, idx) => idx < 2).map((p) => d2(Number.parseInt(p, 10))).join(':')} ${ap}`;
 };
 
 const ProviderReturnPolicy = ({ provider, onClose }) => {
@@ -718,47 +714,39 @@ ProviderPage2.propTypes = {
   provider: companyProps.isRequired,
 };
 
+const getAbout = (provider) => `Welcome to ${provider.name}, where excellence meets innovation. Established with a passion for quality, we take pride in delivering top-notch services that exceed expectations and redefine industry standards. At ${provider.name}. We are committed to providing our clients with excellent services that make a lasting impact. With a team of dedicated professionals, we strive for excellence in every aspect of our operations.`;
+
 const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
   const profilePicture = useMemo(() => (
     provider.profilePicture || defaultImages.profile
   ), [provider]);
-  const aboutUs = useMemo(() => {
-    if (provider.aboutUs) {
-      return provider.aboutUs;
+  const [about, setAbout] = useState({
+    full: provider.aboutUs || getAbout(provider),
+    text: '',
+    hasMore: false,
+    length: 0,
+  });
+  const [isAboutModalOpen, setAboutModalOpen] = useState(false);
+  const businessHours = useMemo(() => weekDays.map((d) => {
+    const workHour = provider.workingHours.find(({ weekday }) => weekday === d);
+    if (workHour) {
+      return `${officeHour(workHour.start)} - ${officeHour(workHour.end)}`;
     }
 
-    return `Welcome to ${provider.name}, where excellence meets innovation. Established with a passion for quality, we take pride in delivering top-notch services that exceed expectations and redefine industry standards. At ${provider.name}. We are committed to providing our clients with excellent services that make a lasting impact. With a team of dedicated professionals, we strive for excellence in every aspect of our operations.`;
-  }, [provider]);
-  const businessHours = useMemo(() => {
-    if (provider.officeHours && provider.openDays) {
-      const text = `${officeHour(provider.officeHours.start)} - ${officeHour(provider.officeHours.end)}`;
-      return weekDays.map((d, idx) => (provider.openDays.indexOf(idx) >= 0 ? text : 'Closed'));
-    }
-
-    return weekDays.map(() => 'Not Set');
-  }, [provider]);
+    return 'Not Set';
+  }), [provider]);
   const [category, setCategory] = useState(provider.serviceCategories[0]);
   const [services, setServices] = useState(null);
   const [term, setTerm] = useState('');
-  const [imageBG, setImageBG] = useState('transparent');
-  const [aboutHeight, setAboutHeight] = useState('100%');
-  const picture = useRef();
-  const heroTextWrap = useRef();
-  const heroHeading = useRef();
-  const boldDialog = useBoldDialog();
-  const busyDialog = useBusyDialog();
-  const slotsDialog = useTimeSlotsDialog();
-  const book = useBook();
+  const [imageBG, setImageBG] = useState('tarnsparent');
+  const {
+    address,
+  } = useMemo(() => ({
+    address: provider.address ? addressText(provider.address) : '',
+  }), [provider]);
   const { width } = useWindowSize();
-
-  useEffect(() => {
-    const pictureHeight = picture.current.clientHeight;
-    if (width >= 768 && heroTextWrap.current.clientHeight - pictureHeight >= 24) {
-      setAboutHeight(pictureHeight - heroHeading.current.clientHeight);
-    } else {
-      setAboutHeight('100%');
-    }
-  }, [width]);
+  const picture = useRef();
+  const aboutRef = useRef();
 
   useEffect(() => {
     if (!category) {
@@ -782,6 +770,46 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
     }
   }, [profilePicture]);
 
+  useEffect(() => {
+    setAbout((about) => {
+      const w = aboutRef.current.clientWidth;
+      let end = 0;
+
+      if (w < 240) {
+        end = 160;
+      } else if (w < 280) {
+        end = 200;
+      } else if (w < 350) {
+        end = 250;
+      } else if (w < 400) {
+        end = 300;
+      }
+
+      let { length } = about.full;
+      let text = about.full;
+      let hasMore = false;
+
+      if (end) {
+        if (end === about.length) {
+          return about;
+        }
+
+        text = text.substring(0, end);
+        hasMore = true;
+        length = end;
+      } else if (length === about.length) {
+        return about;
+      }
+
+      return {
+        full: about.full,
+        text,
+        hasMore,
+        length,
+      };
+    });
+  }, [width]);
+
   const handleValueChange = useCallback(({ target: { name, value } }) => {
     if (name === SEARCH) {
       setTerm(value);
@@ -795,150 +823,162 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
     );
   }, [provider, setCategory]);
 
-  const handleBook = useCallback((service) => {
-    const popup = slotsDialog.show(service, (slot) => {
-      const busyPopup = busyDialog.show('Waiting for payment completion ...');
-      book(slot, service, (err) => {
-        if (!err) {
-          popup.close();
-        }
-        busyPopup.close();
-      });
-    });
-  }, [book, busyDialog, slotsDialog]);
-
-  const handleClick = useCallback(({ target: { name } }) => {
+  const handleClick = ({ target: { name } }) => {
     if (name === MORE) {
-      boldDialog.show(<span>{aboutUs}</span>);
+      setAboutModalOpen(true);
     }
-  }, [aboutUs, boldDialog]);
+  };
 
   return (
     <>
-      <div>
-        {includeHeader ? <Header /> : null}
-        <section className={css.hero}>
-          <div className={css.hero_profile_picture_wrap} style={{ backgroundColor: imageBG }}>
+      {includeHeader ? <Header /> : null}
+      <div className="max-w-[1200px] mx-auto">
+        <section className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-16 md:max-h-[368px] max-h-max md:overflow-hidden p-6">
+          <div
+            className="max-h-80 md:overflow-hidden rounded-xl lg:col-span-3"
+            style={{ backgroundColor: imageBG }}
+          >
             <img
               ref={picture}
               src={profilePicture}
               alt={provider.name}
-              className={css.hero_profile_picture}
+              className="w-full max-h-full rounded-xl"
             />
           </div>
-          <div ref={heroTextWrap} className={css.hero_text_wrap}>
-            <h1 ref={heroHeading} className={css.hero_heading}>{provider.name}</h1>
-            <p
-              className={`${css.hero_about_us} ${aboutHeight === '100%' ? '' : css.multi_line_ellipsis}`}
-              style={{ height: aboutHeight }}
+          <div className="lg:col-span-2">
+            <h1
+              className="relative flex flex-col items-start gap-2 text-[#011c39] dark:text-white text-2xl md:text-4xl font-bold m-0 pb-3"
             >
-              {aboutUs}
+              {provider.name}
+            </h1>
+            <p
+              ref={aboutRef}
+              className="text-xl font-light m-0 text-slate-600 dark:text-slate-100"
+            >
+              {about.text}
+              {about.hasMore ? <span> ...</span> : null}
             </p>
-            {aboutHeight === '100%' ? null : (
+            {about.hasMore ? (
               <div className={css.hero_controls}>
                 <button type="button" name={MORE} className="link compact-link" onClick={handleClick}>
                   read more
                 </button>
               </div>
-            )}
+            ) : null}
+            <Modal
+              isOpen={isAboutModalOpen}
+              parentSelector={rootSelector}
+              onRequestClose={() => setAboutModalOpen(false)}
+              shouldCloseOnEsc
+              shouldCloseOnOverlayClick
+            >
+              <p className="p-8 text-lg text-slate-600 dark:text-slate-100">
+                {about.full}
+              </p>
+            </Modal>
           </div>
         </section>
-      </div>
-      <div className={css.body}>
-        <aside className={css.body_aside}>
-          {provider.location ? (
-            <GoogleMap
-              latitude={provider.location.latitude}
-              longitude={provider.location.longitude}
-            />
-          ) : null}
-          <div className={css.body_aside_sections}>
-            <section>
-              <h1 className={css.aside_heading}>Contact Info</h1>
-              <div className={css.contacts_wrap}>
-                <div className={`${css.contact_row} ${css.address}`}>{provider.address}</div>
-                <div className={`${css.contact_row} ${css.phone}`}>{provider.phoneNumber}</div>
-              </div>
-            </section>
-            <section>
-              <h1 className={css.aside_heading}>Business Hours</h1>
-              <div className={css.business_hours_panel}>
-                {weekDays.map((d, idx) => (
-                  <div key={d} className={css.business_hour_row}>
-                    <span className={css.label}>{d}</span>
-                    <span>{businessHours[idx]}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </div>
-        </aside>
-        <section className={css.body_content}>
-          <section>
-            <h1 className={css.aside_heading}>Service Categories</h1>
-            {provider.serviceCategories.length ? (
-              <nav>
-                <ul className={css.categories_list}>
-                  {provider.serviceCategories.map((cat) => (
-                    <li key={cat.id}>
-                      <button
-                        type="button"
-                        name={cat.id}
-                        className={`${css.category_btn} ${category && category.id === cat.id ? css.active : ''}`}
-                        onClick={handleCategoryChange}
-                      >
-                        {cat.name}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            ) : (
-              <div className={`${css.empty_notice} ${css.center}`}>
-                No Service Categories found!
-              </div>
-            )}
-          </section>
-          <header className={css.body_header}>
-            <h1 className={css.services_heading}>Services</h1>
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-            <label className={css.search_wrap} htmlFor={SEARCH}>
-              <input
-                type="search"
-                name={SEARCH}
-                id={SEARCH}
-                className={`transparent ${css.search}`}
-                placeholder="Search Services"
-                onChange={handleValueChange}
+        <div className="relative w-full max-w-[1300px] mx-auto flex gap-6 p-6">
+          <aside className="w-80 sticky top-0 flex flex-col gap-6 bg-[#e8eaed] dark:bg-[#1a222c] dark:text-slate-100">
+            {provider.location ? (
+              <GoogleMap
+                latitude={provider.location.latitude}
+                longitude={provider.location.longitude}
               />
-            </label>
-          </header>
-          <div className={css.services_wrap}>
-            {services ? (
-              <>
-                {services.length ? (
-                  <div className={css.services_panel}>
-                    {services.map((service) => (
-                      <ServiceCard
-                        key={service.id}
-                        service={service}
-                        onBook={handleBook}
-                      />
+            ) : null}
+            <div className="p-4 flex flex-col gap-6">
+              <section>
+                <h1 className="text-base mb-2">Contact Info</h1>
+                <div className="flex flex-col gap-4 p-1">
+                  <div className={`${css.contact_row} ${css.address}`}>{address}</div>
+                  <div className={`${css.contact_row} ${css.phone}`}>{provider.phoneNumber}</div>
+                </div>
+              </section>
+              <section>
+                <h1 className="text-base mb-2">Business Hours</h1>
+                <div className="flex flex-col gap-6">
+                  {weekDays.map((d, idx) => (
+                    <div key={d} className="flex items-center">
+                      <span className="w-30 capitalize">{d}</span>
+                      <span>{businessHours[idx]}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+          </aside>
+          <section className="flex-1 flex flex-col gap-6 max-h-[800px] overflow-hidden dark:text-white">
+            <section>
+              <h1 className="text-base mb-2">Service Categories</h1>
+              {provider.serviceCategories.length ? (
+                <nav>
+                  <ul className="rounded-lg border border-dotted border-[#ededed] dark:border-slate-700 flex flex-wrap list-none m-0 p-1.5 max-h-30 overflow-auto gap-2">
+                    {provider.serviceCategories.map((cat) => (
+                      <li key={cat.id}>
+                        <button
+                          type="button"
+                          name={cat.id}
+                          className={`bg-transparent border rounded-lg py-0.5 px-1.5 text-xs cursor-pointer ${category && category.id === cat.id ? 'text-[#0fad71] border-[#0fad71]' : 'text-[#888] dark:text-slate-300 border-[#888] dark:border-slate-300'}`}
+                          onClick={handleCategoryChange}
+                        >
+                          {cat.name}
+                        </button>
+                      </li>
                     ))}
-                  </div>
-                ) : (
-                  <div className={`${css.empty_notice} ${css.center}`}>
-                    No Services found!
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className={`${css.empty_notice} ${css.center}`}>
-                No Category Selected!
+                  </ul>
+                </nav>
+              ) : (
+                <div className={`${css.empty_notice} ${css.center}`}>
+                  No Service Categories found!
+                </div>
+              )}
+            </section>
+            <header className="flex items-center justify-between gap-6 pb-4 mb-2 border-b border-dotted border-[#ededed] dark:border-slate-600">
+              <h1 className={css.services_heading}>Services</h1>
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+              <div className="relative">
+                <Input
+                  type="search"
+                  name={SEARCH}
+                  id={SEARCH}
+                  className="!pl-10"
+                  placeholder="Search Services"
+                  onChange={handleValueChange}
+                />
+                <MagnifyingGlassIcon
+                  aria-hidden="true"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-600 dark:text-slate-400"
+                />
               </div>
-            )}
-          </div>
-        </section>
+            </header>
+            <div>
+              {services ? (
+                <>
+                  {services.length ? (
+                    <ul className="flex flex-wrap gap-8 m-0 p-0 list-none">
+                      {services.map((service) => (
+                        <li
+                          key={service.id}
+                          className="w-max p-5 rounded-xl border border-slate-300 dark:border-slate-600"
+                        >
+                          <ServicePanel service={service} />
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className={`${css.empty_notice} ${css.center}`}>
+                      No Services found!
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className={`${css.empty_notice} ${css.center}`}>
+                  No Category Selected!
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
       </div>
       {includeFooter ? (
         <div className={css.footer}>

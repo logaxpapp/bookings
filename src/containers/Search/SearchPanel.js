@@ -8,6 +8,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { ArrowUpOnSquareIcon } from '@heroicons/react/24/outline';
 import css from './style.module.css';
 import {
   selectSearchError,
@@ -15,7 +16,6 @@ import {
   selectSearching,
 } from '../../redux/searchSlice';
 import {
-  CloseSvgButton,
   SvgButton,
   colors,
   paths,
@@ -29,6 +29,7 @@ import {
   dateUtils,
   notification,
   toDuration,
+  rootSelector,
 } from '../../utils';
 import Bookmark from '../Bookmark';
 import routes from '../../routing/routes';
@@ -40,9 +41,14 @@ import bg3 from '../../assets/images/hair-spies-2.jpg';
 import bg4 from '../../assets/images/manicure.jpg';
 import { Ring } from '../../components/LoadingButton';
 import { useDialog } from '../../lib/Dialog';
+import { useWindowSize } from '../../lib/hooks';
 import DatePicker from '../../components/DatePicker';
 import { imageProps, timeSlotProps } from '../../utils/propTypes';
 import { AccentRadioButton } from '../../components/Inputs';
+import { Button } from '../../components/Buttons';
+import Modal from '../../components/Modal';
+import GridPanel from '../../components/GridPanel';
+import BookmarkButton from '../BookmarkButton';
 
 const BOOK = 'book';
 const CLOSE_SLOTS = 'close_slots';
@@ -58,8 +64,25 @@ const slides = [bg1, bg2, bg3, bg4];
 const companyProps = PropTypes.shape({
   id: PropTypes.number,
   name: PropTypes.string,
-  address: PropTypes.string,
   profilePicture: PropTypes.string,
+  address: PropTypes.shape({
+    id: PropTypes.number,
+    line1: PropTypes.string,
+    line2: PropTypes.string,
+    zipCode: PropTypes.number,
+    city: PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      state: PropTypes.shape({
+        id: PropTypes.number,
+        name: PropTypes.string,
+        country: PropTypes.shape({
+          id: PropTypes.number,
+          name: PropTypes.string,
+        }),
+      }),
+    }),
+  }),
   country: PropTypes.shape({
     id: PropTypes.number,
     name: PropTypes.string,
@@ -83,8 +106,8 @@ const serviceProps = PropTypes.shape({
   company: companyProps,
 });
 
-const ServiceImagePopup = ({ images, index, onClose }) => {
-  const [idx, setIdx] = useState(index || 0);
+const ServiceImagePopup = ({ images }) => {
+  const [idx, setIdx] = useState(0);
   const maxIndex = useMemo(() => images.length - 1, []);
 
   const handleClick = useCallback(({ target: { name } }) => {
@@ -127,7 +150,6 @@ const ServiceImagePopup = ({ images, index, onClose }) => {
             />
           </nav>
         </div>
-        <CloseSvgButton onClick={onClose} />
       </div>
     </div>
   );
@@ -135,12 +157,6 @@ const ServiceImagePopup = ({ images, index, onClose }) => {
 
 ServiceImagePopup.propTypes = {
   images: PropTypes.arrayOf(imageProps).isRequired,
-  onClose: PropTypes.func.isRequired,
-  index: PropTypes.number,
-};
-
-ServiceImagePopup.defaultProps = {
-  index: 0,
 };
 
 const TimeSlotRow = ({ slot, activeSlot, onBook }) => {
@@ -493,7 +509,7 @@ export const useTimeSlotsDialog = () => {
   };
 };
 
-const ServicePanel = ({ service }) => {
+const ServicePanel2 = ({ service }) => {
   const [index, setIndex] = useState(0);
   const {
     address,
@@ -622,7 +638,7 @@ const ServicePanel = ({ service }) => {
   );
 };
 
-ServicePanel.propTypes = {
+ServicePanel2.propTypes = {
   service: serviceProps.isRequired,
 };
 
@@ -842,6 +858,405 @@ PlaceHolder.defaultProps = {
   initialTerm: '',
 };
 
+const panelSizes = {
+  MINI: 320,
+  MEDIUM: 580,
+  LARGE: 750,
+};
+
+const ServiceProperty = ({ title, value }) => (
+  <div className="flex flex-col gap-1.5">
+    <span className="font-medium text-[10px] text-[#89E101]">
+      {title}
+    </span>
+    <span className="font-semibold text-base text-[#011c39] dark:text-white">
+      {value}
+    </span>
+  </div>
+);
+
+ServiceProperty.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.string.isRequired,
+};
+
+const SlotButton = ({
+  slot,
+  selectedSlot,
+  onSelected,
+  mini,
+}) => {
+  const time = useMemo(() => {
+    const parts = new Date(slot.time).toLocaleTimeString().split(':');
+    const apm = parts.pop().split(' ').pop().toUpperCase();
+
+    return `${parts.join(':')} ${apm}`;
+  }, [slot]);
+
+  const isSelected = useMemo(() => slot.id === selectedSlot?.id, [slot, selectedSlot]);
+
+  const select = () => {
+    if (!isSelected) {
+      onSelected(slot);
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      aria-current={isSelected}
+      onClick={select}
+      className={`border border-[#89E101] font-bold text-sm ${isSelected ? 'text-[#011c39] bg-[#89E101]' : 'bg-transparent text-[#89E101]'} ${mini ? 'py-2 w-28' : 'w-35 py-3.5'}`}
+    >
+      {time}
+    </button>
+  );
+};
+
+SlotButton.propTypes = {
+  slot: timeSlotProps.isRequired,
+  selectedSlot: timeSlotProps,
+  onSelected: PropTypes.func.isRequired,
+  mini: PropTypes.bool,
+};
+
+SlotButton.defaultProps = {
+  selectedSlot: null,
+  mini: false,
+};
+
+const SlotsPanel = ({
+  service,
+  address,
+  price,
+  deposit,
+  duration,
+  panelWidth,
+  setPanelWidth,
+  busy,
+  setBusy,
+  onClose,
+}) => {
+  const [date, setDate] = useState(new Date());
+  const [slots, setSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const panelRef = useRef(null);
+  const { width } = useWindowSize();
+  const dispatch = useDispatch();
+  const book = useBook();
+
+  const loadSlots = useCallback((date) => {
+    setBusy(true);
+    dispatch(getServiceTimeSlotsAsync(service.id, date, (err, slots) => {
+      if (err) {
+        setSlots([]);
+      } else {
+        setSlots(slots);
+      }
+      setBusy(false);
+    }));
+  }, [date, service]);
+
+  useEffect(() => {
+    loadSlots(date);
+  }, []);
+
+  const handleDateChange = (date) => {
+    setDate(date);
+    setSelectedSlot(null);
+    setSlots([]);
+    loadSlots(date);
+  };
+
+  useEffect(() => {
+    setPanelWidth(() => {
+      if (width < 620) {
+        return panelSizes.MINI;
+      }
+      if (width < 768) {
+        return panelSizes.MEDIUM;
+      }
+      return panelSizes.LARGE;
+    });
+  }, [width]);
+
+  const bookSlot = () => {
+    if (!selectedSlot) {
+      notification.showError(
+        'Please select a timeslot to proceed!',
+      );
+      return;
+    }
+
+    setBusy(true);
+    book(selectedSlot, service, (err) => {
+      setBusy(false);
+      if (!err) {
+        setSlots(slots.filter(({ id }) => id !== selectedSlot.id));
+        setSelectedSlot(null);
+        onClose();
+      }
+    });
+  };
+
+  const isMini = panelWidth <= panelSizes.MINI;
+  const isLarge = panelWidth > panelSizes.MEDIUM;
+
+  return (
+    <section
+      ref={panelRef}
+      className="flex flex-col gap-10 max-h-[90vh] overflow-auto px-10 py-15"
+    >
+      <div
+        className={`flex gap-6 ${isLarge ? 'h-50 overflow-hidden' : 'flex-col'}`}
+      >
+        <div className={`grid gap-6 ${isMini ? 'grid-cols-1 w-60' : 'grid-cols-2 w-125'}`}>
+          <div
+            className={`flex flex-col ${panelWidth <= panelSizes.MINI ? 'w-full gap-8' : 'flex-1 justify-between gap-4 h-full overflow-hidden'}`}
+          >
+            <header className="flex-1 flex flex-col gap-2 overflow-hidden">
+              <h1 className="m-0 font-bold text-2xl text-[#011c39] dark:text-white">
+                {service.company.name}
+              </h1>
+              <p className="m-0 font-normal text-sm text-[#011c39] dark:text-white flex-1 overflow-auto">
+                {address}
+              </p>
+            </header>
+            <div className="flex flex-col gap-3">
+              <h2 className="m-0 font-bold text-sm text-[#011c39] dark:text-white">
+                {service.name}
+              </h2>
+              <div className="flex items-center gap-6">
+                <ServiceProperty title="Price" value={price} />
+                <ServiceProperty title="Duration" value={duration} />
+                <ServiceProperty title="Deposit" value={deposit} />
+              </div>
+            </div>
+          </div>
+          <div className={`max-w-60 ${isMini ? 'mx-auto h-50' : 'h-full'}`}>
+            <DatePicker initialDate={date} onDateChange={handleDateChange} />
+          </div>
+        </div>
+        {isLarge ? (
+          <div className="flex flex-col gap-2 h-full overflow-y-auto overflow-x-hidden pr-0.5">
+            {slots.map((slot) => (
+              <SlotButton
+                key={slot.id}
+                slot={slot}
+                selectedSlot={selectedSlot}
+                onSelected={setSelectedSlot}
+              />
+            ))}
+          </div>
+        ) : (
+          <GridPanel minimumChildWidth={isMini ? 116 : 142}>
+            {slots.map((slot) => (
+              <div key={slot.id} className="p-[1px] flex justify-center">
+                <SlotButton
+                  slot={slot}
+                  selectedSlot={selectedSlot}
+                  onSelected={setSelectedSlot}
+                  mini={isMini}
+                />
+              </div>
+            ))}
+          </GridPanel>
+        )}
+      </div>
+      <div className="flex justify-end">
+        {selectedSlot ? (
+          <Button
+            type="button"
+            className="!px-10 h-11"
+            onClick={bookSlot}
+            busy={busy}
+          >
+            {service.minDeposit ? 'Pay Deposit' : 'Book'}
+          </Button>
+        ) : (
+          <p
+            className="m-0 text-[#011c39] dark:text-white font-bold text-base h-11 flex items-end"
+          >
+            {slots.length ? 'Please select a timeslot to proceed' : 'No timeslots found for the selected date!'}
+          </p>
+        )}
+      </div>
+    </section>
+  );
+};
+
+SlotsPanel.propTypes = {
+  service: serviceProps.isRequired,
+  address: PropTypes.string,
+  price: PropTypes.string.isRequired,
+  duration: PropTypes.string.isRequired,
+  deposit: PropTypes.string,
+  panelWidth: PropTypes.number,
+  setPanelWidth: PropTypes.func.isRequired,
+  busy: PropTypes.bool,
+  setBusy: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
+
+SlotsPanel.defaultProps = {
+  address: '',
+  deposit: '',
+  panelWidth: 750,
+  busy: false,
+};
+
+export const ServicePanel = ({ service }) => {
+  const [slotsModalState, setSlotsModalState] = useState({ busy: false, isOpen: false });
+  const [isImagesModalOpen, setImagesModalOpen] = useState(false);
+  const {
+    address,
+    price,
+    deposit,
+    duration,
+    images,
+  } = useMemo(() => {
+    const price = currencyHelper.toString(service.price, service.company.country.currencySymbol);
+    let deposit = '';
+    if (service.minDeposit) {
+      deposit = currencyHelper.toString(service.minDeposit, service.company.country.currencySymbol);
+    }
+    const duration = toDuration(service.duration);
+    const images = service.images.filter((img, idx) => idx < 2);
+
+    return {
+      address: addressText(service.company.address),
+      price,
+      deposit,
+      duration,
+      images,
+    };
+  }, []);
+  const [panelWidth, setPanelWidth] = useState(750);
+
+  return (
+    <section className="flex flex-col gap-2.5">
+      <header className="w-full max-w-[490px] flex items-center gap-2">
+        {images.length ? (
+          <button
+            type="button"
+            aria-label="view pictures"
+            title="View Pictures"
+            className="outline-none border-none p-1 bg-transparent cursor-pointer"
+            onClick={() => setImagesModalOpen(true)}
+          >
+            <ArrowUpOnSquareIcon className="w-4.5 h-4.5 text-[#5c5c5c] dark:text-white" />
+          </button>
+        ) : null}
+        <h1
+          className="text-sm font-semibold text-[#011c39] dark:text-white m-0 flex-1 text-ellipsis whitespace-nowrap"
+          title={service.name}
+        >
+          {service.name}
+        </h1>
+      </header>
+      <div className="grid grid-cols-4">
+        <ServiceProperty title="Price" value={price} />
+        <ServiceProperty title="Duration" value={duration} />
+        <ServiceProperty title="Deposit" value={deposit} />
+        <div>
+          <Button type="button" onClick={() => setSlotsModalState({ busy: false, isOpen: true })}>
+            Book
+          </Button>
+        </div>
+      </div>
+      <Modal
+        isOpen={slotsModalState.isOpen || slotsModalState.busy}
+        parentSelector={rootSelector}
+        onRequestClose={() => {
+          if (!slotsModalState.busy) {
+            setSlotsModalState({ busy: false, isOpen: false });
+          }
+        }}
+        style={{ content: { maxWidth: panelWidth } }}
+        shouldCloseOnEsc
+        shouldCloseOnOverlayClick
+      >
+        <SlotsPanel
+          service={service}
+          address={address}
+          price={price}
+          duration={duration}
+          deposit={deposit}
+          panelWidth={panelWidth}
+          setPanelWidth={setPanelWidth}
+          busy={slotsModalState.busy}
+          setBusy={(busy) => setSlotsModalState((state) => ({ ...state, busy }))}
+          onClose={() => setSlotsModalState({ busy: false, isOpen: false })}
+        />
+      </Modal>
+      {images.length ? (
+        <Modal
+          isOpen={isImagesModalOpen}
+          parentSelector={rootSelector}
+          onRequestClose={() => setImagesModalOpen(false)}
+          shouldCloseOnEsc
+          shouldCloseOnOverlayClick
+        >
+          <ServiceImagePopup images={images} />
+        </Modal>
+      ) : null}
+    </section>
+  );
+};
+
+ServicePanel.propTypes = {
+  service: serviceProps.isRequired,
+};
+
+const SearchItemPanel = ({ item }) => {
+  const [address, picture, url] = useMemo(() => [
+    addressText(item.company.address),
+    item.company.profilePicture || defaultImages.profile,
+    window.location.pathname.includes('users')
+      ? routes.user.dashboard.absolute.providers(item.company.id)
+      : routes.providerPage(`A${1000 + item.company.id}`),
+  ], []);
+
+  return (
+    <div className="w-full flex gap-4 max-h-75 overflow-hidden">
+      <Link
+        className="flex-1 max-h-full"
+        to={url}
+      >
+        <img className="rounded w-full max-h-full" src={picture} alt={item.company.name} />
+      </Link>
+      <section className="px-5 dark:bg-boxdark flex-1 flex flex-col gap-6 h-full overflow-hidden">
+        <header className="flex flex-col gap-4">
+          <div className="w-full max-w-125 flex items-center justify-between">
+            <h1
+              title={item.company.name}
+              className="m-0  text-2xl font-bold tracking-tight text-[#011c39] dark:text-white flex-1 text-ellipsis whitespace-nowrap"
+            >
+              {item.company.name}
+            </h1>
+            <BookmarkButton company={item.company} />
+          </div>
+          <p className="m-0 font-normal text-[#011c39] dark:text-gray">
+            {address}
+          </p>
+        </header>
+        <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col gap-6">
+          {item.services.map((service) => (
+            <ServicePanel key={service.id} service={service} />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+SearchItemPanel.propTypes = {
+  item: PropTypes.shape({
+    company: companyProps,
+    services: PropTypes.arrayOf(serviceProps),
+  }).isRequired,
+};
+
 const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [services, setServices] = useState([]);
@@ -882,7 +1297,7 @@ const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
 
   /* eslint-disable no-nested-ternary */
   return (
-    <section className={css.container}>
+    <section className="relative flex-1 p-8 w-full max-w-[1300px] mx-auto">
       {loading ? (
         <Loader type="double_ring">
           <span style={{ color: '#354764' }}>
@@ -892,13 +1307,13 @@ const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
       ) : error || !searchTerm ? (
         <PlaceHolder initialTerm={term} error={error} onSearch={handleSearch} />
       ) : services.length ? (
-        <div className={css.search_results}>
+        <div className="w-full flex flex-col gap-6 p-6">
           {services.map((service) => (
-            <CompanyServicesPanel key={service.company.id} companyServices={service} />
+            <SearchItemPanel key={service.company.id} item={service} />
           ))}
         </div>
       ) : (
-        <p className={`${css.empty_notice} ${css.pad_top} ${css.empty_search_results}`}>
+        <p className="font-bold text-xl text-[#858b9c] dark:text-[#ccc] pt-8 flex flex-col items-center gap-4">
           <span>We couldn&apos;t find any services that matched your search parameters.</span>
           <span>Please try again using different search terms.</span>
         </p>

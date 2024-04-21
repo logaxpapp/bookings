@@ -496,14 +496,14 @@ export const Input = ({
 
   return (
     <label htmlFor={id || name} className="bold-select-wrap">
-      {label ? <span className="label">{label}</span> : null}
+      {label ? <span className="label dark:text-white">{label}</span> : null}
       <input
         type={type}
         name={name}
         id={id || name}
         value={value}
         onChange={onChange}
-        className={`text-input ${className || ''}`}
+        className={`text-input bg-white dark:bg-meta-4 dark:border dark:border-[#334255] dark:text-white ${className || ''}`}
         style={inputStyle}
       />
       {error ? <span className="input-error">{error}</span> : null}

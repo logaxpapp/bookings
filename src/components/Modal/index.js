@@ -1,9 +1,10 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
+import { useDispatch, useSelector } from 'react-redux';
 import ReactModal from 'react-modal';
 import PropTypes from 'prop-types';
 import { childrenProps } from '../../utils/propTypes';
 import './styles.css';
 import { SvgButton, paths } from '../svg';
+import { selectBusy, setLoading } from '../../redux/controls';
 
 const styles = {
   overlay: {
@@ -17,7 +18,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1010,
+    zIndex: 999999,
   },
   content: {
     position: 'relative',
@@ -27,13 +28,52 @@ const styles = {
     bottom: 0,
     width: '100%',
     maxWidth: 600,
-    border: '1px solid #ccc',
     borderRadius: 8,
-    background: '#fff',
     WebkitOverflowScrolling: 'touch',
     padding: 0,
     overflow: 'unset',
   },
+};
+
+export const BusyModal = () => {
+  const busy = useSelector(selectBusy);
+
+  return (
+    <ReactModal
+      closeTimeoutMS={200}
+      isOpen={busy}
+      parentSelector={() => document.querySelector('#root')}
+      style={{
+        content: {},
+        overlay: styles.overlay,
+      }}
+      className="bg-transparent border-[transparent] border-none"
+    >
+      <div className="lds_spinner">
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+        <div />
+      </div>
+    </ReactModal>
+  );
+};
+
+export const useBusyModal = () => {
+  const dispatch = useDispatch();
+
+  return {
+    showLoader: () => dispatch(setLoading(true)),
+    hideLoader: () => dispatch(setLoading(false)),
+  };
 };
 
 const Modal = ({
@@ -58,24 +98,25 @@ const Modal = ({
       content: { ...styles.content, ...(style?.content || {}) },
       overlay: { ...styles.overlay, ...(style?.overlay || {}) },
     }}
+    className="bg-white dark:bg-[#24303f] border border-[#ccc] dark:border-[#43464b]"
   >
     {children}
     {onRequestClose ? (
       <SvgButton
         path={paths.close}
         title="Close"
-        color="#888"
+        color="#ee4f4f"
         style={{
           width: 36,
           height: 36,
           borderRadius: 36,
-          backgroundColor: '#fff',
           boxShadow: 'rgba(99, 99, 99, 0.2) 0 2px 8px 0',
           position: 'absolute',
           top: -16,
           right: -16,
           padding: 4,
         }}
+        className="!bg-white border dark:!bg-[#24303f] dark:border-[#334255]"
         onClick={onRequestClose}
       />
     ) : null}

@@ -22,7 +22,7 @@ const Search = () => {
   if (params.cityId) {
     return (
       <PublicRouteContainer>
-        <div className="container">
+        <div>
           <Header />
           <SearchPanel term={params.term} cityId={Number.parseInt(params.cityId, 10)} />
         </div>

@@ -1,10 +1,9 @@
-/* eslint-disable arrow-body-style */
-const Notification = () => {
-  return (
-    <div className="mx-24 my-16">
-      Notification
-    </div>
-  );
-};
+import EmptyListPanel from '../EmptyListPanel';
+
+const Notification = () => (
+  <div className="flex justify-center w-full">
+    <EmptyListPanel text="Coming Soon" />
+  </div>
+);
 
 export default Notification;
