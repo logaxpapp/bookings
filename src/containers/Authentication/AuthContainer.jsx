@@ -3,6 +3,7 @@ import css from './style.module.css';
 import { childrenProps } from '../../utils/propTypes';
 import banner from '../../assets/images/auth-banner.jpg';
 import av from '../../assets/images/av.png';
+import LogoLink from '../../components/LogoLink';
 
 const AuthContainer = ({ text, children }) => (
   <div className="grid grid-cols-1 h-screen overflow-hidden sm:grid-cols-2">
@@ -15,6 +16,7 @@ const AuthContainer = ({ text, children }) => (
       }}
     >
       <div className="sm:flex flex-col h-full justify-evenly w-full max-w-md hidden">
+        <LogoLink color="#fff" />
         <div className="flex flex-col gap-6">
           <h1 className={css.h1}>
             <span>Welcome to</span>

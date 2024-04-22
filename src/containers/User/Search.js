@@ -1,18 +1,18 @@
-import { useEffect } from 'react';
-import { useOutletContext } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 import SearchPanel from '../Search/SearchPanel';
+import UserSearchbarContainer from './UserSearchbarContainer';
 
 const UserSearch = () => {
-  const [, showDashboardLink] = useOutletContext();
   const [params] = useSearchParams();
   const term = params.get('term');
 
-  useEffect(() => {
-    showDashboardLink(true);
-  }, [showDashboardLink]);
-
-  return <SearchPanel term={term} />;
+  return (
+    <UserSearchbarContainer>
+      <div className="h-full flex-1 overflow-auto">
+        <SearchPanel term={term} />
+      </div>
+    </UserSearchbarContainer>
+  );
 };
 
 export default UserSearch;

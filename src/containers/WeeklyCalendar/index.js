@@ -66,7 +66,11 @@ EventLabel.propTypes = {
   onClick: PropTypes.func.isRequired,
 };
 
-const AppointmentPanel = ({ appointment, onCreateAppointment, onCreateLink }) => {
+export const AppointmentPanel = ({
+  appointment,
+  onCreateAppointment,
+  onCreateLink,
+}) => {
   const event = useMemo(() => ({
     serviceName: appointment.timeSlot.service.name,
     clientName: `${appointment.customer.lastname} ${appointment.customer.firstname}`,
@@ -105,11 +109,11 @@ const AppointmentPanel = ({ appointment, onCreateAppointment, onCreateLink }) =>
   };
 
   return (
-    <section className="w-full pb-0">
+    <section className="w-full pb-0 text-[#011c39] dark:text-white">
       <header
-        className="pb-4 mb-4 border-b border-dotted border-slate-200 flex items-center justify-between"
+        className="pb-4 mb-4 border-b border-dotted border-slate-200 dark:border-slate-600 flex items-center justify-between"
       >
-        <h1 className="text-[#0a214b] text-xl text-ellipsis flex-1 whitespace-nowrap">
+        <h1 className="text-[#0a214b] dark:text-white text-xl text-ellipsis flex-1 whitespace-nowrap">
           Appointment Event
         </h1>
         {onCreateAppointment ? (
@@ -118,12 +122,12 @@ const AppointmentPanel = ({ appointment, onCreateAppointment, onCreateLink }) =>
             name={NEW_APPOINTMENT}
             onClick={handleClick}
             path={paths.plus}
-            color="#5c5c5c"
+            color="currentColor"
             title="New Appointment"
           />
         ) : null}
       </header>
-      <div className={css.appointment_body}>
+      <div className="flex flex-col gap-4">
         <div className={css.appointment_row}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <title>Service</title>
@@ -408,13 +412,13 @@ const EventPopup = ({
     <div
       role="alertdialog"
       onMouseDown={onClose}
-      className={css.event_panel_window}
+      className="fixed left-0 top-0 w-full h-full pointer-events-auto z-9 bg-transparent"
     >
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         ref={popup}
         style={style}
-        className={css.event_panel}
+        className={`absolute right-2.5 bottom-2.5 w-90 pt-4 pb-8 px-8 bg-white dark:bg-[#1a222c] ${css.event_panel}`}
         onMouseDown={stopPropagation}
       >
         <AppointmentPanel
@@ -486,7 +490,11 @@ const CalendarCell = ({
   };
 
   return (
-    <div ref={container} className={css.weekly_calendar_cell} data-hour={hour ? d2(hour) : ''}>
+    <div
+      ref={container}
+      className="relative w-full h-21 p-1 border-l border-[#eee] dark:border-[#2b3949]"
+      data-hour={hour ? d2(hour) : ''}
+    >
       {state.events.length ? (
         <button
           type="button"
@@ -529,7 +537,7 @@ CalendarCell.propTypes = {
     title: PropTypes.string,
     time: PropTypes.shape({
       start: PropTypes.shape({
-        hour: PropTypes.number,
+        hour: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         text: PropTypes.string,
       }),
       end: PropTypes.shape({
@@ -605,21 +613,31 @@ const WeeklyCalendar = ({
     <div ref={panel} className={css.horizontal_scroller} id="weekly-calendar-panel">
       <section className={`${css.main} ${mini ? css.mini : ''}`}>
         <div className={css.weekly_calendar}>
-          <div className={css.weekly_calendar_header} data-timezone={TIMEZONE}>
+          <div
+            className={`${mini ? 'block' : 'grid grid-cols-7'} sticky top-0 w-full pl-12 z-[3] bg-white dark:bg-[#24303f] border-b border-[#eee] dark:border-[#2b3949] before:content-[attr(data-timezone)] before:absolute before:left-0 before:bottom-1 before:text-[0.6rem] before:text-right before:px-[5px] before:z-[2] before:text-[#888] before:dark:text-[#ccc]`}
+            data-timezone={TIMEZONE}
+          >
             {currentWeekEvents.map((evt) => (
-              <div key={evt.key} className={css.week_header}>
-                <span className={css.week_day}>{weekdays[evt.date.getDay()]}</span>
-                <span className={css.week_date}>{evt.date.getDate()}</span>
+              <div
+                key={evt.key}
+                className={`${mini ? 'items-start -translate-x-8 -translate-y-2' : 'items-center'} relative min-w-16 flex flex-col gap-2 font-bold py-4 text-[#888] dark:text-[#ccc] before:absolute before:left-0 before:bottom-0 before:h-4 before:border-l before:border-[#eee] before:dark:border-[#2b3949]`}
+              >
+                <span className="uppercase text-xs">
+                  {weekdays[evt.date.getDay()]}
+                </span>
+                <span className="text-2xl">
+                  {evt.date.getDate()}
+                </span>
               </div>
             ))}
           </div>
           <div
-            className={css.weekly_calendar_body}
+            className="w-auto"
           >
             {hours.map((hour) => (
               <div
                 key={hour}
-                className={css.weekly_calendar_row}
+                className={`${mini ? 'block' : 'grid grid-cols-7'} relative w-full pl-12 border-b border-[#eee] dark:border-[#2b3949] text-[#888] dark:text-[#ccc] before:content-[attr(data-hour)] before:absolute before:-top-2 before:left-0 before:w-9 before:text-xs before:text-right before:pr-2.5 before:z-[2] before:bg-white before:dark:bg-[#24303f]`}
                 data-hour={hour ? d2(hour) : ''}
               >
                 {currentWeekEvents.map((dEvents) => (

@@ -14,6 +14,7 @@
  * @property {boolean} isFromLocalStorage
  * @property {boolean} isAvailable
  * @property {boolean} hasData
+ * @property {boolean} isValid
  * @property {number} latitude
  * @property {number} longitude
  * @property {Date} lastSaved
@@ -44,6 +45,7 @@ const init = (
   instance.isAvailable = !!geolocation;
   instance.isFromLocalStorage = false;
   instance.hasData = false;
+  instance.isValid = false;
 
   const reload = () => new Promise((resolve, reject) => {
     if (!geolocation) {
@@ -58,6 +60,7 @@ const init = (
         const time = new Date();
         instance.lastSaved = time;
         instance.hasData = true;
+        instance.isValid = true;
         storage.setItem(
           STORAGE_KEY,
           JSON.stringify({
@@ -119,6 +122,7 @@ const init = (
       instance.lastSaved = new Date(json.lastSaved);
       instance.isFromLocalStorage = true;
       instance.hasData = !!json.lastSaved;
+      instance.isValid = json.latitude && json.longitude;
     } catch {
       //
     }

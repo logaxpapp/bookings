@@ -1,5 +1,4 @@
 import {
-  Fragment,
   useCallback,
   useEffect,
   useState,
@@ -8,10 +7,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { Menu, Transition } from '@headlessui/react';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { BellIcon } from '@heroicons/react/20/solid';
 import oldCss from './oldStyles.module.css';
 import css from './styles.module.css';
 import routes from '../../routing/routes';
@@ -38,7 +33,7 @@ import BlankPageContainer from '../../components/BlankPageContainer';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import LogoLink from '../../components/LogoLink';
 import UserMenu from '../../components/UserMenu';
-import EmptyListPanel from '../../components/EmptyListPanel';
+import Notifications from '../../components/Notifications';
 import logoutIcon from '../../assets/images/logout.svg';
 
 const storage = AppStorage.getInstance();
@@ -82,7 +77,9 @@ const MainLinks = ({ path }) => {
   };
 
   return (
-    <aside className="grid grid-cols-5 md:flex md:flex-col px-6 py-3 md:py-10 gap-3 border-e w-full md:w-[80px]">
+    <aside
+      className="grid grid-cols-5 md:flex md:flex-col px-6 py-3 md:py-10 gap-3 border-e border-slate-200 w-full md:w-[80px]"
+    >
       {mainLinks.map(({
         getClass,
         route,
@@ -375,37 +372,6 @@ RestrictedCompany2.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
-const Notifications = () => (
-  <Menu as="div" className="relative inline-block text-left">
-    <div>
-      <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-        <BellIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
-      </Menu.Button>
-    </div>
-
-    <Transition
-      as={Fragment}
-      enter="transition ease-out duration-100"
-      enterFrom="transform opacity-0 scale-95"
-      enterTo="transform opacity-100 scale-100"
-      leave="transition ease-in duration-75"
-      leaveFrom="transform opacity-100 scale-100"
-      leaveTo="transform opacity-0 scale-95"
-    >
-      <Menu.Items
-        className="absolute right-0 z-10 mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none w-min"
-      >
-        <div className="py-4 w-80">
-          <EmptyListPanel
-            text="🎉 You've checked all your notifications and there's nothing new to report."
-            textClass="font-normal text-lg"
-          />
-        </div>
-      </Menu.Items>
-    </Transition>
-  </Menu>
-);
-
 const RestrictedCompany = ({ company, pathname }) => {
   const openMessages = useSelector(selectOpenMessages);
   const { width: screenWidth } = useWindowSize();
@@ -421,12 +387,12 @@ const RestrictedCompany = ({ company, pathname }) => {
 
   return (
     <div className="flex flex-col w-full h-screen overflow-hidden relative" id="company-panel">
-      <header className="flex justify-between items-center h-16 px-8 border-b">
-        <div className="w-[326px] h-16 flex items-center border-e">
+      <header className="flex justify-between items-center h-16 px-8 border-b border-slate-200">
+        <div className="w-[326px] h-16 flex items-center border-e border-slate-200">
           <LogoLink />
         </div>
         <div className="flex gap-2 items-center">
-          <Notifications />
+          <Notifications notifications={[]} />
           <UserMenu />
         </div>
       </header>

@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
 import { dateUtils } from '../../utils';
+import ring from '../../assets/images/ring.webp';
 
 const DATE = 'date';
 
@@ -239,3 +240,47 @@ export const ShareButtonDesign = () => (
     <span className="text-white text-sm font-medium">Share</span>
   </div>
 );
+
+export const Button = ({
+  name,
+  type,
+  className,
+  onClick,
+  children,
+  busy,
+}) => (
+  <button
+    // eslint-disable-next-line react/button-has-type
+    type={type || 'button'}
+    name={name}
+    onClick={onClick}
+    className={`py-3 px-6 rounded-[10px] bg-[#011c39] dark:bg-meta-4 dark:border dark:border-[#334255] text-white flex items-center gap-4 transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-105 duration-300 ${className}`}
+  >
+    {busy ? (
+      <span
+        aria-hidden="true"
+        className="pointer-events-none w-4.5 h-4.5 bg-white animate-spin"
+        style={{ maskImage: `url(${ring})`, maskSize: '100% 100%', maskRepeat: 'no-repeat' }}
+      />
+    ) : null}
+    {children}
+  </button>
+);
+
+Button.propTypes = {
+  name: PropTypes.string,
+  type: PropTypes.string,
+  className: PropTypes.string,
+  onClick: PropTypes.func,
+  children: PropTypes.node,
+  busy: PropTypes.bool,
+};
+
+Button.defaultProps = {
+  name: '',
+  type: 'button',
+  className: '',
+  onClick: null,
+  children: null,
+  busy: false,
+};

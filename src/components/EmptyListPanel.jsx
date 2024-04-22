@@ -104,7 +104,7 @@ const EmptyListPanel = ({ text, textClass, children }) => (
   <div className="w-full h-full flex justify-center items-center p-6">
     <div className="flex flex-col items-center w-full max-w-[468px] gap-8">
       <EmptyListImage />
-      <p className={classNames('m-0 font-bold text-2xl text-[#011C39]', textClass)}>
+      <p className={classNames('m-0 font-bold text-2xl text-[#011C39] dark:text-white', textClass)}>
         {text}
       </p>
       {children}

@@ -15,7 +15,7 @@ const UserLogin = () => {
 
   useEffect(() => {
     const referrer = location.state && location.state.referrer;
-    setReferrer(referrer || routes.company.absolute.dashboard);
+    setReferrer(referrer || routes.user.dashboard.absolute.home);
   }, []);
 
   const handleSubmit = useCallback((email, password) => {

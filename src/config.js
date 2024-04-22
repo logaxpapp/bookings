@@ -1,4 +1,4 @@
-const API_HOST = 'https://bookings-api-9jjh.onrender.com';
+const API_HOST = process.env.REACT_APP_API_HOST;
 
 const config = {
   API_HOST,

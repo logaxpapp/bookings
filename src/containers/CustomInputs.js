@@ -225,7 +225,7 @@ export const Field = ({
         <span className="label">{title}</span>
       ) : null}
       <div
-        className="flex items-center justify-between bg-[#f8fafc] border border-[#cbd5e1] p-4 rounded-lg min-h-12"
+        className="flex items-center justify-between bg-[#fbfbfb] border border-[#eaeff5] dark:bg-[#24303f] dark:border-[#334255] text-[#5c5c5c] dark:text-slate-200 p-4 rounded-lg min-h-12"
       >
         <span>{initialValue}</span>
         {name ? (

@@ -293,6 +293,29 @@ export const updateUserAsync = (
     });
 };
 
+export const updateUserAddressAsync = (
+  data,
+  callback,
+) => (dispatch, getState) => {
+  const { user: { user } } = getState();
+
+  if (!user) {
+    callback(ACCESS_MESSAGE);
+    return;
+  }
+
+  postResource(user.token, `users/${user.id}/address`, data, true)
+    .then((address) => {
+      dispatch(updateUser({ address }));
+      notification.showSuccess('Address successfully updated.');
+      callback(null);
+    })
+    .catch(({ message }) => {
+      notification.showError(message);
+      callback(message);
+    });
+};
+
 export const updateUserCityAsync = (
   city,
   state,

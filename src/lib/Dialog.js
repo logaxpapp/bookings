@@ -82,7 +82,7 @@ const styles = {
     top: 0,
     width: '100%',
     height: '100vh',
-    zIndex: 10000,
+    zIndex: 1000000,
     pointerEvents: 'none',
   },
   screen: {

@@ -457,6 +457,17 @@ export const dateUtils = (() => {
       && date1.getMonth() === date2.getMonth()
       && date1.getFullYear() === date2.getFullYear()
     ),
+    /**
+     * @param {Date} date
+     */
+    timeText: (date) => {
+      let parts = date.toLocaleTimeString().split(' ');
+      const md = parts.pop();
+      parts = parts[0].split(':');
+      parts.pop();
+
+      return `${parts.join(':')} ${md}`;
+    },
   };
 })();
 
@@ -566,3 +577,5 @@ export const addressText = (address) => {
 
   return addr;
 };
+
+export const rootSelector = () => document.querySelector('#root');

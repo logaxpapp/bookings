@@ -21,8 +21,8 @@ const AuthTypeChooser = ({ companyRoute, userRoute }) => (
         I am a user
       </span>
     </Link>
-    <Link to={companyRoute} className="w-11/12 md:w-[380px] xl:w-[512px] h-[60px] xl:h-[85px] rounded-3xl cursor-pointer flex justify-center items-center hover:scale-105 transition-all  border-[1.5px] border-[#00000080] relative">
-      <span className="font-bold text-2xl text-[#011c39]">
+    <Link to={companyRoute} className="w-11/12 md:w-[380px] xl:w-[512px] h-[60px] xl:h-[85px] rounded-3xl cursor-pointer flex justify-center items-center hover:scale-105 transition-all  border-[1.5px] border-[#00000080] dark:border-slate-700 relative">
+      <span className="font-bold text-2xl text-[#011c39] dark:text-white">
         I am a service provider
       </span>
     </Link>
