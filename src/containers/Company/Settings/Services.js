@@ -647,7 +647,7 @@ const ServiceRow = ({
           sm
         />
       </td>
-      <td aria-label="images" className="control">
+      <td aria-label="Manage Service Images" className="control">
         <SvgLink
           to={routes.company.absolute.settings.serviceImages(service.id)}
           title="Manage Service Images"

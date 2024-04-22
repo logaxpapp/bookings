@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import {
   useEffect,
   useRef,
@@ -95,11 +96,11 @@ const UserDashboard = () => {
         ) : null}
         <div className={css.dashboard_aside}>
           <DatePicker initialDate={date} onDateChange={setDate} />
-          <AppointmentsPanel
+          {/* <AppointmentsPanel
             date={date.toLocaleDateString()}
             appointments={selectedDateAppointments}
             onOpenMessages={handleOpenMessages}
-          />
+          /> */}
         </div>
         <div className={css.dashboard_main}>
           <WeeklyCalendar date={date} events={events} />

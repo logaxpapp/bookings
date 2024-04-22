@@ -36,7 +36,7 @@
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   border-bottom: 1px solid #eee;
-  background-color: #fff;
+  background-color: inherit;
   z-index: 3;
 }
 
@@ -83,7 +83,7 @@
   bottom: 0;
   height: 16px;
   border-left: 1px solid #eee;
-  background-color: #eee;
+  background-color: inherit;
 }
 
 .week_day {
@@ -168,12 +168,6 @@
 }
 
 .event_panel {
-  position: absolute;
-  width: 360px;
-  right: 10px;
-  bottom: 10px;
-  padding: 16px 32px 32px;
-  background-color: #fff;
   transition: all 0.1s linear;
   box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
 }

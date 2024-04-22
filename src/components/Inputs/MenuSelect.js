@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { classNames } from '../../utils';
+import { childrenProps } from '../../utils/propTypes';
 
 const MenuSelect = ({
   value,
@@ -34,7 +35,7 @@ const MenuSelect = ({
         leaveTo="transform opacity-0 scale-95"
       >
         <Menu.Items
-          className={`absolute z-10 mt-2 w-56 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${right ? 'right-0 origin-top-right' : 'left-0 origin-top-left'}`}
+          className={`absolute right-0 z-10 mt-2 w-56 rounded-md bg-white dark:bg-[#24303f] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${right ? 'right-0 origin-top-right' : 'left-0 origin-top-left'}`}
         >
           <div className="py-1">
             {options.map((opt) => (
@@ -44,8 +45,8 @@ const MenuSelect = ({
                     type="button"
                     name={opt}
                     className={classNames(
-                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                      'block w-full px-4 py-2 text-left text-lg',
+                      active ? 'bg-gray-100 text-slate-900' : 'text-slate-700',
+                      'w-full py-2 px-5 text-left text-lg flex items-center gap-3 hover:bg-[#e6e8eB] dark:hover:bg-meta-4 dark:text-white disabled:text-slate-400 dark:disabled:text-slate-400 disabled:bg-transparent dark:disabled:hover:bg-transparent',
                     )}
                     onClick={handleClick}
                   >
@@ -72,6 +73,63 @@ MenuSelect.defaultProps = {
   value: '',
   options: [],
   onSelect: null,
+  right: false,
+};
+
+export const ContextMenu = ({
+  children,
+  options,
+  onClick,
+  right,
+}) => (
+  <Menu as="div" className="relative inline-block text-left">
+    <div>
+      <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-transparent text-[#5c5c5c] dark:text-slate-100">
+        {children}
+      </Menu.Button>
+    </div>
+    <Transition
+      as={Fragment}
+      enter="transition ease-out duration-100"
+      enterFrom="transform opacity-0 scale-95"
+      enterTo="transform opacity-100 scale-100"
+      leave="transition ease-in duration-75"
+      leaveFrom="transform opacity-100 scale-100"
+      leaveTo="transform opacity-0 scale-95"
+    >
+      <Menu.Items
+        className={`absolute right-0 z-10 mt-2 w-56 rounded-md bg-white dark:bg-[#24303f] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none ${right ? 'right-0 origin-top-right' : 'left-0 origin-top-left'}`}
+      >
+        <div className="py-1">
+          {options.map((opt) => (
+            <Menu.Item key={opt}>
+              {() => (
+                <button
+                  type="button"
+                  name={opt}
+                  className="w-full py-2 px-5 text-left text-lg flex items-center gap-3 hover:bg-[#e6e8eB] dark:hover:bg-meta-4 dark:text-white disabled:text-slate-400 dark:disabled:text-slate-400 disabled:bg-transparent dark:disabled:hover:bg-transparent"
+                  onClick={() => onClick(opt)}
+                >
+                  {opt}
+                </button>
+              )}
+            </Menu.Item>
+          ))}
+        </div>
+      </Menu.Items>
+    </Transition>
+  </Menu>
+);
+
+ContextMenu.propTypes = {
+  options: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+  onClick: PropTypes.func.isRequired,
+  children: childrenProps.isRequired,
+  right: PropTypes.bool,
+};
+
+ContextMenu.defaultProps = {
+  options: [],
   right: false,
 };
 

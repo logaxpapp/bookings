@@ -72,7 +72,7 @@ button,
 textarea,
 select {
   outline: none;
-  border: none;
+  border-width: 0;
 }
 
 a {

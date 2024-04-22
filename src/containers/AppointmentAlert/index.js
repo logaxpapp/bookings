@@ -15,7 +15,7 @@ import {
 } from '../../redux/userSlice';
 import { Ring } from '../../components/LoadingButton';
 import AlertComponent from '../../components/AlertComponents';
-import { AppointmentTimeSlotUpdatePanel } from '../User/AppointmentsPanel';
+import { AppointmentTimeSlotUpdatePanel } from '../UserOld/AppointmentsPanel';
 
 const ACCEPT = 'accept';
 const CLOSE = 'close';

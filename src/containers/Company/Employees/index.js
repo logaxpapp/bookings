@@ -328,7 +328,7 @@ const EmployeeRow = ({
               sm
             />
           </td>
-          <td aria-label="edit" className="control">
+          <td aria-label="delete" className="control">
             <SvgButton
               type="button"
               name={DELETE}
