@@ -16,7 +16,7 @@ const AuthContainer = ({ text, children }) => (
       }}
     >
       <div className="sm:flex flex-col h-full justify-evenly w-full max-w-md hidden">
-        <LogoLink />
+        <LogoLink color="#fff" />
         <div className="flex flex-col gap-6">
           <h1 className={css.h1}>
             <span>Welcome to</span>

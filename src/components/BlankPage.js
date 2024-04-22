@@ -32,8 +32,8 @@ const styles = {
   },
 };
 
-const BlankPage = ({ header, children }) => (
-  <section style={styles.container}>
+const BlankPage = ({ header, className, children }) => (
+  <section style={styles.container} className={className}>
     {header ? (
       <Header />
     ) : (
@@ -50,11 +50,13 @@ const BlankPage = ({ header, children }) => (
 BlankPage.propTypes = {
   header: PropTypes.bool,
   children: childrenProps,
+  className: PropTypes.string,
 };
 
 BlankPage.defaultProps = {
   header: false,
   children: null,
+  className: '',
 };
 
 export default BlankPage;

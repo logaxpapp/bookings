@@ -8,7 +8,9 @@ const UserSearch = () => {
 
   return (
     <UserSearchbarContainer>
-      <SearchPanel term={term} />
+      <div className="h-full flex-1 overflow-auto">
+        <SearchPanel term={term} />
+      </div>
     </UserSearchbarContainer>
   );
 };

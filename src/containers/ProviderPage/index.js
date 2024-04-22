@@ -832,152 +832,154 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
   return (
     <>
       {includeHeader ? <Header /> : null}
-      <div className="max-w-[1200px] mx-auto">
-        <section className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-16 md:max-h-[368px] max-h-max md:overflow-hidden p-6">
-          <div
-            className="max-h-80 md:overflow-hidden rounded-xl lg:col-span-3"
-            style={{ backgroundColor: imageBG }}
-          >
-            <img
-              ref={picture}
-              src={profilePicture}
-              alt={provider.name}
-              className="w-full max-h-full rounded-xl"
-            />
-          </div>
-          <div className="lg:col-span-2">
-            <h1
-              className="relative flex flex-col items-start gap-2 text-[#011c39] dark:text-white text-2xl md:text-4xl font-bold m-0 pb-3"
+      <div className="bg-white dark:bg-[#24303f]">
+        <div className="max-w-[1200px] mx-auto">
+          <section className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 lg:gap-16 md:max-h-[368px] max-h-max md:overflow-hidden p-6">
+            <div
+              className="max-h-80 md:overflow-hidden rounded-xl lg:col-span-3"
+              style={{ backgroundColor: imageBG }}
             >
-              {provider.name}
-            </h1>
-            <p
-              ref={aboutRef}
-              className="text-xl font-light m-0 text-slate-600 dark:text-slate-100"
-            >
-              {about.text}
-              {about.hasMore ? <span> ...</span> : null}
-            </p>
-            {about.hasMore ? (
-              <div className={css.hero_controls}>
-                <button type="button" name={MORE} className="link compact-link" onClick={handleClick}>
-                  read more
-                </button>
-              </div>
-            ) : null}
-            <Modal
-              isOpen={isAboutModalOpen}
-              parentSelector={rootSelector}
-              onRequestClose={() => setAboutModalOpen(false)}
-              shouldCloseOnEsc
-              shouldCloseOnOverlayClick
-            >
-              <p className="p-8 text-lg text-slate-600 dark:text-slate-100">
-                {about.full}
-              </p>
-            </Modal>
-          </div>
-        </section>
-        <div className="relative w-full max-w-[1300px] mx-auto flex gap-6 p-6">
-          <aside className="w-80 sticky top-0 flex flex-col gap-6 bg-[#e8eaed] dark:bg-[#1a222c] dark:text-slate-100">
-            {provider.location ? (
-              <GoogleMap
-                latitude={provider.location.latitude}
-                longitude={provider.location.longitude}
+              <img
+                ref={picture}
+                src={profilePicture}
+                alt={provider.name}
+                className="w-full max-h-full rounded-xl"
               />
-            ) : null}
-            <div className="p-4 flex flex-col gap-6">
-              <section>
-                <h1 className="text-base mb-2">Contact Info</h1>
-                <div className="flex flex-col gap-4 p-1">
-                  <div className={`${css.contact_row} ${css.address}`}>{address}</div>
-                  <div className={`${css.contact_row} ${css.phone}`}>{provider.phoneNumber}</div>
-                </div>
-              </section>
-              <section>
-                <h1 className="text-base mb-2">Business Hours</h1>
-                <div className="flex flex-col gap-6">
-                  {weekDays.map((d, idx) => (
-                    <div key={d} className="flex items-center">
-                      <span className="w-30 capitalize">{d}</span>
-                      <span>{businessHours[idx]}</span>
-                    </div>
-                  ))}
-                </div>
-              </section>
             </div>
-          </aside>
-          <section className="flex-1 flex flex-col gap-6 max-h-[800px] overflow-hidden dark:text-white">
-            <section>
-              <h1 className="text-base mb-2">Service Categories</h1>
-              {provider.serviceCategories.length ? (
-                <nav>
-                  <ul className="rounded-lg border border-dotted border-[#ededed] dark:border-slate-700 flex flex-wrap list-none m-0 p-1.5 max-h-30 overflow-auto gap-2">
-                    {provider.serviceCategories.map((cat) => (
-                      <li key={cat.id}>
-                        <button
-                          type="button"
-                          name={cat.id}
-                          className={`bg-transparent border rounded-lg py-0.5 px-1.5 text-xs cursor-pointer ${category && category.id === cat.id ? 'text-[#0fad71] border-[#0fad71]' : 'text-[#888] dark:text-slate-300 border-[#888] dark:border-slate-300'}`}
-                          onClick={handleCategoryChange}
-                        >
-                          {cat.name}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
-              ) : (
-                <div className={`${css.empty_notice} ${css.center}`}>
-                  No Service Categories found!
+            <div className="lg:col-span-2">
+              <h1
+                className="relative flex flex-col items-start gap-2 text-[#011c39] dark:text-white text-2xl md:text-4xl font-bold m-0 pb-3"
+              >
+                {provider.name}
+              </h1>
+              <p
+                ref={aboutRef}
+                className="text-xl font-light m-0 text-slate-600 dark:text-slate-100"
+              >
+                {about.text}
+                {about.hasMore ? <span> ...</span> : null}
+              </p>
+              {about.hasMore ? (
+                <div className={css.hero_controls}>
+                  <button type="button" name={MORE} className="link compact-link" onClick={handleClick}>
+                    read more
+                  </button>
                 </div>
-              )}
-            </section>
-            <header className="flex items-center justify-between gap-6 pb-4 mb-2 border-b border-dotted border-[#ededed] dark:border-slate-600">
-              <h1 className={css.services_heading}>Services</h1>
-              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-              <div className="relative">
-                <Input
-                  type="search"
-                  name={SEARCH}
-                  id={SEARCH}
-                  className="!pl-10"
-                  placeholder="Search Services"
-                  onChange={handleValueChange}
+              ) : null}
+              <Modal
+                isOpen={isAboutModalOpen}
+                parentSelector={rootSelector}
+                onRequestClose={() => setAboutModalOpen(false)}
+                shouldCloseOnEsc
+                shouldCloseOnOverlayClick
+              >
+                <p className="p-8 text-lg text-slate-600 dark:text-slate-100">
+                  {about.full}
+                </p>
+              </Modal>
+            </div>
+          </section>
+          <div className="relative w-full max-w-[1300px] mx-auto flex gap-6 p-6">
+            <aside className="w-80 sticky top-0 flex flex-col gap-6 bg-[#e8eaed] dark:bg-[#1a222c] dark:text-slate-100">
+              {provider.location ? (
+                <GoogleMap
+                  latitude={provider.location.latitude}
+                  longitude={provider.location.longitude}
                 />
-                <MagnifyingGlassIcon
-                  aria-hidden="true"
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-600 dark:text-slate-400"
-                />
+              ) : null}
+              <div className="p-4 flex flex-col gap-6">
+                <section>
+                  <h1 className="text-base mb-2">Contact Info</h1>
+                  <div className="flex flex-col gap-4 p-1">
+                    <div className={`${css.contact_row} ${css.address}`}>{address}</div>
+                    <div className={`${css.contact_row} ${css.phone}`}>{provider.phoneNumber}</div>
+                  </div>
+                </section>
+                <section>
+                  <h1 className="text-base mb-2">Business Hours</h1>
+                  <div className="flex flex-col gap-6">
+                    {weekDays.map((d, idx) => (
+                      <div key={d} className="flex items-center">
+                        <span className="w-30 capitalize">{d}</span>
+                        <span>{businessHours[idx]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               </div>
-            </header>
-            <div>
-              {services ? (
-                <>
-                  {services.length ? (
-                    <ul className="flex flex-wrap gap-8 m-0 p-0 list-none">
-                      {services.map((service) => (
-                        <li
-                          key={service.id}
-                          className="w-max p-5 rounded-xl border border-slate-300 dark:border-slate-600"
-                        >
-                          <ServicePanel service={service} />
+            </aside>
+            <section className="flex-1 flex flex-col gap-6 max-h-[800px] overflow-hidden dark:text-white">
+              <section>
+                <h1 className="text-base mb-2">Service Categories</h1>
+                {provider.serviceCategories.length ? (
+                  <nav>
+                    <ul className="rounded-lg border border-dotted border-[#ededed] dark:border-slate-700 flex flex-wrap list-none m-0 p-1.5 max-h-30 overflow-auto gap-2">
+                      {provider.serviceCategories.map((cat) => (
+                        <li key={cat.id}>
+                          <button
+                            type="button"
+                            name={cat.id}
+                            className={`bg-transparent border rounded-lg py-0.5 px-1.5 text-xs cursor-pointer ${category && category.id === cat.id ? 'text-[#0fad71] border-[#0fad71]' : 'text-[#888] dark:text-slate-300 border-[#888] dark:border-slate-300'}`}
+                            onClick={handleCategoryChange}
+                          >
+                            {cat.name}
+                          </button>
                         </li>
                       ))}
                     </ul>
-                  ) : (
-                    <div className={`${css.empty_notice} ${css.center}`}>
-                      No Services found!
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className={`${css.empty_notice} ${css.center}`}>
-                  No Category Selected!
+                  </nav>
+                ) : (
+                  <div className={`${css.empty_notice} ${css.center}`}>
+                    No Service Categories found!
+                  </div>
+                )}
+              </section>
+              <header className="flex items-center justify-between gap-6 pb-4 mb-2 border-b border-dotted border-[#ededed] dark:border-slate-600">
+                <h1 className={css.services_heading}>Services</h1>
+                {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+                <div className="relative">
+                  <Input
+                    type="search"
+                    name={SEARCH}
+                    id={SEARCH}
+                    className="!pl-10"
+                    placeholder="Search Services"
+                    onChange={handleValueChange}
+                  />
+                  <MagnifyingGlassIcon
+                    aria-hidden="true"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-600 dark:text-slate-400"
+                  />
                 </div>
-              )}
-            </div>
-          </section>
+              </header>
+              <div>
+                {services ? (
+                  <>
+                    {services.length ? (
+                      <ul className="flex flex-wrap gap-8 m-0 p-0 list-none">
+                        {services.map((service) => (
+                          <li
+                            key={service.id}
+                            className="w-max p-5 rounded-xl border border-slate-300 dark:border-slate-600"
+                          >
+                            <ServicePanel service={service} />
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className={`${css.empty_notice} ${css.center}`}>
+                        No Services found!
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className={`${css.empty_notice} ${css.center}`}>
+                    No Category Selected!
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
         </div>
       </div>
       {includeFooter ? (
@@ -1045,7 +1047,9 @@ export const CompanyPage = () => {
   }
 
   if (provider) {
-    return <ProviderPage provider={provider} includeHeader includeFooter />;
+    return (
+      <ProviderPage provider={provider} includeHeader includeFooter />
+    );
   }
 
   return <Error404 />;

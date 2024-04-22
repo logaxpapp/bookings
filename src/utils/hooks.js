@@ -225,7 +225,7 @@ const PaymentDialog = ({
   }
 
   return (
-    <BlankPage>
+    <BlankPage className="z-999999">
       <div style={busy ? styles.body : styles.flexBody}>
         {busy ? (
           <Loader type="double_ring" color="transparent" />

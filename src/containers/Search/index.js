@@ -24,7 +24,9 @@ const Search = () => {
       <PublicRouteContainer>
         <div>
           <Header />
-          <SearchPanel term={params.term} cityId={Number.parseInt(params.cityId, 10)} />
+          <div className="bg-white dark:bg-[#24303f]">
+            <SearchPanel term={params.term} cityId={Number.parseInt(params.cityId, 10)} />
+          </div>
         </div>
       </PublicRouteContainer>
     );
@@ -33,7 +35,9 @@ const Search = () => {
   return (
     <div className="container">
       <Header />
-      <SearchPanel term={params.term} forceCurrentLocation={!!params.forceCurrentLocation} />
+      <div className="bg-white dark:bg-[#24303f]">
+        <SearchPanel term={params.term} cityId={Number.parseInt(params.cityId, 10)} />
+      </div>
     </div>
   );
 };

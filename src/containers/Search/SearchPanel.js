@@ -925,7 +925,7 @@ SlotButton.defaultProps = {
   mini: false,
 };
 
-const SlotsPanel = ({
+export const SlotsPanel = ({
   service,
   address,
   price,
@@ -935,7 +935,7 @@ const SlotsPanel = ({
   setPanelWidth,
   busy,
   setBusy,
-  onClose,
+  onSlotSelected,
 }) => {
   const [date, setDate] = useState(new Date());
   const [slots, setSlots] = useState([]);
@@ -943,7 +943,6 @@ const SlotsPanel = ({
   const panelRef = useRef(null);
   const { width } = useWindowSize();
   const dispatch = useDispatch();
-  const book = useBook();
 
   const loadSlots = useCallback((date) => {
     setBusy(true);
@@ -988,15 +987,7 @@ const SlotsPanel = ({
       return;
     }
 
-    setBusy(true);
-    book(selectedSlot, service, (err) => {
-      setBusy(false);
-      if (!err) {
-        setSlots(slots.filter(({ id }) => id !== selectedSlot.id));
-        setSelectedSlot(null);
-        onClose();
-      }
-    });
+    onSlotSelected(selectedSlot);
   };
 
   const isMini = panelWidth <= panelSizes.MINI;
@@ -1095,7 +1086,7 @@ SlotsPanel.propTypes = {
   setPanelWidth: PropTypes.func.isRequired,
   busy: PropTypes.bool,
   setBusy: PropTypes.func.isRequired,
-  onClose: PropTypes.func.isRequired,
+  onSlotSelected: PropTypes.func.isRequired,
 };
 
 SlotsPanel.defaultProps = {
@@ -1130,8 +1121,20 @@ export const ServicePanel = ({ service }) => {
       duration,
       images,
     };
-  }, []);
+  }, [service]);
   const [panelWidth, setPanelWidth] = useState(750);
+  const book = useBook();
+
+  const handleBook = (slot) => {
+    setSlotsModalState({ isOpen: true, busy: true });
+    book(slot, service, (err) => {
+      if (!err) {
+        setSlotsModalState({ isOpen: false, busy: false });
+      } else {
+        setSlotsModalState({ isOpen: true, busy: false });
+      }
+    });
+  };
 
   return (
     <section className="flex flex-col gap-2.5">
@@ -1186,7 +1189,7 @@ export const ServicePanel = ({ service }) => {
           setPanelWidth={setPanelWidth}
           busy={slotsModalState.busy}
           setBusy={(busy) => setSlotsModalState((state) => ({ ...state, busy }))}
-          onClose={() => setSlotsModalState({ busy: false, isOpen: false })}
+          onSlotSelected={handleBook}
         />
       </Modal>
       {images.length ? (
@@ -1225,7 +1228,7 @@ const SearchItemPanel = ({ item }) => {
       >
         <img className="rounded w-full max-h-full" src={picture} alt={item.company.name} />
       </Link>
-      <section className="px-5 dark:bg-boxdark flex-1 flex flex-col gap-6 h-full overflow-hidden">
+      <section className="px-5 pb-2 dark:bg-boxdark flex-1 flex flex-col gap-6 h-full overflow-hidden">
         <header className="flex flex-col gap-4">
           <div className="w-full max-w-125 flex items-center justify-between">
             <h1
@@ -1307,7 +1310,7 @@ const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
       ) : error || !searchTerm ? (
         <PlaceHolder initialTerm={term} error={error} onSearch={handleSearch} />
       ) : services.length ? (
-        <div className="w-full flex flex-col gap-6 p-6">
+        <div className="w-full flex flex-col gap-6 p-6 bg-white dark:bg-[#24303f]">
           {services.map((service) => (
             <SearchItemPanel key={service.company.id} item={service} />
           ))}

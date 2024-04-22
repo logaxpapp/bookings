@@ -98,7 +98,7 @@ const Modal = ({
       content: { ...styles.content, ...(style?.content || {}) },
       overlay: { ...styles.overlay, ...(style?.overlay || {}) },
     }}
-    className="bg-white dark:bg-[#24303f] border border-[#ccc] dark:border-[#43464b]"
+    className="bg-white dark:bg-[#24303f] border border-[#ccc] dark:border-[#43464b] max-h-[90vh] overflow-y-auto"
   >
     {children}
     {onRequestClose ? (

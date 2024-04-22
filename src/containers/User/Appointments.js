@@ -13,12 +13,14 @@ import {
   currencyHelper,
   dateUtils,
   rootSelector,
+  toDuration,
 } from '../../utils';
 // import GridPanel from '../../components/GridPanel';
 import { appointmentProps } from '../../utils/propTypes';
 import { SvgButton, colors, paths } from '../../components/svg';
 import {
   deleteAppointmentUpdateRequestAsync,
+  openAppointmentMessages,
   requestAppointmentUpdateAsync,
   respondToAppointmentUpdateRequestAsync,
   updateAppointmentTimeSlotAsync,
@@ -33,17 +35,17 @@ import css from './styles.module.css';
 import { ContextMenu } from '../../components/Inputs/MenuSelect';
 import defaultImages from '../../utils/defaultImages';
 import routes from '../../routing/routes';
+import { SlotsPanel } from '../Search/SearchPanel';
+import { Button } from '../../components/Buttons';
 
 const ACCEPT_REQUEST_BTN = 'accept request btn';
 const CLOSE_TIME_SLOT_PANEL = 'close_time_slot_panel';
-const CLOSE_UPDATE_REQUESTS = 'close_update_requests';
 const DELETE_UPDATE_REQUESTS = 'delete_update_requests';
 const OPEN_MESSAGES = 'open_messages';
 const REJECT_REQUEST_BTN = 'reject_request_btn';
 const REQUEST_COMMENT = 'request_comment';
 const SHOW_UPDATE_REQUESTS = 'show_update_requests';
 const SUBMIT_REQUEST_FORM = 'submit_request_form';
-const TOGGLE_REQUEST_FORM = 'toggle_request_form';
 const UPDATE_REQUEST_BTN = 'update_request_btn';
 
 const appointmentActions = {
@@ -51,6 +53,21 @@ const appointmentActions = {
   messages: 'View Messages',
   updateRequests: 'Update Requests',
 };
+
+const requestActions = {
+  ACCEPT: 'Accept',
+  DELETE: 'Delete',
+  DETAILS: 'View Details',
+  REJECT: 'Reject',
+  UPDATE: 'Update',
+};
+
+const requestsActions = {
+  REQUEST: 'Request Update',
+  CLOSE: 'Close',
+};
+
+const requestsOptions = Object.values(requestsActions);
 
 const appointmentOptions = Object.values(appointmentActions);
 
@@ -150,9 +167,7 @@ const UpdateRequestPanel = ({ request, appointment }) => {
       } else if (status === 'rejected') {
         state.delete = true;
       }
-    }
-
-    if (originator === 'provider' && status === 'pending') {
+    } else if (originator === 'provider' && status === 'pending') {
       state.accept = true;
       state.reject = true;
     }
@@ -267,10 +282,177 @@ UpdateRequestPanel.propTypes = {
   appointment: appointmentProps.isRequired,
 };
 
+const UpdateRequestRow = ({ request, appointment, index }) => {
+  const {
+    actions,
+    date,
+    originator,
+    hasSlotModal,
+  } = useMemo(() => {
+    const { comment, originator, status } = request;
+    const actions = [];
+    let hasSlotModal = false;
+
+    if (comment) {
+      actions.push(requestActions.DETAILS);
+    }
+
+    if (originator === 'client') {
+      if (status === 'accepted') {
+        actions.push(requestActions.UPDATE);
+        hasSlotModal = true;
+      } else if (status === 'rejected') {
+        actions.push(requestActions.DELETE);
+      }
+    }
+
+    if (originator === 'provider' && status === 'pending') {
+      actions.push(requestActions.ACCEPT);
+      actions.push(requestActions.REJECT);
+      hasSlotModal = true;
+    }
+
+    return {
+      actions,
+      date: new Date(request.createdAt).toLocaleDateString(),
+      hasSlotModal,
+      originator: originator === 'client' ? 'Initiated by You' : 'Initiated by Service Probider',
+    };
+  }, [request]);
+  const {
+    address,
+    price,
+    deposit,
+    duration,
+  } = useMemo(() => {
+    const { timeSlot: { service } } = appointment;
+    const price = currencyHelper.toString(service.price, service.company.country.currencySymbol);
+    let deposit = '';
+    if (service.minDeposit) {
+      deposit = currencyHelper.toString(service.minDeposit, service.company.country.currencySymbol);
+    }
+    const duration = toDuration(service.duration);
+
+    return {
+      address: addressText(service.company.address),
+      price,
+      deposit,
+      duration,
+    };
+  }, [appointment.timeSlot.service]);
+  const [isCommentModalOpen, setCommentModalOpen] = useState(false);
+  const [slotsModal, setSlotsModal] = useState({ open: false, busy: false });
+  const [panelWidth, setPanelWidth] = useState(750);
+  const busyDialog = useBusyModal();
+  const dispatch = useDispatch();
+
+  const handleActionClick = (action) => {
+    if (action === requestActions.DETAILS) {
+      setCommentModalOpen(true);
+    } else if (action === requestActions.REJECT) {
+      busyDialog.showLoader();
+      dispatch(respondToAppointmentUpdateRequestAsync('rejected', request, appointment, () => (
+        busyDialog.hideLoader()
+      )));
+    } else if (action === requestActions.ACCEPT || action === requestActions.UPDATE) {
+      setSlotsModal({ open: true, busy: false });
+    } else if (action === requestActions.DELETE) {
+      busyDialog.showLoader();
+      dispatch(deleteAppointmentUpdateRequestAsync(request, appointment, () => (
+        busyDialog.hideLoader()
+      )));
+    }
+  };
+
+  const handleUpdateAppointment = (slot) => {
+    setSlotsModal({ open: true, busy: true });
+    dispatch(updateAppointmentTimeSlotAsync(slot, request, appointment, (err) => {
+      if (err) {
+        setSlotsModal({ open: true, busy: false });
+      } else {
+        setSlotsModal({ open: false, busy: false });
+      }
+    }));
+  };
+
+  return (
+    <tr>
+      <td>
+        {`${index + 1}. `}
+      </td>
+      <td>{date}</td>
+      <td>{originator}</td>
+      <td aria-label="actions">
+        {actions.length ? (
+          <ContextMenu
+            options={actions}
+            onClick={handleActionClick}
+            right
+          >
+            <EllipsisVerticalIcon className="w-6 h-6 text-[#5c5c5c] dark:text-slate-100" />
+          </ContextMenu>
+        ) : null}
+      </td>
+      {request.comment ? (
+        <Modal
+          isOpen={isCommentModalOpen}
+          parentSelector={rootSelector}
+          onRequestClose={() => setCommentModalOpen(false)}
+          shouldCloseOnEsc
+          shouldCloseOnOverlayClick
+        >
+          <div className="p-8 text-[#011c39] dark:text-slate-100">
+            {request.comment}
+          </div>
+        </Modal>
+      ) : null}
+      {hasSlotModal ? (
+        <Modal
+          isOpen={slotsModal.open || slotsModal.busy}
+          parentSelector={rootSelector}
+          onRequestClose={() => {
+            if (!slotsModal.busy) {
+              setSlotsModal({ busy: false, isOpen: false });
+            }
+          }}
+          style={{ content: { maxWidth: panelWidth } }}
+          shouldCloseOnEsc
+          shouldCloseOnOverlayClick
+        >
+          <SlotsPanel
+            service={appointment.timeSlot.service}
+            address={address}
+            price={price}
+            duration={duration}
+            deposit={deposit}
+            panelWidth={panelWidth}
+            setPanelWidth={setPanelWidth}
+            busy={slotsModal.busy}
+            setBusy={(busy) => setSlotsModal((state) => ({ ...state, busy }))}
+            onSlotSelected={handleUpdateAppointment}
+          />
+        </Modal>
+      ) : null}
+    </tr>
+  );
+};
+
+UpdateRequestRow.propTypes = {
+  request: PropTypes.shape({
+    id: PropTypes.number,
+    comment: PropTypes.string,
+    status: PropTypes.string,
+    originator: PropTypes.string,
+    createdAt: PropTypes.string,
+  }).isRequired,
+  appointment: appointmentProps.isRequired,
+  index: PropTypes.number.isRequired,
+};
+
 export const UpdateRequestsPanel = ({ appointment, onClose }) => {
-  const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
   const [requestComment, setRequestComment] = useState('');
   const [submittingRequest, setSubmittingRequest] = useState(false);
+  const [newModalState, setNewModalState] = useState({ busy: false, open: false });
   const [date, setDate] = useState('');
   const dispatch = useDispatch();
 
@@ -282,7 +464,7 @@ export const UpdateRequestsPanel = ({ appointment, onClose }) => {
     } else {
       setDate('');
     }
-  }, [appointment, setDate]);
+  }, [appointment]);
 
   const handleValueChange = ({ target: { name, value } }) => {
     if (name === REQUEST_COMMENT) {
@@ -291,22 +473,27 @@ export const UpdateRequestsPanel = ({ appointment, onClose }) => {
   };
 
   const handleClick = ({ target: { name } }) => {
-    if (name === CLOSE_UPDATE_REQUESTS) {
-      onClose();
-    } if (name === TOGGLE_REQUEST_FORM) {
-      setIsRequestFormOpen((open) => !open);
-    } else if (name === SUBMIT_REQUEST_FORM) {
+    if (name === SUBMIT_REQUEST_FORM) {
       setSubmittingRequest(true);
       const data = {};
       if (requestComment) {
         data.comment = requestComment;
       }
       dispatch(requestAppointmentUpdateAsync(data, appointment, (err) => {
-        setSubmittingRequest(false);
-        if (!err) {
-          setIsRequestFormOpen(false);
+        let open = false;
+        if (err) {
+          open = true;
         }
+        setNewModalState({ busy: false, open });
       }));
+    }
+  };
+
+  const handleActions = (action) => {
+    if (action === requestsActions.CLOSE) {
+      onClose();
+    } else if (action === requestsActions.REQUEST) {
+      setNewModalState({ open: true, busy: false });
     }
   };
 
@@ -319,14 +506,13 @@ export const UpdateRequestsPanel = ({ appointment, onClose }) => {
         >
           {`${appointment.timeSlot.service.name} - Update Requests`}
         </h1>
-        <SvgButton
-          type="button"
-          name={CLOSE_UPDATE_REQUESTS}
-          title="Close"
-          color={colors.delete}
-          path={paths.close}
-          onClick={handleClick}
-        />
+        <ContextMenu
+          options={requestsOptions}
+          onClick={handleActions}
+          right
+        >
+          <EllipsisVerticalIcon className="w-6 h-6 text-[#5c5c5c] dark:text-slate-100" />
+        </ContextMenu>
       </div>
       <div
         className="flex flex-col gap-2 p-3"
@@ -347,65 +533,75 @@ export const UpdateRequestsPanel = ({ appointment, onClose }) => {
       </div>
       <div className="flex-1 overflow-auto pt-2 flex flex-col gap-1">
         {
-          appointment.appointmentUpdateRequests.length
-            ? appointment.appointmentUpdateRequests.map((request) => (
-              <UpdateRequestPanel
-                key={request.id}
-                request={request}
-                appointment={appointment}
-              />
-            ))
-            : (
-              <span className="text-[0.8rem] text-[#819997] block w-full p-6 text-center">
-                No update requests found!
-              </span>
-            )
+          appointment.appointmentUpdateRequests.length ? (
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left py-6" aria-label="serial number" />
+                  <th className="text-left py-6">Date</th>
+                  <th className="text-left py-6">Originator</th>
+                  <th className="text-left py-6" aria-label="actions" />
+                </tr>
+              </thead>
+              <tbody>
+                {appointment.appointmentUpdateRequests.map((request, index) => (
+                  <UpdateRequestRow
+                    key={request.id}
+                    request={request}
+                    appointment={appointment}
+                    index={index}
+                  />
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <span className="text-[0.8rem] text-[#819997] block w-full p-6 text-center">
+              No update requests found!
+            </span>
+          )
         }
       </div>
-      <div className="relative pt-4 flex justify-end border-t border-dotted border-[#dbdfeb] dark:border-slate-600">
+      <Modal
+        isOpen={newModalState.open || newModalState.busy}
+        parentSelector={rootSelector}
+        onRequestClose={() => {
+          if (!newModalState.busy) {
+            setNewModalState({ busy: false, open: false });
+          }
+        }}
+        shouldCloseOnEsc
+        shouldCloseOnOverlayClick
+      >
         <div
-          className={`absolute left-0 bottom-0 pb-8 w-full ${isRequestFormOpen ? 'translate-y-0' : 'translate-y-[120%]'}`}
-          style={{ transition: 'transform 0.3s linear' }}
+          className="flex flex-col gap-1.5 px-8 py-6"
+          style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0 2px 5px 0, rgba(0, 0, 0, 0.05) 0 1px 1px 0' }}
         >
-          <div
-            className="bg-[#e7ecef] dark:bg-slate-700 flex flex-col gap-1.5 px-8 py-6"
-            style={{ boxShadow: 'rgba(50, 50, 105, 0.15) 0 2px 5px 0, rgba(0, 0, 0, 0.05) 0 1px 1px 0' }}
-          >
-            <span className="text-[#425467] dark:text-slate-100">
-              Write a comment to explain to the provider why you need this update (optional)
-            </span>
-            <textarea
-              name={REQUEST_COMMENT}
-              value={requestComment}
-              onChange={handleValueChange}
-              className="resize-none block w-full p-4 my-2 border border-[#b9d8ed] dark:border-slate-600 bg-white dark:bg-[#24303f] rounded-lg"
-              rows="8"
-            />
-            <span className="text-[#425467] dark:text-slate-100">
-              You will be able to choose a new time slot when this request is approved.
-            </span>
-            <div className="flex justify-end">
-              <button
-                type="button"
-                name={SUBMIT_REQUEST_FORM}
-                className={css.update_request_submit_btn}
-                onClick={handleClick}
-                disabled={submittingRequest}
-              >
-                Submit Request
-              </button>
-            </div>
+          <span className="text-[#425467] dark:text-slate-100">
+            Write a comment to explain to the provider why you need this update (optional)
+          </span>
+          <textarea
+            name={REQUEST_COMMENT}
+            value={requestComment}
+            onChange={handleValueChange}
+            className="resize-none block w-full p-4 my-2 border border-[#b9d8ed] dark:border-slate-600 bg-white dark:bg-transparent rounded-lg"
+            rows="8"
+          />
+          <span className="text-[#425467] dark:text-slate-100 pt-6">
+            You will be able to choose a new time slot when this request is approved.
+          </span>
+          <div className="flex justify-center pt-6">
+            <Button
+              type="button"
+              name={SUBMIT_REQUEST_FORM}
+              className="!px-10"
+              onClick={handleClick}
+              disabled={submittingRequest}
+            >
+              Submit Request
+            </Button>
           </div>
         </div>
-        <button
-          type="button"
-          name={TOGGLE_REQUEST_FORM}
-          className={`${css.update_request_form_toggle_btn} ${isRequestFormOpen ? css.open : ''} text-[#324557] dark:text-slate-100 after:bg-[#324557] dark:after:bg-slate-100`}
-          onClick={handleClick}
-        >
-          {`${isRequestFormOpen ? 'Close' : 'Open'} request form`}
-        </button>
-      </div>
+      </Modal>
     </div>
   );
 };
@@ -579,7 +775,6 @@ AppointmentPanel.propTypes = {
 
 const AppointmentRow = ({
   appointment,
-  onOpenMessages,
   onShowRequests,
   serialNumber,
 }) => {
@@ -617,10 +812,11 @@ const AppointmentRow = ({
     };
   }, [appointment]);
   const [isCompanyDetailsModalOpen, setCompanyDetailsModalOpen] = useState(false);
+  const dispatch = useDispatch();
 
   const handleActionClick = (action) => {
     if (action === appointmentActions.messages) {
-      onOpenMessages(appointment);
+      dispatch(openAppointmentMessages(appointment));
     } else if (action === appointmentActions.updateRequests) {
       onShowRequests(appointment);
     } else if (action === appointmentActions.companyDetails) {
@@ -659,7 +855,7 @@ const AppointmentRow = ({
         shouldCloseOnEsc
         shouldCloseOnOverlayClick
       >
-        <section className="flex flex-col gap-6 p-8 w-full overflow-auto">
+        <section className="flex flex-col gap-6 p-8 w-full overflow-auto text-[#011c39] dark:text-white">
           <header className="flex flex-col gap-6">
             <img alt="!" src={details.photo} className="w-full" />
             <h1 className="m-0">
@@ -668,19 +864,19 @@ const AppointmentRow = ({
           </header>
           <div className="flex flex-col gap-6">
             <div className="flex">
-              <span className="w-30 font-semibold">
+              <span className="w-20 font-semibold">
                 Address:
               </span>
               <span className="flex-1">{details.companyAddress}</span>
             </div>
             <div className="flex">
-              <span className="w-30 font-semibold">
-                Phone Number:
+              <span className="w-20 font-semibold">
+                Phone:
               </span>
               <span className="flex-1">{details.phoneNumber}</span>
             </div>
             <div className="flex">
-              <span className="w-30 font-semibold">
+              <span className="w-20 font-semibold">
                 Page:
               </span>
               <Link
@@ -700,7 +896,6 @@ const AppointmentRow = ({
 
 AppointmentRow.propTypes = {
   appointment: appointmentProps.isRequired,
-  onOpenMessages: PropTypes.func.isRequired,
   onShowRequests: PropTypes.func.isRequired,
   serialNumber: PropTypes.number.isRequired,
 };
@@ -756,10 +951,6 @@ const UserAppointments = () => {
 
   const handleCloseRequests = () => setSelectedAppointmentId(0);
 
-  const handleOpenMessages = (e) => {
-    e.preventDefault();
-  };
-
   return (
     <UserSearchbarContainer>
       <div className="h-full w-full overflow-hidden flex flex-col gap-6 px-8 py-6 relative">
@@ -774,35 +965,32 @@ const UserAppointments = () => {
             </div>
           ) : null}
         </div>
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-x-auto">
           {appointments.length ? (
-            <div>
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="text-left pb-6" aria-label="serial number" />
-                    <th className="text-left pb-6">Company</th>
-                    <th className="text-left pb-6">Service</th>
-                    <th className="text-left pb-6">Time</th>
-                    <th className="text-left pb-6">Price</th>
-                    <th className="text-left pb-6">Deposit</th>
-                    <th className="text-left pb-6">Balance</th>
-                    <th className="text-left pb-6" aria-label="actions" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {appointments.map((appointment, idx) => (
-                    <AppointmentRow
-                      key={appointment.id}
-                      serialNumber={idx + 1}
-                      appointment={appointment}
-                      onOpenMessages={handleOpenMessages}
-                      onShowRequests={handleShowRequests}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th className="text-left pb-6" aria-label="serial number" />
+                  <th className="text-left pb-6">Company</th>
+                  <th className="text-left pb-6">Service</th>
+                  <th className="text-left pb-6">Time</th>
+                  <th className="text-left pb-6">Price</th>
+                  <th className="text-left pb-6">Deposit</th>
+                  <th className="text-left pb-6">Balance</th>
+                  <th className="text-left pb-6" aria-label="actions" />
+                </tr>
+              </thead>
+              <tbody>
+                {appointments.map((appointment, idx) => (
+                  <AppointmentRow
+                    key={appointment.id}
+                    serialNumber={idx + 1}
+                    appointment={appointment}
+                    onShowRequests={handleShowRequests}
+                  />
+                ))}
+              </tbody>
+            </table>
           ) : (
             <p className="font-bold text-xl text-[#858b9c] dark:text-[#ccc] pt-8 flex flex-col items-center gap-4">
               <span>You do NOT have any appointments on selected date.</span>
