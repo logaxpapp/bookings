@@ -15,6 +15,8 @@ import {
   useAppointmentUpdateResponseAlert,
 } from '../AppointmentAlert';
 
+const displayedRequestIds = [];
+
 const WebSocketManager = () => {
   const user = useSelector(selectUser);
   const connected = useRef(false);
@@ -35,8 +37,8 @@ const WebSocketManager = () => {
             messageAlert.show(
               data.content,
               `New message from ${data.from}`,
-              (data, callback) => dispatch(
-                sendAppointmentMessageReplyAsync(data.referenceId, data, callback),
+              (response, callback) => dispatch(
+                sendAppointmentMessageReplyAsync(data.referenceId, response, callback),
               ),
             );
           }
@@ -44,6 +46,10 @@ const WebSocketManager = () => {
       }
     } else if (channel === 'appointment') {
       if (data.type === 'update request') {
+        if (displayedRequestIds.includes(data.id)) {
+          return;
+        }
+
         dispatch(addAppointmentUpdateRequest(data));
         updateRequestAlert.show(data);
       } else if (data.type === 'update request response') {

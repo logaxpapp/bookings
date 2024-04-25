@@ -422,8 +422,6 @@ const AutoGeneratePanel = ({ service }) => {
       breaks[idx] = hr ? { start: hr.start * 60, end: hr.end * 60 } : hr;
     });
 
-    console.log(hours);
-
     return { hours, breaks };
   }, [company]);
   const startDateRef = useRef();

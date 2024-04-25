@@ -936,6 +936,7 @@ export const SlotsPanel = ({
   busy,
   setBusy,
   onSlotSelected,
+  buttonText,
 }) => {
   const [date, setDate] = useState(new Date());
   const [slots, setSlots] = useState([]);
@@ -1062,7 +1063,7 @@ export const SlotsPanel = ({
             onClick={bookSlot}
             busy={busy}
           >
-            {service.minDeposit ? 'Pay Deposit' : 'Book'}
+            {buttonText}
           </Button>
         ) : (
           <p
@@ -1087,6 +1088,7 @@ SlotsPanel.propTypes = {
   busy: PropTypes.bool,
   setBusy: PropTypes.func.isRequired,
   onSlotSelected: PropTypes.func.isRequired,
+  buttonText: PropTypes.string.isRequired,
 };
 
 SlotsPanel.defaultProps = {
@@ -1105,11 +1107,14 @@ export const ServicePanel = ({ service }) => {
     deposit,
     duration,
     images,
+    slotsPanelButtonText,
   } = useMemo(() => {
     const price = currencyHelper.toString(service.price, service.company.country.currencySymbol);
     let deposit = '';
+    let slotsPanelButtonText = 'Book';
     if (service.minDeposit) {
       deposit = currencyHelper.toString(service.minDeposit, service.company.country.currencySymbol);
+      slotsPanelButtonText = 'Pay Deposit';
     }
     const duration = toDuration(service.duration);
     const images = service.images.filter((img, idx) => idx < 2);
@@ -1120,6 +1125,7 @@ export const ServicePanel = ({ service }) => {
       deposit,
       duration,
       images,
+      slotsPanelButtonText,
     };
   }, [service]);
   const [panelWidth, setPanelWidth] = useState(750);
@@ -1190,6 +1196,7 @@ export const ServicePanel = ({ service }) => {
           busy={slotsModalState.busy}
           setBusy={(busy) => setSlotsModalState((state) => ({ ...state, busy }))}
           onSlotSelected={handleBook}
+          buttonText={slotsPanelButtonText}
         />
       </Modal>
       {images.length ? (

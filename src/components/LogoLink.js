@@ -41,7 +41,7 @@ LogoLink.propTypes = {
 };
 
 LogoLink.defaultProps = {
-  className: 'text-[#00416a] dark: text-white',
+  className: 'text-[#00416a] dark:text-white',
 };
 
 export const Logo = ({ className }) => (
@@ -59,7 +59,7 @@ Logo.propTypes = {
 };
 
 Logo.defaultProps = {
-  className: 'text-[#00416a] dark: text-white',
+  className: 'text-[#00416a] dark:text-white',
 };
 
 export default LogoLink;
