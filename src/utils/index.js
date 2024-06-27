@@ -239,6 +239,10 @@ export const camelCase = (str) => {
   }, parts[0]);
 };
 
+export const camelCaseObjectProps = (obj) => (
+  Object.keys(obj).reduce((memo, current) => ({ ...memo, [camelCase(current)]: obj[current] }), {})
+);
+
 export const LOCAL_TIME_DIFFERENCE = (() => {
   const date = new Date();
   return date.getTimezoneOffset() / -60;

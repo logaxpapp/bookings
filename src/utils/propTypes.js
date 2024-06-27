@@ -165,3 +165,10 @@ export const appointmentProps = PropTypes.shape({
   deposit: PropTypes.number,
   messages: PropTypes.arrayOf(correspondenceProps),
 });
+
+export const notificationTimeProps = PropTypes.shape({
+  id: PropTypes.number,
+  quantity: PropTypes.number,
+  unit: PropTypes.string,
+  method: PropTypes.string,
+});

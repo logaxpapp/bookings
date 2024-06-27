@@ -399,9 +399,12 @@ export const useBook = () => {
 
   const book = useCallback((slot, service, callback) => {
     const { company, minDeposit } = service;
-    const { enabledPaymentMethods: methods } = company;
+    const {
+      enabledPaymentMethods: methods,
+      permissions: { acceptsDeposit },
+    } = company;
 
-    if (minDeposit && methods && methods.length) {
+    if (minDeposit && acceptsDeposit && methods && methods.length) {
       getUserInfo()
         .then(({ token, data }) => {
           let popup;

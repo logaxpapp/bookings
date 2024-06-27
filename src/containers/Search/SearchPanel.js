@@ -90,6 +90,9 @@ const companyProps = PropTypes.shape({
     currency: PropTypes.string,
     currencySymbol: PropTypes.string,
   }),
+  permissions: PropTypes.shape({
+    acceptsDeposit: PropTypes.bool,
+  }),
 });
 
 const serviceProps = PropTypes.shape({
@@ -1112,7 +1115,7 @@ export const ServicePanel = ({ service }) => {
     const price = currencyHelper.toString(service.price, service.company.country.currencySymbol);
     let deposit = '';
     let slotsPanelButtonText = 'Book';
-    if (service.minDeposit) {
+    if (service.minDeposit && service.company.permissions.acceptsDeposit) {
       deposit = currencyHelper.toString(service.minDeposit, service.company.country.currencySymbol);
       slotsPanelButtonText = 'Pay Deposit';
     }
@@ -1228,7 +1231,7 @@ const SearchItemPanel = ({ item }) => {
   ], []);
 
   return (
-    <div className="w-full flex gap-4 max-h-75 overflow-hidden">
+    <div className="w-full flex gap-4 h-75 overflow-hidden">
       <Link
         className="flex-1 max-h-full"
         to={url}

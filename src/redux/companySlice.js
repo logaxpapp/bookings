@@ -9,6 +9,7 @@ import {
 import {
   LOCAL_TIME_DIFFERENCE,
   camelCase,
+  camelCaseObjectProps,
   dateUtils,
   notification,
 } from '../utils';
@@ -41,6 +42,7 @@ const slice = createSlice({
     employees: [],
     customers: [],
     permissions: {},
+    employeePermissions: {},
     openMessages: [],
     maxOpenMessages: 4,
     paymentMethods: [],
@@ -55,6 +57,7 @@ const slice = createSlice({
         totalPages: 0,
       },
     },
+    timesBeforeNotifications: [],
   },
   reducers: {
     setAuthenticating: (state, { payload }) => {
@@ -69,9 +72,11 @@ const slice = createSlice({
       state.employees = payload.employees;
       state.customers = payload.customers;
       state.permissions = payload.permissions;
+      state.employeePermissions = payload.employeePermissions;
       state.authenticating = false;
       state.paymentMethods = payload.paymentMethods;
       state.mostRecentActivities = payload.activities;
+      state.timesBeforeNotifications = payload.timesBeforeNotifications;
       storage.setEmployeeToken(payload.token);
     },
     teardown: (state) => {
@@ -87,6 +92,7 @@ const slice = createSlice({
       state.employee = null;
       state.employees = [];
       state.permissions = {};
+      state.employeePermissions = {};
       state.paymentMethods = [];
       state.mostRecentActivities = [];
       state.activities = {
@@ -99,6 +105,7 @@ const slice = createSlice({
           totalPages: 0,
         },
       };
+      state.timesBeforeNotifications = [];
       storage.unsetEmployeeToken();
     },
     setCompany: (state, { payload }) => {
@@ -481,6 +488,19 @@ const slice = createSlice({
         },
       };
     },
+    addTimeBeforeNotifications: (state, { payload }) => {
+      state.timesBeforeNotifications = [payload, ...state.timesBeforeNotifications];
+    },
+    updateTimeBeforeNotifications: (state, { payload: { id, data } }) => {
+      state.timesBeforeNotifications = state.timesBeforeNotifications.map(
+        (time) => (time.id === id ? { ...time, ...data } : time),
+      );
+    },
+    removeTimeBeforeNotifications: (state, { payload }) => {
+      state.timesBeforeNotifications = state.timesBeforeNotifications.filter(
+        (time) => time.id !== payload,
+      );
+    },
   },
 });
 
@@ -520,6 +540,9 @@ export const {
   updateAppointmentUpdateRequest,
   setActivityLoading,
   updateActivities,
+  addTimeBeforeNotifications,
+  updateTimeBeforeNotifications,
+  removeTimeBeforeNotifications,
 } = slice.actions;
 
 export const loginAsync = (email, password, callback) => (dispatch) => {
@@ -2084,6 +2107,70 @@ export const loadActivitiesAsync = (callback) => (dispatch, getState) => {
     });
 };
 
+export const createTimeBeforeNotificationsAsync = (data, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  postResource(token, 'time_before_notifications', data, true)
+    .then((time) => {
+      dispatch(addTimeBeforeNotifications(time));
+      callback(null, time);
+    })
+    .catch(() => {
+      notification.showError('Failed to create time before notification');
+      callback('Failed to create time before notification');
+    });
+};
+
+export const updateTimeBeforeNotificationsAsync = (id, data, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  updateResource(token, `time_before_notifications/${id}`, data, true)
+    .then(() => {
+      const newData = camelCaseObjectProps(data);
+      dispatch(updateTimeBeforeNotifications({ id, data: newData }));
+      callback(null);
+    })
+    .catch(() => {
+      notification.showError('Failed to update time before notification');
+      callback('Failed to update time before notification');
+    });
+};
+
+export const deleteTimeBeforeNotificationsAsync = (id, callback) => (dispatch, getState) => {
+  const { company: { token } } = getState();
+
+  if (!token) {
+    if (callback) {
+      callback(ACCESS_MESSAGE);
+    }
+    return;
+  }
+
+  deleteResource(token, `time_before_notifications/${id}`, true)
+    .then(() => {
+      dispatch(removeTimeBeforeNotifications(id));
+      callback(null);
+    })
+    .catch(() => {
+      notification.showError('Failed to delete time before notification');
+      callback('Failed to delete time before notification');
+    });
+};
+
 export const selectToken = (state) => state.company.token;
 
 export const selectCompany = (state) => state.company.company;
@@ -2110,6 +2197,8 @@ export const selectEmployees = (state) => state.company.employees;
 
 export const selectPermissions = (state) => state.company.permissions;
 
+export const selectEmplyeePermissions = (state) => state.company.employeePermissions;
+
 export const selectOpenMessages = (state) => state.company.openMessages;
 
 export const selectPaymentMethods = (state) => state.company.paymentMethods;
@@ -2117,6 +2206,8 @@ export const selectPaymentMethods = (state) => state.company.paymentMethods;
 export const selectMostRecentActivities = (state) => state.company.mostRecentActivities;
 
 export const selectActivities = (state) => state.company.activities;
+
+export const selectTimesBeforeNotifications = (state) => state.company.timesBeforeNotifications;
 
 export default slice.reducer;
 
