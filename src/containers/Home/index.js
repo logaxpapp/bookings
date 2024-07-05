@@ -7,6 +7,7 @@ import {
 } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { ArrowRightIcon } from '@heroicons/react/24/outline';
 import QrScanner from 'qr-scanner';
 import { useDispatch, useSelector } from 'react-redux';
 import Header from '../Header';
@@ -16,7 +17,7 @@ import barber from '../../assets/images/barber.jpg';
 import phone from '../../assets/images/phone.jpg';
 import routes from '../../routing/routes';
 import { Testimonial, TrustedBy } from './TrustAndTestimonials';
-import Subscriptions from '../Pricing/Subscription';
+import Subscriptions from './SubscriptionPlans';
 import BlendedImageBackground from '../../components/BlendedImageBackground';
 import Footer from '../Footer';
 import FrequentQuestions from './FrequentQuestions';
@@ -540,6 +541,15 @@ const SubscriptionPanel = () => (
       Find the perfect plan for your business
     </h2>
     <Subscriptions />
+    <div className="flex justify-center pt-6">
+      <Link
+        to={routes.pricing}
+        className="flex items-center justify-center gap-4 py-2 px-8 rounded-full bg-green-500"
+      >
+        <span className="text-white">View All</span>
+        <ArrowRightIcon aria-hidden="true" className="w-6 text-white" />
+      </Link>
+    </div>
   </section>
 );
 

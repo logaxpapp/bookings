@@ -2,6 +2,7 @@ import {
   Fragment,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,6 +15,7 @@ import {
   createEmployeeAsync,
   removeEmployeeAsync,
   selectEmployees,
+  selectEmplyeePermissions,
   selectPermissions,
   updateEmployeeAsync,
 } from '../../../redux/companySlice';
@@ -379,6 +381,14 @@ const Employees = () => {
   const [deleteModal, setDeleteModal] = useState({ busy: false, isOpen: false, employee: null });
   const employees = useSelector(selectEmployees);
   const permissions = useSelector(selectPermissions);
+  const employeePermissions = useSelector(selectEmplyeePermissions);
+  const canAddEmployee = useMemo(() => {
+    if (!employeePermissions.isAdmin) {
+      return false;
+    }
+
+    return permissions.numberOfEmployees && employees.length < permissions.numberOfEmployees;
+  }, [employees.length, permissions, employeePermissions.isAdmin]);
   const [company] = useOutletContext();
   const dispatch = useDispatch();
 
@@ -425,6 +435,7 @@ const Employees = () => {
 
     if (deleteModal.employee.email === company.email) {
       notification.showError('You CANNOT delete this employee because they are the companies super admin. Please contact support@logaxp.com');
+      setDeleteModal({ employee: null, busy: false, isOpen: false });
       return;
     }
 
@@ -448,7 +459,7 @@ const Employees = () => {
       <section className={css.main}>
         <header className="page-header">
           <h1 className="page-heading">Employees</h1>
-          {permissions.isAdmin ? (
+          {canAddEmployee ? (
             <button
               type="button"
               className="btn"
@@ -469,7 +480,7 @@ const Employees = () => {
                 <div key={emp.id} className="card-center">
                   <EmployeeCard
                     employee={emp}
-                    isAdmin={permissions.isAdmin}
+                    isAdmin={employeePermissions.isAdmin}
                     onRequestDelete={requestDelete}
                     onRequestEdit={requestEdit}
                   />

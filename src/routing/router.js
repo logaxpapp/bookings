@@ -61,6 +61,7 @@ import UserSearch from '../containers/User/Search';
 import UserAppointments from '../containers/User/Appointments';
 import UserBookmarks from '../containers/User/Bookmarks';
 import UserProvider from '../containers/User/Provider';
+import CompanyAppointments from '../containers/Company/Services/Appointments';
 
 const router = createBrowserRouter([
   {
@@ -180,6 +181,10 @@ const router = createBrowserRouter([
           {
             path: routes.company.services.newTimeSlot,
             element: <NewTimeSlot />,
+          },
+          {
+            path: routes.company.services.appointments,
+            element: <CompanyAppointments />,
           },
         ],
       },

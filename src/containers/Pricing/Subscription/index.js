@@ -2,18 +2,23 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { CheckBadgeIcon } from '@heroicons/react/20/solid';
 import css from './style.module.css';
 import {
   loadSubscriptionPlansAsync,
+  selectLoadingSubscriptions,
   selectSubscriptions,
+  selectSubscriptionsError,
 } from '../../../redux/subscriptionsSlice';
 import { Loader, useBusyDialog } from '../../../components/LoadingSpinner';
 import routes from '../../../routing/routes';
-import { currencyHelper, notification } from '../../../utils';
+import { currencyHelper, notification, prepareSubscriptionPlans } from '../../../utils';
 import { countryProps, subscriptionProps } from '../../../utils/propTypes';
 import { loadCountriesAsync, selectCountries } from '../../../redux/countriesSlice';
 import { SvgButton, colors, paths } from '../../../components/svg';
 import { useDialog } from '../../../lib/Dialog';
+import ResourceLoader from '../../../components/ResourceLoader';
+import GridPanel from '../../../components/GridPanel';
 
 const CHANGE_COUNTRY = 'change_country';
 const COUNTRY = 'country';
@@ -154,14 +159,11 @@ export const premiumFeatures = [
   'Standard +', 'Unlimited employee accounts', 'Employee insight reports',
 ];
 
-const features = [starterFeatures, standardFeatures, premiumFeatures];
-
 const Plan = ({
   plan,
-  mostPopular,
-  left,
   onSelect,
   isUpdate,
+  isCurrent,
 }) => {
   const [price, setPrice] = useState('');
 
@@ -170,81 +172,49 @@ const Plan = ({
   }, [plan]);
 
   const handleClik = useCallback((e) => {
-    e.preventDefault();
-    onSelect({
-      name: plan.name,
-      priceId: plan.priceId,
-      countryId: plan.countryId,
-      priceAmount: plan.price,
-    });
+    if (onSelect) {
+      e.preventDefault();
+      onSelect({
+        id: plan.id,
+        name: plan.name,
+        priceId: plan.priceId,
+        countryId: plan.countryId,
+        priceAmount: plan.price,
+      });
+    }
   }, []);
 
-  if (mostPopular) {
-    return (
-      <article className={css.standard_article}>
-        <span className={css.most_popular}>Most popular</span>
-        <div className={css.standard_body}>
-          <div>
-            <h1 className={css.plan_heading}>{plan.name}</h1>
-            <div className={css.price_row}>
-              <span className={css.price}>{price}</span>
-              <span className={css.periodicity}>/ m</span>
-            </div>
-            <div className={css.features_panel}>
-              {plan.features.map((feature) => (
-                <span key={feature} className={css.feature}>{feature}</span>
-              ))}
-            </div>
-          </div>
-          <div className={css.plan_footer}>
-            {isUpdate ? null : (
-              <div className={css.free_period_wrap}>
-                <span className={css.free_period}>
-                  {`${plan.freePeriod} month${plan.freePeriod === 1 ? '' : 's'} free trial`}
-                </span>
-              </div>
-            )}
-            <Link
-              to={routes.company.absolute.registration}
-              state={{ priceId: plan.priceId, countryId: plan.countryId }}
-              className={css.register_link}
-              onClick={handleClik}
-            >
-              {isUpdate ? 'Choose Plan' : 'Get Started'}
-            </Link>
-          </div>
-        </div>
-      </article>
-    );
-  }
-
   return (
-    <div className={`${css.article_wrap} ${left ? css.left : css.right}`}>
-      <article className={`${css.plan_article} ${left ? css.left : css.right}`}>
-        <div>
-          <h1 className={css.plan_heading}>{plan.name}</h1>
-          <div className={css.price_row}>
-            <span className={css.price}>{price}</span>
-            <span className={css.periodicity}>/ m</span>
+    <div className="w-full px-1 py-2 flex justify-center z-[2]">
+      <article className="w-75 pt-8 pb-6 px-5 rounded-xl bg-white text-center flex flex-col justify-between h-full relative shadow-[1px_4px_20px_0_rgba(0,0,0,.05)]">
+        {isCurrent ? (
+          <div
+            aria-hidden="true"
+            className="rounded-[3px] font-medium absolute top-4 -left-2.5 uppercase text-white text-xs w-[110px] h-[25px] flex items-center justify-center bg-[#89E101] after:absolute after:left-0 after:-bottom-[10px] after:h-0 after:w-0 after:-z-1 after:block after:border-t-[10px] after:border-t-[#89e101] after:border-x-[10px] after:border-x-transparent"
+          >
+            Current Plan
           </div>
-          <div className={css.features_panel}>
-            {plan.features.map((feature) => (
-              <span key={feature} className={css.feature}>{feature}</span>
-            ))}
-          </div>
-        </div>
-        <div className={css.plan_footer}>
-          {isUpdate ? null : (
-            <div className={css.free_period_wrap}>
-              <span className={css.free_period}>
-                {`${plan.freePeriod} month${plan.freePeriod === 1 ? '' : 's'} free trial`}
-              </span>
+        ) : null}
+        <header className="flex flex-col items-center">
+          <span className="w-13 h-13 bg-[#011c39] rounded-full flex items-center justify-center">
+            <CheckBadgeIcon className="text-white w-6 h-6" />
+          </span>
+          <h1 className="uppercase pt-4 pb-8 font-bold text-base text-[#011c39]">
+            <span className="block">{plan.name}</span>
+            <div className="flex items-center">
+              <span>{price}</span>
+              <small className="text-xs">/ m</small>
             </div>
-          )}
+          </h1>
+        </header>
+        <div className="pb-4">
+          <p className="m-0 text-base text-[#474a4f]">{plan.description}</p>
+        </div>
+        <div>
           <Link
             to={routes.company.absolute.registration}
             state={{ priceId: plan.priceId, countryId: plan.countryId }}
-            className={css.register_link}
+            className="block w-full uppercase border-0 text-center text-[#011c39] bg-[#1c74bc1a] rounded-[10px] p-4 font-bold text-xs leading-4"
             onClick={handleClik}
           >
             {isUpdate ? 'Choose Plan' : 'Get Started'}
@@ -257,7 +227,9 @@ const Plan = ({
 
 Plan.propTypes = {
   plan: PropTypes.shape({
+    id: PropTypes.number,
     name: PropTypes.string,
+    description: PropTypes.string,
     currencySymbol: PropTypes.string,
     price: PropTypes.number,
     priceId: PropTypes.number,
@@ -266,78 +238,46 @@ Plan.propTypes = {
     features: PropTypes.arrayOf(PropTypes.string),
   }).isRequired,
   onSelect: PropTypes.func.isRequired,
-  left: PropTypes.bool,
-  mostPopular: PropTypes.bool,
   isUpdate: PropTypes.bool,
+  isCurrent: PropTypes.bool,
 };
 
 Plan.defaultProps = {
-  left: false,
-  mostPopular: false,
   isUpdate: false,
+  isCurrent: false,
 };
 
-export const SubscriptionPlans = ({ subscriptions, onSelect, isUpdate }) => {
+export const SubscriptionPlans = ({
+  subscriptions, onSelect,
+  isUpdate, currentPriceId,
+}) => {
   const [plans, setPlans] = useState();
 
   useEffect(() => {
     if (subscriptions) {
-      const plans = subscriptions.map((plan) => {
-        const clone = {
-          id: plan.id,
-          name: plan.name,
-          currencySymbol: '',
-          price: '',
-          priceId: 0,
-          countryId: 0,
-          freePeriod: plan.freePeriod,
-        };
-
-        if (plan.prices && plan.prices.length) {
-          const price = plan.prices[0];
-          clone.price = price.amount;
-          clone.priceId = price.id;
-          clone.countryId = price.country.id;
-          clone.currencySymbol = price.country.currencySymbol;
-        }
-
-        return clone;
-      });
-
-      plans.sort((a, b) => {
-        if (a.price < b.price) {
-          return -1;
-        }
-        if (a.price > b.price) {
-          return 1;
-        }
-        return 0;
-      });
-
-      setPlans(plans.map((plan, idx) => ({ ...plan, features: features[idx] })));
+      setPlans(prepareSubscriptionPlans(subscriptions));
     }
   }, [subscriptions]);
 
   if (!plans) {
-    return (
-      <div className={css.loading_panel}>
-        <Loader type="double_ring" />
-      </div>
-    );
+    return null;
   }
 
   return (
-    <section className={css.container}>
-      {plans.map((plan, idx) => (
-        <Plan
-          key={plan.id}
-          plan={plan}
-          left={idx === 0}
-          mostPopular={idx === 1}
-          onSelect={onSelect}
-          isUpdate={isUpdate}
-        />
-      ))}
+    <section className="w-full max-w-270 mx-auto">
+      <GridPanel minimumChildWidth={308}>
+        {plans.map((plan, idx) => (
+          <Plan
+            key={plan.id}
+            plan={plan}
+            left={idx === 0}
+            mostPopular={idx === 1}
+            onSelect={onSelect}
+            isUpdate={isUpdate}
+            isCurrent={currentPriceId === plan.priceId}
+          />
+        ))}
+      </GridPanel>
     </section>
   );
 };
@@ -346,24 +286,32 @@ SubscriptionPlans.propTypes = {
   onSelect: PropTypes.func.isRequired,
   isUpdate: PropTypes.bool,
   subscriptions: PropTypes.arrayOf(subscriptionProps),
+  currentPriceId: PropTypes.number,
 };
 
 SubscriptionPlans.defaultProps = {
   isUpdate: false,
   subscriptions: null,
+  currentPriceId: null,
 };
 
 const Subscriptions = ({ showNotice }) => {
   const [country, setCountry] = useState('');
+  const error = useSelector(selectSubscriptionsError);
+  const loading = useSelector(selectLoadingSubscriptions);
   const subscriptions = useSelector(selectSubscriptions);
   const busyDialog = useBusyDialog();
   const dialog = useDialog();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const reload = useCallback(() => {
+    dispatch(loadSubscriptionPlansAsync());
+  }, [dispatch]);
+
   useEffect(() => {
     if (!subscriptions) {
-      dispatch(loadSubscriptionPlansAsync());
+      reload();
     } else if (showNotice && subscriptions.length) {
       const subscription = subscriptions[0];
       if (subscription.prices && subscription.prices.length) {
@@ -401,6 +349,26 @@ const Subscriptions = ({ showNotice }) => {
   const handleSelection = useCallback((state) => {
     navigate(routes.company.absolute.registration, { state });
   }, []);
+
+  if (loading) {
+    return (
+      <div className="relative w-full h-15">
+        <Loader type="double_ring" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-15">
+        <ResourceLoader resourceName="Subscription Plans" onReload={reload} />
+      </div>
+    );
+  }
+
+  if (!subscriptions) {
+    return null;
+  }
 
   return (
     <div>
