@@ -583,3 +583,40 @@ export const addressText = (address) => {
 };
 
 export const rootSelector = () => document.querySelector('#root');
+
+export const prepareSubscriptionPlans = (subscriptions) => {
+  const plans = subscriptions.map((plan) => {
+    const clone = {
+      id: plan.id,
+      name: plan.name,
+      description: plan.description,
+      currencySymbol: '',
+      price: '',
+      priceId: 0,
+      countryId: 0,
+      freePeriod: plan.freePeriod,
+    };
+
+    if (plan.prices && plan.prices.length) {
+      const price = plan.prices[0];
+      clone.price = price.amount;
+      clone.priceId = price.id;
+      clone.countryId = price.country.id;
+      clone.currencySymbol = price.country.currencySymbol;
+    }
+
+    return clone;
+  });
+
+  plans.sort((a, b) => {
+    if (a.price < b.price) {
+      return -1;
+    }
+    if (a.price > b.price) {
+      return 1;
+    }
+    return 0;
+  });
+
+  return plans;
+};

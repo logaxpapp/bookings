@@ -267,6 +267,7 @@ const Subscriptions = () => {
             subscriptions={subscriptions}
             onSelect={handleSelection}
             isUpdate
+            currentPriceId={subscription?.price.id}
           />
         )}
       </div>
