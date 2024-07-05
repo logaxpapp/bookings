@@ -4,9 +4,11 @@ import {
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
+import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import {
   createServiceAsync,
   createServiceCategoryAsync,
+  selectPermissions,
   selectServiceCategories,
   updateServiceAsync,
   updateServiceCategoryAsync,
@@ -49,6 +51,7 @@ export const ServiceEditor = ({
   const [categoryId, setCategoryId] = useState();
   const [hasDescriptionError, setHasDescriptionError] = useState(false);
   const categories = useSelector(selectServiceCategories);
+  const permissions = useSelector(selectPermissions);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -266,7 +269,7 @@ export const ServiceEditor = ({
                 {durationError ? <span className="input-error">{durationError}</span> : null}
               </div>
             </label>
-            <label htmlFor={DEPOSIT} className="bold-select-wrap">
+            <label htmlFor={DEPOSIT} className="bold-select-wrap relative">
               <span className="label">Deposit</span>
               <div className="bold-select">
                 <input
@@ -279,6 +282,12 @@ export const ServiceEditor = ({
                   onChange={handleValueChange}
                 />
               </div>
+              {!permissions.acceptsDeposit ? null : (
+                <InformationCircleIcon
+                  className="w-5 text-red-700 absolute right-0 top-1"
+                  title="Your current plan does not support accepting deposits! You can set the deposit amount but it will not be used. Please upgrade your plan to accept deposits."
+                />
+              )}
             </label>
           </div>
           <label className="bold-select-wrap" htmlFor={DESCRIPTION}>

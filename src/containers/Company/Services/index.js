@@ -849,6 +849,12 @@ const Services = () => {
               </Link>
             </div>
           </div>
+          <Link
+            to={routes.company.absolute.services.appointments}
+            className="w-52 h-10 flex items-center bg-[#f6f8fb] border-[#455eb5] rounded border-l-[3px] pl-3 text-sm font-semibold"
+          >
+            <span>Appointments</span>
+          </Link>
         </div>
       </Aside>
       <main className="flex-1 h-full bg-[#fafafa] px-7 py-10">

@@ -29,9 +29,9 @@ const UserMenuComponent = ({
           <Menu.Button
             className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 border-[#d7dde5] dark:text-white border dark:bg-[#24303f] dark:border-[#334255]"
           >
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 min-w-fit">
               <img src={av} alt="user" className="w-6 h-6 rounded-full" />
-              <span className="max-w-16 text-ellipsis">
+              <span className="max-w-30 text-ellipsis overflow-hidden whitespace-nowrap">
                 {name}
               </span>
             </div>

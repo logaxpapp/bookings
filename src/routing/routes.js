@@ -11,6 +11,7 @@ const routes = {
       categories: 'categories',
       timeSlots: 'time-slots',
       newTimeSlot: 'time-slots/new',
+      appointments: 'appointments',
     },
     customers: 'customers',
 
@@ -47,6 +48,7 @@ const routes = {
         categories: '/companies/services/categories',
         timeSlots: '/companies/services/time-slots',
         newTimeSlot: '/companies/services/time-slots/new',
+        appointments: '/companies/services/appointments',
       },
       customers: '/companies/customers',
 

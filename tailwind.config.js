@@ -9,6 +9,7 @@ module.exports = {
   theme: {
     fontFamily: {
       satoshi: ['Satoshi', 'sans-serif'],
+      clash: ['Clash Display'],
     },
     screens: {
       '2xsm': '375px',

@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useOutletContext } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import UserSearchbarContainer from './UserSearchbarContainer';
 import { DatePicker2 } from '../../components/DatePicker';
 import Modal, { useBusyModal } from '../../components/Modal';
-import { fetchResources } from '../../api';
 import {
   addressText,
   currencyHelper,
@@ -17,36 +15,29 @@ import {
 } from '../../utils';
 // import GridPanel from '../../components/GridPanel';
 import { appointmentProps } from '../../utils/propTypes';
-import { SvgButton, colors, paths } from '../../components/svg';
+import { SvgButton, paths } from '../../components/svg';
 import {
   deleteAppointmentUpdateRequestAsync,
+  loadAppointmentsAsync,
   openAppointmentMessages,
   requestAppointmentUpdateAsync,
   respondToAppointmentUpdateRequestAsync,
+  selectAppointments,
   updateAppointmentTimeSlotAsync,
 } from '../../redux/userSlice';
-import { useDialog } from '../../lib/Dialog';
-import { Ring } from '../../components/LoadingButton';
-import { getServiceTimeSlotsAsync } from '../../redux/serviceProvidersSlice';
-import { Loader } from '../../components/LoadingSpinner';
-import SlotsGrid from '../SlotsGrid';
-import SlideDialog from '../../components/SlideInDialog';
-import css from './styles.module.css';
+import { LoadingBar } from '../../components/LoadingSpinner';
 import { ContextMenu } from '../../components/Inputs/MenuSelect';
 import defaultImages from '../../utils/defaultImages';
 import routes from '../../routing/routes';
 import { SlotsPanel } from '../Search/SearchPanel';
 import { Button } from '../../components/Buttons';
+import { Heading1 } from '../Aside';
+import { statusColors } from '../../utils/constants';
 
-const ACCEPT_REQUEST_BTN = 'accept request btn';
-const CLOSE_TIME_SLOT_PANEL = 'close_time_slot_panel';
-const DELETE_UPDATE_REQUESTS = 'delete_update_requests';
 const OPEN_MESSAGES = 'open_messages';
-const REJECT_REQUEST_BTN = 'reject_request_btn';
 const REQUEST_COMMENT = 'request_comment';
 const SHOW_UPDATE_REQUESTS = 'show_update_requests';
 const SUBMIT_REQUEST_FORM = 'submit_request_form';
-const UPDATE_REQUEST_BTN = 'update_request_btn';
 
 const appointmentActions = {
   companyDetails: 'Company Details',
@@ -57,7 +48,7 @@ const appointmentActions = {
 const requestActions = {
   ACCEPT: 'Accept',
   DELETE: 'Delete',
-  DETAILS: 'View Details',
+  COMMENT: 'View Comment',
   REJECT: 'Reject',
   UPDATE: 'Update',
 };
@@ -71,217 +62,6 @@ const requestsOptions = Object.values(requestsActions);
 
 const appointmentOptions = Object.values(appointmentActions);
 
-export const AppointmentTimeSlotUpdatePanel = ({ request, appointment, onClose }) => {
-  const [isOpen, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [date, setDate] = useState(dateUtils.toNormalizedString(new Date()));
-  const [slots, setSlots] = useState([]);
-  const dispatch = useDispatch();
-
-  useEffect(() => setOpen(true), []);
-
-  useEffect(() => {
-    setBusy(true);
-    dispatch(getServiceTimeSlotsAsync(appointment.timeSlot.service.id, date, (err, slots) => {
-      setSlots(err ? [] : slots);
-      setBusy(false);
-    }));
-  }, [date, appointment, setBusy, setSlots, setOpen]);
-
-  const handleClick = ({ target: { name } }) => {
-    if (name === CLOSE_TIME_SLOT_PANEL) {
-      setOpen(false);
-      setTimeout(onClose, 500);
-    }
-  };
-
-  const handleBook = (slot) => {
-    setBusy(true);
-    dispatch(updateAppointmentTimeSlotAsync(slot, request, appointment, (err) => {
-      setBusy(false);
-      if (!err) {
-        setOpen(false);
-        setTimeout(onClose, 500);
-      }
-    }));
-  };
-
-  return (
-    <SlideDialog isIn={isOpen}>
-      <section className="relative p-2 text-[#f0f7f9] dark:text-slate-500">
-        <header className="pb-3 mb-3 border-b border-dotted border-[#eee] dark:border-slate-700">
-          <h1 className="mb-3 text-[0.9rem]">Select New Slot</h1>
-          <DatePicker2 date={date} onChange={setDate} />
-        </header>
-        <div className="w-70 h-60">
-          {busy ? (
-            <Loader type="double_ring" />
-          ) : (
-            <SlotsGrid slots={slots} onSelect={handleBook} />
-          )}
-        </div>
-        <SvgButton
-          type="button"
-          name={CLOSE_TIME_SLOT_PANEL}
-          title="Close"
-          path={paths.close}
-          color={colors.delete}
-          style={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-          }}
-          onClick={handleClick}
-        />
-      </section>
-    </SlideDialog>
-  );
-};
-
-AppointmentTimeSlotUpdatePanel.propTypes = {
-  request: PropTypes.shape({
-    id: PropTypes.number,
-    status: PropTypes.string,
-    originator: PropTypes.string,
-    appointmentId: PropTypes.number,
-  }).isRequired,
-  appointment: appointmentProps.isRequired,
-  onClose: PropTypes.func.isRequired,
-};
-
-const UpdateRequestPanel = ({ request, appointment }) => {
-  const comment = useMemo(() => request.comment || 'No Comment');
-  const [busy, setBusy] = useState(false);
-  const controlStates = useMemo(() => {
-    const { originator, status } = request;
-    const state = {
-      accept: false,
-      reject: false,
-      update: false,
-      delete: false,
-    };
-
-    if (originator === 'client') {
-      if (status === 'accepted') {
-        state.update = true;
-      } else if (status === 'rejected') {
-        state.delete = true;
-      }
-    } else if (originator === 'provider' && status === 'pending') {
-      state.accept = true;
-      state.reject = true;
-    }
-
-    return state;
-  }, [request]);
-  const dialog = useDialog();
-  const dispatch = useDispatch();
-
-  const handleClick = ({ target: { name } }) => {
-    if (name === REJECT_REQUEST_BTN) {
-      setBusy(true);
-      dispatch(respondToAppointmentUpdateRequestAsync('rejected', request, appointment, () => (
-        setBusy(false)
-      )));
-    } else if (name === ACCEPT_REQUEST_BTN || name === UPDATE_REQUEST_BTN) {
-      let popup;
-      const handleClose = () => popup.close();
-      popup = dialog.show(
-        <AppointmentTimeSlotUpdatePanel
-          request={request}
-          appointment={appointment}
-          onClose={handleClose}
-        />,
-      );
-    } else if (name === DELETE_UPDATE_REQUESTS) {
-      setBusy(true);
-      dispatch(deleteAppointmentUpdateRequestAsync(request, appointment, () => {
-        setBusy(false);
-      }));
-    }
-  };
-
-  return (
-    <section className="p-2 flex flex-col gap-2 bg-[#ecf2f7] dark:bg-slate-600">
-      <div className="flex items-center justify-between">
-        <span className={`${css.request_status} ${css[request.status]}`}>
-          {request.status}
-        </span>
-        {busy ? (
-          <Ring color="#298bfc" size={16} />
-        ) : (
-          <div className="p-1 flex gap-4 bg-[#edf4fc] dark:bg-slate-700">
-            {controlStates.update ? (
-              <button
-                type="button"
-                name={UPDATE_REQUEST_BTN}
-                onClick={handleClick}
-                className={`${css.request_control_btn} ${css.update}`}
-              >
-                Update
-              </button>
-            ) : null}
-            {controlStates.accept ? (
-              <button
-                type="button"
-                name={ACCEPT_REQUEST_BTN}
-                onClick={handleClick}
-                className={`${css.request_control_btn} ${css.accept}`}
-              >
-                Accept
-              </button>
-            ) : null}
-            {controlStates.reject ? (
-              <button
-                type="button"
-                name={REJECT_REQUEST_BTN}
-                onClick={handleClick}
-                className={`${css.request_control_btn} ${css.reject}`}
-              >
-                Reject
-              </button>
-            ) : null}
-            {controlStates.delete ? (
-              <button
-                type="button"
-                name={DELETE_UPDATE_REQUESTS}
-                onClick={handleClick}
-                className={`${css.request_control_btn} ${css.delete}`}
-              >
-                Delete
-              </button>
-            ) : null}
-            {controlStates.accept
-              || controlStates.reject
-              || controlStates.update
-              || controlStates.delete ? null : (
-                <span className="text-[0.7rem] text-[#6f8999] dark:text-slate-300">
-                  No actions available
-                </span>
-              )}
-          </div>
-        )}
-      </div>
-      <div className="bg-white dark:bg-[#24303f] p-1.5 text-[0.7rem]">
-        {comment}
-      </div>
-      <div className="text-[#357b76] text-[0.7rem]">
-        {`This request was initiated by ${request.originator === 'provider' ? 'the provider' : 'you'}.`}
-      </div>
-    </section>
-  );
-};
-
-UpdateRequestPanel.propTypes = {
-  request: PropTypes.shape({
-    id: PropTypes.number,
-    comment: PropTypes.string,
-    status: PropTypes.string,
-    originator: PropTypes.string,
-  }).isRequired,
-  appointment: appointmentProps.isRequired,
-};
-
 const UpdateRequestRow = ({ request, appointment, index }) => {
   const {
     actions,
@@ -294,7 +74,7 @@ const UpdateRequestRow = ({ request, appointment, index }) => {
     let hasSlotModal = false;
 
     if (comment) {
-      actions.push(requestActions.DETAILS);
+      actions.push(requestActions.COMMENT);
     }
 
     if (originator === 'client') {
@@ -347,7 +127,7 @@ const UpdateRequestRow = ({ request, appointment, index }) => {
   const dispatch = useDispatch();
 
   const handleActionClick = (action) => {
-    if (action === requestActions.DETAILS) {
+    if (action === requestActions.COMMENT) {
       setCommentModalOpen(true);
     } else if (action === requestActions.REJECT) {
       busyDialog.showLoader();
@@ -430,6 +210,7 @@ const UpdateRequestRow = ({ request, appointment, index }) => {
             busy={slotsModal.busy}
             setBusy={(busy) => setSlotsModal((state) => ({ ...state, busy }))}
             onSlotSelected={handleUpdateAppointment}
+            buttonText="Update Appointment"
           />
         </Modal>
       ) : null}
@@ -499,13 +280,30 @@ export const UpdateRequestsPanel = ({ appointment, onClose }) => {
 
   return (
     <div className="absolute left-0 top-0 w-full h-full bg-white dark:bg-[#24303f] text-[#011c39] dark:text-white pt-4 pr-6 flex flex-col overflow-hidden p-5">
-      <div className="flex items-center gap-2 pb-2 border-b border-dotted border-[#dbdfeb] dark:border-slate-600">
-        <h1
-          className="ellipsis text-base flex-1"
-          title={`${appointment.timeSlot.service.name} - Update Requests`}
-        >
-          {`${appointment.timeSlot.service.name} - Update Requests`}
-        </h1>
+      <div
+        className="flex justify-between p-3"
+        style={{ boxShadow: 'rgba(0, 0, 0, 0.15) 0 2px 8px' }}
+      >
+        <div className="flex-1 flex flex-col gap-2">
+          <div className="flex gap-2">
+            <span className="font-semibold w-18">Service</span>
+            <span>
+              {appointment.timeSlot.service.name}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <span className="font-semibold w-18">Provider</span>
+            <span>
+              {appointment.timeSlot.service.company.name}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <span className="font-semibold w-18">Date</span>
+            <span>
+              {date}
+            </span>
+          </div>
+        </div>
         <ContextMenu
           options={requestsOptions}
           onClick={handleActions}
@@ -513,23 +311,6 @@ export const UpdateRequestsPanel = ({ appointment, onClose }) => {
         >
           <EllipsisVerticalIcon className="w-6 h-6 text-[#5c5c5c] dark:text-slate-100" />
         </ContextMenu>
-      </div>
-      <div
-        className="flex flex-col gap-2 p-3"
-        style={{ boxShadow: 'rgba(0, 0, 0, 0.15) 0 2px 8px' }}
-      >
-        <div className="flex gap-2 text">
-          <span className="font-semibold">Provider</span>
-          <span>
-            {appointment.timeSlot.service.company.name}
-          </span>
-        </div>
-        <div className="flex gap-2 text-sm">
-          <span className="font-semibold">Date</span>
-          <span>
-            {date}
-          </span>
-        </div>
       </div>
       <div className="flex-1 overflow-auto pt-2 flex flex-col gap-1">
         {
@@ -776,7 +557,6 @@ AppointmentPanel.propTypes = {
 const AppointmentRow = ({
   appointment,
   onShowRequests,
-  serialNumber,
 }) => {
   const { requestCount, details } = useMemo(() => {
     const { timeSlot: slot } = appointment;
@@ -826,7 +606,13 @@ const AppointmentRow = ({
 
   return (
     <tr>
-      <td>{`${serialNumber}. `}</td>
+      <td aria-label={appointment.status} className="w-8">
+        <span
+          aria-hidden="true"
+          className="block w-3 h-3 rounded-full"
+          style={{ backgroundColor: statusColors[appointment.status] }}
+        />
+      </td>
       <td>{details.companyName}</td>
       <td>{details.serviceName}</td>
       <td>{details.time}</td>
@@ -897,29 +683,26 @@ const AppointmentRow = ({
 AppointmentRow.propTypes = {
   appointment: appointmentProps.isRequired,
   onShowRequests: PropTypes.func.isRequired,
-  serialNumber: PropTypes.number.isRequired,
 };
 
 const UserAppointments = () => {
   const [date, setDate] = useState(new Date());
-  const [appointments, setAppointments] = useState([]);
+  const cachedAppointments = useSelector(selectAppointments);
+  const [updateRequestAttentionCount, setUpdateRequestAttentionCount] = useState(0);
+  const appointments = useMemo(() => {
+    const key = dateUtils.toNormalizedString(date);
+    return cachedAppointments[key] || [];
+  }, [cachedAppointments, date]);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState();
   const [selectedAppointment, setSelectedAppointment] = useState(null);
-  const [updateRequestAttentionCount, setUpdateRequestAttentionCount] = useState(0);
-  const busyModal = useBusyModal();
-  const [user] = useOutletContext();
+  const [loadCount, setLoadCount] = useState(0);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    busyModal.showLoader();
-    fetchResources(`users/${user.id}/appointments?date=${dateUtils.toNormalizedString(date)}&offset=0`, user.token, true)
-      .then((appointments) => {
-        setAppointments(appointments);
-        busyModal.hideLoader();
-      })
-      .catch(() => {
-        setAppointments([]);
-        busyModal.hideLoader();
-      });
+    setLoadCount((count) => count + 1);
+    dispatch(loadAppointmentsAsync(dateUtils.toNormalizedString(date), () => {
+      setLoadCount((count) => count - 1);
+    }));
   }, [date]);
 
   useEffect(() => {
@@ -954,16 +737,22 @@ const UserAppointments = () => {
   return (
     <UserSearchbarContainer>
       <div className="h-full w-full overflow-hidden flex flex-col gap-6 px-8 py-6 relative">
+        {loadCount ? (
+          <LoadingBar />
+        ) : null}
         <div className="w-full flex items-center justify-between">
-          <DatePicker2 initialDate={date} onChange={setDate} right />
-          {updateRequestAttentionCount ? (
-            <div
-              className="p-0.5 aspect-square rounded-full text-[0.6rem] min-w-4.5 text-[#155724] bg-[d4edda] dark:bg-slate-700 flex items-center justify-center cursor-default"
-              title={`${updateRequestAttentionCount} update requests need your attention!`}
-            >
-              <span>{updateRequestAttentionCount}</span>
-            </div>
-          ) : null}
+          <div className="flex gap-0">
+            <Heading1>My Appointments</Heading1>
+            {updateRequestAttentionCount ? (
+              <div
+                className="w-5 h-5 rounded-full text-[0.6rem] text-red-800 bg-red-200 flex items-center justify-center cursor-default -translate-y-2"
+                title={`${updateRequestAttentionCount} update requests need your attention!`}
+              >
+                <span>{updateRequestAttentionCount}</span>
+              </div>
+            ) : null}
+          </div>
+          <DatePicker2 initialDate={date} onChange={setDate} />
         </div>
         <div className="flex-1 overflow-x-auto">
           {appointments.length ? (
@@ -981,10 +770,9 @@ const UserAppointments = () => {
                 </tr>
               </thead>
               <tbody>
-                {appointments.map((appointment, idx) => (
+                {appointments.map((appointment) => (
                   <AppointmentRow
                     key={appointment.id}
-                    serialNumber={idx + 1}
                     appointment={appointment}
                     onShowRequests={handleShowRequests}
                   />
