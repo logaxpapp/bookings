@@ -56,7 +56,7 @@ const Modal = ({
     shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
     style={{
       content: { ...styles.content, ...(style?.content || {}) },
-      overlay: { ...styles.overlay, ...(style?.overlay || {}) },
+      overlay: { ...styles.overlay, zIndex: 1020, ...(style?.overlay || {}) },
     }}
   >
     {children}
