@@ -25,7 +25,7 @@ export const createStore = () => configureStore({
     userPreferences,
     apiKeys,
   },
-  devTools: process.env.NODE_ENV !== 'production',
+  // devTools: process.env.NODE_ENV !== 'production',
 });
 
 const store = createStore();
