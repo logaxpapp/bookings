@@ -38,10 +38,10 @@ LoadingSpinner.defaultProps = {
  */
 export const Loader = ({
   type,
-  color,
   children,
+  className,
 }) => (
-  <div className={css.container} style={{ backgroundColor: color }}>
+  <div className={`flex flex-col items-center justify-center absolute top-0 left-0 flex-1 w-full h-full gap-2.5 pointer-events-auto ${className}`}>
     <span className={css[type]} />
     {children && <div className={css.children}>{children}</div>}
   </div>
@@ -50,13 +50,13 @@ export const Loader = ({
 Loader.propTypes = {
   children: PropTypes.node,
   type: PropTypes.string,
-  color: PropTypes.string,
+  className: PropTypes.string,
 };
 
 Loader.defaultProps = {
   children: null,
   type: 'cloud',
-  color: '#fff',
+  className: 'bg-[#fff] dark:bg-[#24303f]',
 };
 
 export const LoadingBar = ({ zIndex }) => (

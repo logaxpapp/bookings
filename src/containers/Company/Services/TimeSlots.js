@@ -68,7 +68,7 @@ const START_DATE = 'start_date';
 const TIME = 'time';
 const UPDATE = 'update';
 
-const weekdays = ['sunday', 'monday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const weekdays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 /**
  * @param {Date} date

@@ -15,7 +15,11 @@ import {
   selectWeeklyAppointments,
   updateAppointmentAsync,
 } from '../../../redux/companySlice';
-import { currencyHelper, dateUtils, notification } from '../../../utils';
+import {
+  currencyHelper,
+  dateUtils,
+  notification,
+} from '../../../utils';
 import WeeklyCalendar from '../../WeeklyCalendar';
 import { paths } from '../../../components/svg';
 import { appointmentProps } from '../../../utils/propTypes';
@@ -36,18 +40,6 @@ const formatter = (date) => date.toLocaleDateString('en-us', {
   year: 'numeric',
   month: 'long',
 });
-
-/**
- * @param {Date} date
- */
-const timeText = (date) => {
-  let parts = date.toLocaleTimeString().split(' ');
-  const md = parts.pop();
-  parts = parts[0].split(':');
-  parts.pop();
-
-  return `${parts.join(':')} ${md}`;
-};
 
 const NewAppointmentEditor = ({
   date,
@@ -355,10 +347,10 @@ const Dashboard = () => {
           time: {
             start: {
               hour: time.getHours(),
-              text: timeText(time),
+              text: dateUtils.timeText(time),
             },
             end: {
-              text: timeText(new Date(
+              text: dateUtils.timeText(new Date(
                 time.getTime() + (1000 * appointment.timeSlot.service.duration),
               )),
             },

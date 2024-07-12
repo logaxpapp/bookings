@@ -11,6 +11,7 @@ import css from './style.module.css';
 const Range = ({
   name,
   value,
+  label,
   min,
   max,
   onChange,
@@ -81,6 +82,7 @@ const Range = ({
   return (
     <div ref={slideRef} className={css.range_wrap}>
       <div
+        aria-label={label}
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuenow={localValue}
@@ -104,6 +106,7 @@ const Range = ({
 };
 
 Range.propTypes = {
+  label: PropTypes.string,
   name: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   min: PropTypes.number,
@@ -112,6 +115,7 @@ Range.propTypes = {
 };
 
 Range.defaultProps = {
+  label: 'Range',
   name: null,
   value: 0,
   min: 0,

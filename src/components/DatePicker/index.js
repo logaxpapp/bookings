@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import {
   Fragment,
   useCallback,
@@ -7,14 +8,16 @@ import {
 } from 'react';
 import PropTypes from 'prop-types';
 import { Popover, Transition } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/20/solid';
-import css from './style.module.css';
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from '@heroicons/react/20/solid';
 import {
   getCalendarDays,
   monthValues,
   weekdays,
 } from '../../utils';
-import { SvgButton } from '../svg';
 
 const DECREMENT = 'decrement';
 const INCREMENT = 'increment';
@@ -32,6 +35,17 @@ const months = [
 const defaultDateFormatter = (date) => date.toLocaleDateString();
 
 /**
+ * @param {number} date
+ * @param {{ month: number, year: number }} d1
+ * @param {Date} d2
+ */
+const isDateEqual = (date, d1, d2) => (
+  date === d2.getDate()
+  && d1.month === d2.getMonth()
+  && d1.year === d2.getFullYear()
+);
+
+/**
  * @param {Object} props
  * @param {Date} props.initialDate
  */
@@ -46,11 +60,12 @@ const DatePicker = ({ initialDate, onDateChange }) => {
     current: [],
     next: [],
   });
+
   const [dateMode, setDateMode] = useState(true);
 
   useEffect(() => {
     setDays(getCalendarDays(monthAndYear.month, monthAndYear.year));
-  }, [monthAndYear, setDays]);
+  }, [monthAndYear]);
 
   const handleDateChange = useCallback(({ target: { name } }) => {
     const parts = name.split('#');
@@ -72,7 +87,7 @@ const DatePicker = ({ initialDate, onDateChange }) => {
     if (onDateChange) {
       onDateChange(date);
     }
-  }, [monthAndYear, onDateChange, setDate]);
+  }, [monthAndYear, onDateChange]);
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === INCREMENT) {
@@ -104,30 +119,44 @@ const DatePicker = ({ initialDate, onDateChange }) => {
   const today = new Date();
 
   return (
-    <section className={css.grid_calendar_wrap}>
-      <header className={css.grid_calendar_header}>
-        <button type="button" name={TOGGLE_MODE} className={css.month_year_wrap} onClick={handleClick}>
+    <section className="min-w-60">
+      <header className="p-2 flex items-center justify-between gap-8">
+        <button
+          type="button"
+          name={TOGGLE_MODE}
+          className="cursor-pointer bg-transparent whitespace-nowrap text-[#011c39] dark:text-white text-base text-left p-0 min-w-30"
+          onClick={handleClick}
+        >
           {dateMode ? `${monthValues[monthAndYear.month]} ${monthAndYear.year}` : monthAndYear.year}
         </button>
-        <div className={css.grid_calendar_header_controls}>
-          <SvgButton
+        <div className="flex gap-2">
+          <button
             type="button"
+            aria-label="decrement"
             name={DECREMENT}
+            className="bg-transparent p-0"
             onClick={handleClick}
-            path="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z"
-          />
-          <SvgButton
+          >
+            <ChevronLeftIcon className="w-6 h-6 text-[#011c39] dark:text-white pointer-events-none" />
+          </button>
+          <button
             type="button"
+            aria-label="decrement"
             name={INCREMENT}
+            className="bg-transparent p-0"
             onClick={handleClick}
-            path="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
-          />
+          >
+            <ChevronRightIcon className="w-6 h-6 text-[#011c39] dark:text-white pointer-events-none" />
+          </button>
         </div>
       </header>
       {dateMode ? (
-        <div className={css.grid_calendar}>
+        <div className="grid grid-cols-7">
           {weekdays.map((day) => (
-            <div key={day} className={`${css.grid_calendar_cell} ${css.grid_calendar_cell_heading}`}>
+            <div
+              key={day}
+              className="bg-transparent flex items-center justify-center w-6 h-6 font-black text-xs p-0 rounded-full duration-300 ease-in text-[#011c39] dark:text-white"
+            >
               <span>{day.substring(0, 1)}</span>
             </div>
           ))}
@@ -136,10 +165,10 @@ const DatePicker = ({ initialDate, onDateChange }) => {
               key={d}
               type="button"
               name={`p#${d}`}
-              className={`${css.grid_calendar_cell} ${css.fade} ${date.getDate() === d && date.getMonth() === monthAndYear.month - 1 && date.getFullYear() === monthAndYear.year ? css.active : ''}`}
+              className={`flex items-center justify-center w-6 h-6 font-medium text-xs p-0 rounded-full duration-300 ease-in opacity-50 ${date.getDate() === d && ((date.getMonth() === 11 && date.getFullYear() === monthAndYear.year - 1) || (date.getMonth() === monthAndYear.month - 1 && date.getFullYear() === monthAndYear.year)) ? 'text-[#F3FCE6] bg-[#89E101]' : 'bg-transparent text-#[#011c39] dark:text-white hover:bg-[#efefef] dark:hover:bg-[#334255]'}`}
               onClick={handleDateChange}
             >
-              <span>{d}</span>
+              <span className="pointer-events-none">{d}</span>
             </button>
           ))}
           {days.current.map((d) => (
@@ -148,13 +177,11 @@ const DatePicker = ({ initialDate, onDateChange }) => {
               type="button"
               name={`c#${d}`}
               className={`
-                ${css.grid_calendar_cell}
-                ${monthAndYear.month === today.getMonth() && monthAndYear.year === today.getFullYear() && d === today.getDate() ? css.today : ''}
-                ${date.getDate() === d && date.getMonth() === monthAndYear.month && date.getFullYear() === monthAndYear.year ? css.active : ''}
+                flex items-center justify-center w-6 h-6 font-medium text-xs p-0 rounded-full duration-300 ease-in ${isDateEqual(d, monthAndYear, today) ? 'text-[#F3FCE6] bg-[#89E101]' : isDateEqual(d, monthAndYear, date) ? 'text-[#F3FCE6] bg-[#89E101] opacity-60' : 'bg-transparent text-[#011c39] dark:text-white hover:bg-[#efefef] dark:hover:bg-[#334255]'}
               `}
               onClick={handleDateChange}
             >
-              <span>{d}</span>
+              <span className="pointer-events-none">{d}</span>
             </button>
           ))}
           {days.next.map((d) => (
@@ -162,25 +189,25 @@ const DatePicker = ({ initialDate, onDateChange }) => {
               key={d}
               type="button"
               name={`n#${d}`}
-              className={`${css.grid_calendar_cell} ${css.fade}  ${date.getDate() === d && date.getMonth() === monthAndYear.month + 1 && date.getFullYear() === monthAndYear.year ? css.active : ''}`}
+              className={`flex items-center justify-center w-6 h-6 font-medium text-xs p-0 rounded-full duration-300 ease-in opacity-50 ${date.getDate() === d && ((date.getMonth() === 0 && date.getFullYear() === monthAndYear.year + 1) || (date.getMonth() === monthAndYear.month + 1 && date.getFullYear() === monthAndYear.year)) ? 'text-[#F3FCE6] bg-[#89E101]' : 'bg-transparent text-#[#011c39] dark:text-white hover:bg-[#efefef] dark:hover:bg-[#334255]'}`}
               onClick={handleDateChange}
             >
-              <span>{d}</span>
+              <span className="pointer-events-none">{d}</span>
             </button>
           ))}
         </div>
       ) : (
-        <div className={`${css.grid_calendar} ${css.months_grid}`}>
+        <div className="grid grid-cols-4 gap-0.5">
           {months.map((month, idx) => (
             <button
               key={month}
               type="button"
               name={idx}
               title={month}
-              className={css.month_btn}
+              className="w-full aspect-square flex items-center justify-center cursor-pointer bg-transparent rounded border text-[#011c39] dark:text-white"
               onClick={handleMonthClick}
             >
-              <span>{month}</span>
+              <span className="pointer-events-none">{month}</span>
             </button>
           ))}
         </div>
@@ -207,7 +234,8 @@ export const DatePicker2 = ({
   initialDate,
   onChange,
   dateFormatter,
-  style,
+  className,
+  right,
 }) => {
   const [date, setDate] = useState(initialDate);
   const dateString = useMemo(() => dateFormatter(date), [date]);
@@ -224,11 +252,10 @@ export const DatePicker2 = ({
     <Popover className="relative">
       <div>
         <Popover.Button
-          className="flex gap-10 justify-between items-center font-medium text-base text-[#5c5c5c] border border-[#8e98a8] py-3 px-4 rounded-[10px] min-w-44"
-          style={style}
+          className={`${className} flex gap-10 justify-between items-center font-medium text-base text-[#5c5c5c] dark:text-white border border-[#8e98a8] dark:border-[#334255] py-3 px-4 rounded-[10px] min-w-44`}
         >
           <span>{dateString}</span>
-          <ChevronDownIcon aria-hidden="true" className="w-5 h-5 text-[#5c5c5c]" />
+          <ChevronDownIcon aria-hidden="true" className="w-5 h-5 text-[#5c5c5c] dark:text-white" />
         </Popover.Button>
         <Transition
           as={Fragment}
@@ -239,7 +266,9 @@ export const DatePicker2 = ({
           leaveFrom="opacity-100 translate-y-0"
           leaveTo="opacity-0 translate-y-1"
         >
-          <Popover.Panel className="absolute left-0 z-50 mt-3 -translate-x-1/2 px-4 py-3 shadow-xl bg-white">
+          <Popover.Panel
+            className={`absolute z-50 left-0 mt-3 px-4 py-3 shadow-xl bg-white dark:bg-[#1a222c] ${right ? 'translate-x-6' : '-translate-x-1/2'}`}
+          >
             <DatePicker initialDate={date} onDateChange={handleDateChange} />
           </Popover.Panel>
         </Transition>
@@ -252,14 +281,16 @@ DatePicker2.propTypes = {
   initialDate: PropTypes.instanceOf(Date),
   onChange: PropTypes.func,
   dateFormatter: PropTypes.func,
-  style: PropTypes.shape({}),
+  className: PropTypes.string,
+  right: PropTypes.bool,
 };
 
 DatePicker2.defaultProps = {
   initialDate: new Date(),
   onChange: null,
   dateFormatter: defaultDateFormatter,
-  style: { border: '1px solid #8e98a8' },
+  className: 'border border-[#8e98a8] dark:border-[#3f4549]',
+  right: false,
 };
 
 export default DatePicker;

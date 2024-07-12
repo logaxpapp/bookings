@@ -225,7 +225,7 @@ const PaymentDialog = ({
   }
 
   return (
-    <BlankPage>
+    <BlankPage className="z-999999">
       <div style={busy ? styles.body : styles.flexBody}>
         {busy ? (
           <Loader type="double_ring" color="transparent" />
@@ -251,7 +251,7 @@ const PaymentDialog = ({
             <div style={styles.paymentMethodsHeading}>
               Please Select A Payment Method Below To Proceed
             </div>
-            <ul style={styles.methodsList}>
+            <ul className="p-3 m-0 flex flex-col gap-1 max-h-40 overflow-auto border border-slate-300">
               {service.company.enabledPaymentMethods.map((name) => (
                 <li key={name}>
                   <PaymentMethodRow name={name} onClick={handleMethodSelected} />
@@ -317,10 +317,10 @@ export const useSearch = () => {
 
     if (user) {
       let canDispatch = false;
-      if (searchParams === searchParamsOptions.User_CITY && user.city) {
+      if (searchParams === searchParamsOptions.User_CITY && user.address) {
         canDispatch = true;
         data.type = 'city';
-        data.city_id = user.city.id;
+        data.city_id = user.address.city.id;
       } else if (
         searchParams === searchParamsOptions.HOME_LOCATION
         && userLocation.hasData
@@ -399,9 +399,12 @@ export const useBook = () => {
 
   const book = useCallback((slot, service, callback) => {
     const { company, minDeposit } = service;
-    const { enabledPaymentMethods: methods } = company;
+    const {
+      enabledPaymentMethods: methods,
+      permissions: { acceptsDeposit },
+    } = company;
 
-    if (minDeposit && methods && methods.length) {
+    if (minDeposit && acceptsDeposit && methods && methods.length) {
       getUserInfo()
         .then(({ token, data }) => {
           let popup;

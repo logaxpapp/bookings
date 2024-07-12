@@ -11,6 +11,7 @@ const routes = {
       categories: 'categories',
       timeSlots: 'time-slots',
       newTimeSlot: 'time-slots/new',
+      appointments: 'appointments',
     },
     customers: 'customers',
 
@@ -47,6 +48,7 @@ const routes = {
         categories: '/companies/services/categories',
         timeSlots: '/companies/services/time-slots',
         newTimeSlot: '/companies/services/time-slots/new',
+        appointments: '/companies/services/appointments',
       },
       customers: '/companies/customers',
 
@@ -91,12 +93,17 @@ const routes = {
       providers: (providerId) => `providers/${providerId}`,
       search: 'search',
       settings: 'settings',
+      bookmarks: 'bookmarks',
+      appointments: 'appointments',
       absolute: {
         home: '/users',
         calendar: '/users/calendar',
         providers: (providerId) => `/users/providers/${providerId}`,
         search: '/users/search',
         settings: '/users/settings',
+        bookmarks: '/users/bookmarks',
+        appointments: '/users/appointments',
+        appointmentHistories: '/users/appointment-histories',
       },
     },
     login: '/users/signin',

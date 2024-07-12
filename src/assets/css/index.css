@@ -72,7 +72,7 @@ button,
 textarea,
 select {
   outline: none;
-  border: none;
+  border-width: 0;
 }
 
 a {
@@ -514,19 +514,12 @@ input:-webkit-autofill:active {
   cursor: pointer;
 }
 
-.bold-select.caret,
-button.caret {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: 8px;
-  gap: 12px;
-}
-
 .bold-select.caret::after,
 button.caret::after {
   content: '';
-  flex: 0 0 24px;
+  position: absolute;
+  right: 8px;
+  top: 16px;
   width: 24px;
   height: 24px;
   pointer-events: none;
@@ -622,6 +615,11 @@ button.caret::after {
 
 .no-pointers {
   pointer-events: none;
+}
+
+.Toastify {
+  position: fixed;
+  z-index: 9999999 !important;
 }
 
 @keyframes animloader {

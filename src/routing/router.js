@@ -18,12 +18,12 @@ import Services, { ServicesDashboard } from '../containers/Company/Services';
 import TimeSlots, { NewTimeSlot } from '../containers/Company/Services/TimeSlots';
 import CompanySettings from '../containers/Company/Settings';
 import Setup from '../containers/Company/Setup';
-import User from '../containers/User';
-import UserDashboard from '../containers/User/Dashboard';
+// import User from '../containers/User';
+// import UserDashboard from '../containers/User/Dashboard';
 import Error404 from '../containers/Error404';
 import Subscriptions from '../containers/Subscriptions';
-import UserSearch from '../containers/User/Search';
-import Provider from '../containers/User/Provider';
+// import UserSearch from '../containers/User/Search';
+// import Provider from '../containers/User/Provider';
 import AccountLinksRefresh from '../containers/Company/Stripe/AccountLinksRefresh';
 import AccountLinksReturn from '../containers/Company/Stripe/AccountLinksReturn';
 import StripeDepositPaymentWindow from '../containers/Company/Stripe/DepositPaymentWindow';
@@ -40,6 +40,8 @@ import CardEditor from '../containers/Company/CardEditor';
 import ReturnPolicy from '../containers/ReturnPolicy';
 import CompanyReturnPolicy from '../containers/Company/ReturnPolicy';
 import { PrivacyPolicy, TermsAndConditions } from '../containers/TermsAndPrivacy';
+import UserHome from '../containers/User/UserHome';
+import Settings from '../containers/User/Settings';
 import Brand from '../containers/Company/Settings/Brand';
 import Profile from '../containers/Company/Settings/Profile';
 import General from '../containers/Company/Settings/General';
@@ -54,6 +56,12 @@ import Activities from '../containers/Company/Settings/Activities';
 import References from '../containers/Company/Settings/References';
 import Customers from '../containers/Company/Customers';
 import Categories from '../containers/Company/Services/Categories';
+import User from '../containers/User';
+import UserSearch from '../containers/User/Search';
+import UserAppointments from '../containers/User/Appointments';
+import UserBookmarks from '../containers/User/Bookmarks';
+import UserProvider from '../containers/User/Provider';
+import CompanyAppointments from '../containers/Company/Services/Appointments';
 
 const router = createBrowserRouter([
   {
@@ -117,6 +125,36 @@ const router = createBrowserRouter([
     element: <Search />,
   },
   {
+    path: routes.user.base,
+    element: <User />,
+    children: [
+      {
+        path: routes.user.dashboard.home,
+        element: <UserHome />,
+      },
+      {
+        path: routes.user.dashboard.settings,
+        element: <Settings />,
+      },
+      {
+        path: routes.user.dashboard.search,
+        element: <UserSearch />,
+      },
+      {
+        path: routes.user.dashboard.appointments,
+        element: <UserAppointments />,
+      },
+      {
+        path: routes.user.dashboard.bookmarks,
+        element: <UserBookmarks />,
+      },
+      {
+        path: routes.user.dashboard.providers(':provider_id'),
+        element: <UserProvider />,
+      },
+    ],
+  },
+  {
     path: routes.company.base,
     element: <Company />,
     children: [
@@ -143,6 +181,10 @@ const router = createBrowserRouter([
           {
             path: routes.company.services.newTimeSlot,
             element: <NewTimeSlot />,
+          },
+          {
+            path: routes.company.services.appointments,
+            element: <CompanyAppointments />,
           },
         ],
       },
@@ -235,24 +277,6 @@ const router = createBrowserRouter([
       {
         path: routes.company.returnPolicy,
         element: <CompanyReturnPolicy />,
-      },
-    ],
-  },
-  {
-    path: routes.user.base,
-    element: <User />,
-    children: [
-      {
-        path: '',
-        element: <UserDashboard />,
-      },
-      {
-        path: routes.user.dashboard.search,
-        element: <UserSearch />,
-      },
-      {
-        path: routes.user.dashboard.providers(':provider_id'),
-        element: <Provider />,
       },
     ],
   },

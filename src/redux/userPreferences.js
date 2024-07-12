@@ -20,8 +20,18 @@ const slice = createSlice({
       state.bookmarkedCompanies.push(payload);
     },
     deleteBookmarkedCompany: (state, { payload }) => {
-      preferences.deleteBookmarkedCompany(payload);
-      state.bookmarkedCompanies = state.bookmarkedCompanies.filter(({ id }) => id !== payload);
+      if (typeof payload === 'number') {
+        preferences.deleteBookmarkedCompany(payload);
+        state.bookmarkedCompanies = state.bookmarkedCompanies.filter(({ id }) => id !== payload);
+      } else if (Array.isArray(payload)) {
+        payload.forEach((id) => {
+          preferences.deleteBookmarkedCompany(id);
+        });
+
+        state.bookmarkedCompanies = state.bookmarkedCompanies.filter(
+          ({ id }) => !payload.includes(id),
+        );
+      }
     },
   },
 });

@@ -43,8 +43,8 @@ const WebSocketManager = () => {
             messageAlert.show(
               data.content,
               `New message from ${data.from}`,
-              (data, callback) => dispatch(
-                sendAppointmentMessageReplyAsync(data.referenceId, data, callback),
+              (response, callback) => dispatch(
+                sendAppointmentMessageReplyAsync(data.referenceId, response, callback),
               ),
             );
           }

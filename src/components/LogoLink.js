@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import lx from '../assets/images/logaxp.png';
@@ -17,7 +16,6 @@ const styles = {
     fontSize: 32,
     fontFamily: 'Clash Display',
     fontWeight: 600,
-    color: '#00416a',
     textAlign: 'center',
   },
   loga: {
@@ -28,26 +26,40 @@ const styles = {
   },
 };
 
-const LogoLink = ({ color }) => {
-  const logaStyle = useMemo(() => ({ ...styles.loga, color }), [color]);
-
-  return (
-    <Link to="/" style={styles.mainNaBrand}>
-      <img src={lx} alt="logo" style={styles.logo} />
-      <div style={styles.navBrandWrap}>
-        <span style={logaStyle}>Loga</span>
-        <span style={styles.xp}>XP</span>
-      </div>
-    </Link>
-  );
-};
+const LogoLink = ({ className }) => (
+  <Link to="/" style={styles.mainNaBrand}>
+    <img src={lx} alt="logo" style={styles.logo} />
+    <div className={`text-4xl font-clash font-semibold text-center ${className}`}>
+      <span>Loga</span>
+      <span style={styles.xp}>XP</span>
+    </div>
+  </Link>
+);
 
 LogoLink.propTypes = {
-  color: PropTypes.string,
+  className: PropTypes.string,
 };
 
 LogoLink.defaultProps = {
-  color: '#00416a',
+  className: 'text-[#00416a] dark:text-white',
+};
+
+export const Logo = ({ className }) => (
+  <div style={styles.mainNaBrand}>
+    <img src={lx} alt="logo" style={styles.logo} />
+    <div className={`text-4xl font-clash font-semibold text-center ${className}`}>
+      <span>Loga</span>
+      <span style={styles.xp}>XP</span>
+    </div>
+  </div>
+);
+
+Logo.propTypes = {
+  className: PropTypes.string,
+};
+
+Logo.defaultProps = {
+  className: 'text-[#00416a] dark:text-white',
 };
 
 export default LogoLink;

@@ -1,4 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import css from './style.module.css';
@@ -12,10 +17,18 @@ import {
   fetchAppointmentAsync,
   respondToLiveAppointmentUpdateRequestAsync as userUpdateResponse,
   deleteAppointmentUpdateRequestAsync as userDeleteRequest,
+  updateAppointmentTimeSlotAsync,
 } from '../../redux/userSlice';
 import { Ring } from '../../components/LoadingButton';
 import AlertComponent from '../../components/AlertComponents';
-import { AppointmentTimeSlotUpdatePanel } from '../User/AppointmentsPanel';
+import Modal from '../../components/Modal';
+import { SlotsPanel } from '../Search/SearchPanel';
+import {
+  addressText,
+  currencyHelper,
+  rootSelector,
+  toDuration,
+} from '../../utils';
 
 const ACCEPT = 'accept';
 const CLOSE = 'close';
@@ -220,11 +233,44 @@ export const useAppointmentAlert = () => {
   };
 };
 
-export const AppointmentUpdateRequestAlert = ({ request, onClose, onUserUpdate }) => {
+export const AppointmentUpdateRequestAlert = ({ request, onClose }) => {
   const [busy, setBusy] = useState(false);
   const [sliderClass, setSliderClass] = useState(css.slider);
   const [date, setDate] = useState('');
   const dispatch = useDispatch();
+  const [appointment, setAppointment] = useState(null);
+  const [panelWidth, setPanelWidth] = useState(750);
+  const [slotsModal, setSlotsModal] = useState({ open: false, busy: false });
+  const {
+    address,
+    price,
+    deposit,
+    duration,
+  } = useMemo(() => {
+    if (!appointment) {
+      return {
+        address: '',
+        price: '',
+        deposit: '',
+        duration: '',
+      };
+    }
+
+    const { timeSlot: { service } } = appointment;
+    const price = currencyHelper.toString(service.price, service.company.country.currencySymbol);
+    let deposit = '';
+    if (service.minDeposit) {
+      deposit = currencyHelper.toString(service.minDeposit, service.company.country.currencySymbol);
+    }
+    const duration = toDuration(service.duration);
+
+    return {
+      address: addressText(service.company.address),
+      price,
+      deposit,
+      duration,
+    };
+  }, [appointment, request]);
 
   const close = useCallback(() => {
     setSliderClass(css.slider);
@@ -233,10 +279,14 @@ export const AppointmentUpdateRequestAlert = ({ request, onClose, onUserUpdate }
 
   useEffect(() => {
     setSliderClass(`${css.slider} ${css.open}`);
-  }, []);
-
-  useEffect(() => {
     setDate(new Date(request.time).toLocaleString());
+    if (window.location.pathname.indexOf('users') > -1) {
+      dispatch(fetchAppointmentAsync(request.appointmentId, (err, appointment) => {
+        if (!err) {
+          setAppointment(appointment);
+        }
+      }));
+    }
   }, []);
 
   const handleClick = useCallback(({ target: { name } }) => {
@@ -276,21 +326,28 @@ export const AppointmentUpdateRequestAlert = ({ request, onClose, onUserUpdate }
       };
       if (request.originator === 'client') {
         dispatch(companyUpdateResponse('accepted', data, (err) => {
+          setBusy(false);
           if (!err) {
             close();
           }
         }));
         return;
       }
-      dispatch(fetchAppointmentAsync(request.appointmentId, (err, appointment) => {
-        setBusy(false);
-        if (!err) {
-          setSliderClass(css.slider);
-          setTimeout(() => onUserUpdate(data, appointment), 350);
-        }
-      }));
+      setSlotsModal({ open: true, busy: false });
     }
   }, []);
+
+  const handleUpdateAppointment = (slot) => {
+    setSlotsModal({ open: true, busy: true });
+    dispatch(updateAppointmentTimeSlotAsync(slot, request, appointment, (err) => {
+      if (err) {
+        setSlotsModal({ open: true, busy: false });
+      } else {
+        setSlotsModal({ open: false, busy: false });
+        onClose();
+      }
+    }));
+  };
 
   return (
     <div className={css.container}>
@@ -385,6 +442,37 @@ export const AppointmentUpdateRequestAlert = ({ request, onClose, onUserUpdate }
           </div>
         </article>
       </div>
+      {appointment ? (
+        <Modal
+          isOpen={slotsModal.open || slotsModal.busy}
+          parentSelector={rootSelector}
+          onRequestClose={() => {
+            if (!slotsModal.busy) {
+              setSlotsModal({ busy: false, isOpen: false });
+            }
+          }}
+          style={{
+            content: { maxWidth: panelWidth },
+            overlay: { zIndex: 1000009 },
+          }}
+          shouldCloseOnEsc
+          shouldCloseOnOverlayClick
+        >
+          <SlotsPanel
+            service={appointment.timeSlot.service}
+            address={address}
+            price={price}
+            duration={duration}
+            deposit={deposit}
+            panelWidth={panelWidth}
+            setPanelWidth={setPanelWidth}
+            busy={slotsModal.busy}
+            setBusy={(busy) => setSlotsModal((state) => ({ ...state, busy }))}
+            onSlotSelected={handleUpdateAppointment}
+            buttonText="Update Appointment"
+          />
+        </Modal>
+      ) : null}
     </div>
   );
 };
@@ -402,7 +490,6 @@ AppointmentUpdateRequestAlert.propTypes = {
     comment: PropTypes.string,
   }).isRequired,
   onClose: PropTypes.func.isRequired,
-  onUserUpdate: PropTypes.func.isRequired,
 };
 
 export const useAppointmentUpdateRequestAlert = () => {
@@ -412,33 +499,55 @@ export const useAppointmentUpdateRequestAlert = () => {
     show: (request) => {
       let popup;
       const handleClose = () => popup.close();
-      const handleUserUpdate = (request, appointment) => {
-        popup.close();
-        popup = dialog.show(
-          <AppointmentTimeSlotUpdatePanel
-            request={request}
-            appointment={appointment}
-            onClose={handleClose}
-          />,
-        );
-      };
 
       popup = dialog.show(
         <AppointmentUpdateRequestAlert
           request={request}
           onClose={handleClose}
-          onUserUpdate={handleUserUpdate}
         />,
       );
     },
   };
 };
 
-export const AppointmentUpdateResponseAlert = ({ request, onClose, onUserUpdate }) => {
+export const AppointmentUpdateResponseAlert = ({ request, onClose }) => {
   const [busy, setBusy] = useState(false);
   const [sliderClass, setSliderClass] = useState(css.slider);
   const [date, setDate] = useState('');
   const dispatch = useDispatch();
+  const [appointment, setAppointment] = useState(null);
+  const [panelWidth, setPanelWidth] = useState(750);
+  const [slotsModal, setSlotsModal] = useState({ open: false, busy: false });
+  const {
+    address,
+    price,
+    deposit,
+    duration,
+  } = useMemo(() => {
+    if (!appointment) {
+      return {
+        address: '',
+        price: '',
+        deposit: '',
+        duration: '',
+      };
+    }
+
+    const { timeSlot: { service } } = appointment;
+    const price = currencyHelper.toString(service.price, service.company.country.currencySymbol);
+    let deposit = '';
+    if (service.minDeposit) {
+      deposit = currencyHelper.toString(service.minDeposit, service.company.country.currencySymbol);
+    }
+    const duration = toDuration(service.duration);
+
+    return {
+      address: addressText(service.company.address),
+      price,
+      deposit,
+      duration,
+    };
+  }, [appointment]);
 
   const close = useCallback(() => {
     setSliderClass(css.slider);
@@ -447,33 +556,21 @@ export const AppointmentUpdateResponseAlert = ({ request, onClose, onUserUpdate 
 
   useEffect(() => {
     setSliderClass(`${css.slider} ${css.open}`);
-  }, []);
-
-  useEffect(() => {
     setDate(new Date(request.time).toLocaleString());
+    if (window.location.pathname.indexOf('users') > -1) {
+      dispatch(fetchAppointmentAsync(request.appointmentId, (err, appointment) => {
+        if (!err) {
+          setAppointment(appointment);
+        }
+      }));
+    }
   }, []);
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === CLOSE) {
       close();
     } else if (name === NEW_SLOT) {
-      setBusy(true);
-
-      dispatch(fetchAppointmentAsync(request.appointmentId, (err, appointment) => {
-        setBusy(false);
-        if (!err) {
-          setSliderClass(css.slider);
-          const data = {
-            id: request.id,
-            originator: request.originator,
-            status: request.status,
-            comment: request.comment,
-            createdAt: request.createdAt,
-            appointmentId: request.appointmentId,
-          };
-          setTimeout(() => onUserUpdate(data, appointment), 350);
-        }
-      }));
+      setSlotsModal({ open: true, busy: false });
     } else if (name === DELETE) {
       const callback = (err) => {
         setBusy(false);
@@ -492,6 +589,18 @@ export const AppointmentUpdateResponseAlert = ({ request, onClose, onUserUpdate 
       }
     }
   }, []);
+
+  const handleUpdateAppointment = (slot) => {
+    setSlotsModal({ open: true, busy: true });
+    dispatch(updateAppointmentTimeSlotAsync(slot, request, appointment, (err) => {
+      if (err) {
+        setSlotsModal({ open: true, busy: false });
+      } else {
+        setSlotsModal({ open: false, busy: false });
+        onClose();
+      }
+    }));
+  };
 
   return (
     <div className={css.container}>
@@ -593,6 +702,37 @@ export const AppointmentUpdateResponseAlert = ({ request, onClose, onUserUpdate 
             ) : null}
           </div>
         </article>
+        {appointment ? (
+          <Modal
+            isOpen={slotsModal.open || slotsModal.busy}
+            parentSelector={rootSelector}
+            onRequestClose={() => {
+              if (!slotsModal.busy) {
+                setSlotsModal({ busy: false, isOpen: false });
+              }
+            }}
+            style={{
+              content: { maxWidth: panelWidth },
+              overlay: { zIndex: 1000009 },
+            }}
+            shouldCloseOnEsc
+            shouldCloseOnOverlayClick
+          >
+            <SlotsPanel
+              service={appointment.timeSlot.service}
+              address={address}
+              price={price}
+              duration={duration}
+              deposit={deposit}
+              panelWidth={panelWidth}
+              setPanelWidth={setPanelWidth}
+              busy={slotsModal.busy}
+              setBusy={(busy) => setSlotsModal((state) => ({ ...state, busy }))}
+              onSlotSelected={handleUpdateAppointment}
+              buttonText="Update Appointment"
+            />
+          </Modal>
+        ) : null}
       </div>
     </div>
   );
@@ -611,7 +751,6 @@ AppointmentUpdateResponseAlert.propTypes = {
     comment: PropTypes.string,
   }).isRequired,
   onClose: PropTypes.func.isRequired,
-  onUserUpdate: PropTypes.func.isRequired,
 };
 
 export const useAppointmentUpdateResponseAlert = () => {
@@ -621,22 +760,11 @@ export const useAppointmentUpdateResponseAlert = () => {
     show: (request) => {
       let popup;
       const handleClose = () => popup.close();
-      const handleUserUpdate = (request, appointment) => {
-        popup.close();
-        popup = dialog.show(
-          <AppointmentTimeSlotUpdatePanel
-            request={request}
-            appointment={appointment}
-            onClose={handleClose}
-          />,
-        );
-      };
 
       popup = dialog.show(
         <AppointmentUpdateResponseAlert
           request={request}
           onClose={handleClose}
-          onUserUpdate={handleUserUpdate}
         />,
       );
     },

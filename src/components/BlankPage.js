@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import Header from '../containers/Header';
-import css from '../containers/Header/style.module.css';
-import lx from '../assets/images/lx-blue.png';
+import { Logo } from './LogoLink';
 import { childrenProps } from '../utils/propTypes';
 
 const styles = {
@@ -17,6 +16,7 @@ const styles = {
     pointerEvents: 'all',
     backgroundColor: 'rgba(234,243,249,1)',
     background: 'linear-gradient(45deg, rgba(234,243,249,1) 0%, rgba(255,254,230,1) 22%, rgba(172,231,215,1) 40%, rgba(253,232,255,1) 60%, rgba(190,255,231,1) 81%, rgba(251,254,255,1) 100%)',
+    zIndex: 9999,
   },
   header: {
     position: 'relative',
@@ -32,19 +32,13 @@ const styles = {
   },
 };
 
-const BlankPage = ({ header, children }) => (
-  <section style={styles.container}>
+const BlankPage = ({ header, className, children }) => (
+  <section style={styles.container} className={className}>
     {header ? (
       <Header />
     ) : (
       <header style={styles.header}>
-        <div className={css.main_nav_brand}>
-          <img src={lx} alt="logo" className={css.logo} />
-          <div className={css.nav_brand_wrap}>
-            <span className={css.loga}>Loga</span>
-            <span className={css.xp}>XP</span>
-          </div>
-        </div>
+        <Logo />
       </header>
     )}
     <div style={styles.body}>
@@ -56,11 +50,13 @@ const BlankPage = ({ header, children }) => (
 BlankPage.propTypes = {
   header: PropTypes.bool,
   children: childrenProps,
+  className: PropTypes.string,
 };
 
 BlankPage.defaultProps = {
   header: false,
   children: null,
+  className: '',
 };
 
 export default BlankPage;

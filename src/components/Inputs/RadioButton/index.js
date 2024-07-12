@@ -25,7 +25,12 @@ const RadioButton = ({
       value={value}
       onChange={onChange}
     />
-    <span className={labelClass} style={labelStyle}>{label}</span>
+    <span
+      className={`before:border-[4px] before:border-slate-100 before:dark:border-slate-500 ${labelClass}`}
+      style={labelStyle}
+    >
+      {label}
+    </span>
   </label>
 );
 

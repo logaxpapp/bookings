@@ -13,7 +13,6 @@ import {
   UserPasswordEditorDialog,
 } from '../containers/Authentication/PasswordEditor';
 import routes from '../routing/routes';
-import { classNames } from '../utils';
 
 const UserMenuComponent = ({
   dashboardPath,
@@ -27,12 +26,16 @@ const UserMenuComponent = ({
     <>
       <Menu as="div" className="relative inline-block text-left">
         <div>
-          <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-            <div className="flex items-center gap-1">
+          <Menu.Button
+            className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 border-[#d7dde5] dark:text-white border dark:bg-[#24303f] dark:border-[#334255]"
+          >
+            <div className="flex items-center gap-1 min-w-fit">
               <img src={av} alt="user" className="w-6 h-6 rounded-full" />
-              <span>{name}</span>
+              <span className="max-w-30 text-ellipsis overflow-hidden whitespace-nowrap">
+                {name}
+              </span>
             </div>
-            <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400" aria-hidden="true" />
+            <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-400 dark:text-white" aria-hidden="true" />
           </Menu.Button>
         </div>
         <Transition
@@ -44,16 +47,13 @@ const UserMenuComponent = ({
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-[#24303f] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
             <div className="py-1">
               {window.location.pathname === dashboardPath ? null : (
                 <Menu.Item>
-                  {({ active }) => (
+                  {() => (
                     <Link
-                      className={classNames(
-                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                        'block w-full px-4 py-2 text-left text-lg',
-                      )}
+                      className="w-full py-2 px-5 text-left text-lg flex items-center gap-3 hover:bg-[#e6e8eB] dark:hover:bg-meta-4 dark:text-white disabled:text-slate-400 dark:disabled:text-slate-400 disabled:bg-transparent dark:disabled:hover:bg-transparent"
                       to={dashboardPath}
                     >
                       My Dashboard
@@ -62,13 +62,10 @@ const UserMenuComponent = ({
                 </Menu.Item>
               )}
               <Menu.Item>
-                {({ active }) => (
+                {() => (
                   <button
                     type="button"
-                    className={classNames(
-                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                      'block w-full px-4 py-2 text-left text-lg',
-                    )}
+                    className="w-full py-2 px-5 text-left text-lg flex items-center gap-3 hover:bg-[#e6e8eB] dark:hover:bg-meta-4 dark:text-white disabled:text-slate-400 dark:disabled:text-slate-400 disabled:bg-transparent dark:disabled:hover:bg-transparent"
                     onClick={() => setPasswordEditorOpen(true)}
                   >
                     Change Password
@@ -76,13 +73,10 @@ const UserMenuComponent = ({
                 )}
               </Menu.Item>
               <Menu.Item>
-                {({ active }) => (
+                {() => (
                   <button
                     type="button"
-                    className={classNames(
-                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                      'block w-full px-4 py-2 text-left text-lg',
-                    )}
+                    className="w-full py-2 px-5 text-left text-lg flex items-center gap-3 hover:bg-[#e6e8eB] dark:hover:bg-meta-4 dark:text-white disabled:text-slate-400 dark:disabled:text-slate-400 disabled:bg-transparent dark:disabled:hover:bg-transparent"
                     onClick={onLogout}
                   >
                     Sign out

@@ -137,6 +137,22 @@ export const subscriptionProps = PropTypes.shape({
   paymentMethod: PropTypes.string,
 });
 
+export const featureTextProps = PropTypes.shape({
+  id: PropTypes.number,
+  text: PropTypes.string,
+  isDisplayed: PropTypes.bool,
+  plans: PropTypes.arrayOf(PropTypes.number),
+});
+
+export const planProps = PropTypes.shape({
+  id: PropTypes.number,
+  name: PropTypes.string,
+  prices: PropTypes.arrayOf(priceProps),
+  currencySymbol: PropTypes.string,
+  freePeriod: PropTypes.number,
+  featureTexts: PropTypes.arrayOf(featureTextProps),
+});
+
 export const userProps = PropTypes.shape({
   id: PropTypes.number,
   name: PropTypes.string,
@@ -164,4 +180,11 @@ export const appointmentProps = PropTypes.shape({
   status: PropTypes.string,
   deposit: PropTypes.number,
   messages: PropTypes.arrayOf(correspondenceProps),
+});
+
+export const notificationTimeProps = PropTypes.shape({
+  id: PropTypes.number,
+  quantity: PropTypes.number,
+  unit: PropTypes.string,
+  method: PropTypes.string,
 });

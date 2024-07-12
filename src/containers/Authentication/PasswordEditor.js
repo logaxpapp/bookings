@@ -3,22 +3,16 @@ import {
 } from 'react';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Password } from '../../components/TextBox';
-import LoadingButton from '../../components/LoadingButton';
+import { Input } from '../../components/TextBox';
 import Modal from '../../components/Modal';
 import { notification } from '../../utils';
 import { updatePasswordAsync as updateEmployeePassword } from '../../redux/companySlice';
 import { updatePasswordAsync as updateUserPassword } from '../../redux/userSlice';
+import { Button } from '../../components/Buttons';
 
 const NEW_PASSWORD = 'new_password';
 const OLD_PASSWORD = 'old_password';
 const PASSWORD_R = 'password_r';
-
-const fieldStyle = {
-  backgroundColor: '#f2eff5',
-  borderRadius: 4,
-  padding: 16,
-};
 
 const PasswordEditorDialog = ({ isOpen, onClose, updatePassword }) => {
   const [busy, setBusy] = useState(false);
@@ -94,47 +88,43 @@ const PasswordEditorDialog = ({ isOpen, onClose, updatePassword }) => {
       shouldCloseOnEsc={!busy}
       shouldCloseOnOverlayClick={!busy}
     >
-      <section className="w-full max-w-[600px] p-12">
-        <header className="border-b mb-8">
-          <h1 className="text-2xl font-semibold pb-4 m-0">Change Password</h1>
+      <section className="w-full max-w-[600px] max-h-[90vh] overflow-auto px-12 py-8">
+        <header className="border-b border-[#dbdfeb] dark:border-[#4d5055] border-dotted mb-8">
+          <h1 className="text-2xl font-semibold pb-4 m-0 text-[#011c39] dark:text-white">
+            Change Password
+          </h1>
         </header>
-        <form onSubmit={handleSubmit}>
-          <Password
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          <Input
+            type="password"
             id={OLD_PASSWORD}
             name={OLD_PASSWORD}
             label="Old Password"
             value={oldPassword}
             error={errors.oldPassword}
             onChange={handleValueChange}
-            style={fieldStyle}
-            canUmask
           />
-          <Password
+          <Input
             id={NEW_PASSWORD}
             name={NEW_PASSWORD}
             label="New Password"
             value={newPassword}
             error={errors.newPassword}
             onChange={handleValueChange}
-            style={fieldStyle}
-            canUmask
           />
-          <Password
+          <Input
             id={PASSWORD_R}
             name={PASSWORD_R}
             label="Repeat Password"
             value={passwordR}
             error={errors.passwordR}
             onChange={handleValueChange}
-            style={fieldStyle}
-            canUmask
           />
-          <LoadingButton
-            type="submit"
-            label="Update Password"
-            loading={busy}
-            styles={{ fontSize: '1.05rem' }}
-          />
+          <div className="flex justify-center pt-8">
+            <Button type="submit" busy={busy} className="!px-10">
+              Submit
+            </Button>
+          </div>
         </form>
       </section>
     </Modal>

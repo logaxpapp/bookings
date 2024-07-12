@@ -1,6 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import PropTypes from 'prop-types';
-import css from './style.module.css';
 import { SvgButton, colors, paths } from '../svg';
 
 /* eslint-disable jsx-a11y/label-has-associated-control */
@@ -17,7 +16,6 @@ const MessagePanel = ({
   onClose,
 }) => {
   const [content, setContent] = useState('');
-  const form = useRef(null);
 
   const handleClick = useCallback(({ target: { name } }) => {
     if (name === CLOSE_MESSAGES) {
@@ -50,38 +48,38 @@ const MessagePanel = ({
   }, [handleSubmit, setContent]);
 
   return (
-    <section className={css.message_panel}>
-      <header className={css.message_panel_header}>
-        <div className={css.message_panel_header_title}>
+    <section className="w-60 h-full max-h-70 relative flex flex-col overflow-hidden pointer-events-auto bg-white dark:bg-[#222d3a] border border-[#ddd] dark:border-[#1c2530]">
+      <header className="p-1 text-white bg-[#0f5abd]">
+        <div className="flex flex-col gap-1.5 text-sm">
           <span>{title}</span>
           {rider ? (
-            <span className={css.message_panel_service_title_rider}>{rider}</span>
+            <span className="text-[#c9d0d5] text-xs">{rider}</span>
           ) : null}
         </div>
       </header>
-      <div className={css.message_panel_body}>
+      <div className="flex-1 flex flex-col gap-2 p-1 overflow-auto">
         {messages.length ? (
           messages.map((msg) => (
             <div
               key={msg.id}
-              className={`${css.message_content} ${msg.senderName === username ? css.right : css.left}`}
+              className={`rounded-lg p-2 text-sm border border-[#dbdbdb] dark:border-[#151b24] text-[#011c39] dark:text-slate-100 ${msg.senderName === username ? 'ml-8 bg-[#f6f8fd] dark:bg-[#1f2733]' : 'mr-8 bg-[#e9ebf0] dark:bg-[#161d27]'}`}
             >
               {msg.content}
             </div>
           ))
         ) : (
-          <div className={css.message_panel_empty_msg}>
+          <div className="text-[#8f9cb5] dark:text-slate-200 text-sm py-8 px-4 text-center">
             Start a conversation!
           </div>
         )}
       </div>
-      <form ref={form} onSubmit={handleSubmit} className={css.message_form}>
-        <label className={css.message_label} data-value={content}>
+      <form onSubmit={handleSubmit} className="pt-4 pb-2 px-2">
+        <label className="max-h-20 overflow-auto p-2 grid grid-cols-2 grid-rows-2 align-top items-stretch relative rounded-sm border border-[#cadde7] dark:border-[#1e2631] after:content-[attr(data-value)] after:invisible after:whitespace-pre-wrap after:col-start-1 after:col-span-2 after:row-start-1 after:row-span-2" data-value={content}>
           <textarea
             type="text"
             name={MESSAGE_CONTENT}
             value={content}
-            className={css.message_input}
+            className="block w-full resize-none col-start-1 col-span-2 row-start-1 row-span-2 bg-transparent text-[#5c5c5c] dark:text-white"
             onChange={handleValueChange}
             onKeyUp={handleKeyPress}
             rows={1}
