@@ -2,6 +2,7 @@
 
 .footer {
   width: 100%;
+  padding: 16px;
 }
 
 .footer_links_panel {
@@ -57,16 +58,15 @@
 
 .pre_icon {
   position: relative;
-  padding-left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .pre_icon::before {
   content: '';
-  position: absolute;
-  left: 0;
-  top: 2px;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   background-color: #5d6b82;
 }
 
@@ -217,7 +217,7 @@ a.footer_col_link:hover {
   width: 100%;
   max-width: 420px;
   display: flex;
-  padding: 4px 4px 4px 24px;
+  padding: 4px 4px 4px 28px;
   align-items: center;
   gap: 8px;
   border-radius: 4px;
@@ -228,9 +228,9 @@ a.footer_col_link:hover {
   content: '';
   position: absolute;
   left: 4px;
-  top: 10px;
-  width: 16px;
-  height: 16px;
+  top: 8px;
+  width: 18px;
+  height: 18px;
   background-color: #fff;
   background-size: 100% 100%;
   mask: url(../../assets/images/email.svg);

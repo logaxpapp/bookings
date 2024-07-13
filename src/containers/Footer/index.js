@@ -100,7 +100,7 @@ const EmailSubscriptionPanel = () => {
 };
 
 const Footer = () => (
-  <footer className={`${css.section_row} ${css.footer}`}>
+  <footer className={css.footer}>
     <EmailSubscriptionPanel />
     <div className={css.footer_links_panel}>
       <section className={css.footer_address_col}>
