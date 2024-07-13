@@ -404,7 +404,7 @@ const HeroSection = () => {
 
   return (
     <div
-      className={`${css.section_row} ${css.hero_section}`}
+      className={css.hero_section}
     >
       {/* eslint-disable jsx-a11y/media-has-caption */}
       <video className={css.hero_video} autoPlay loop muted>
