@@ -13,6 +13,8 @@
   position: relative;
   width: 100%;
   overflow: hidden;
+  height: 40vh;
+  display: flex;
   padding: 16px;
 }
 
@@ -28,9 +30,19 @@
   content: "";
   width: 100%;
   height: 100%;
-  background-image: url(../../assets/images/hero-placeholder.jpg);
+  background-image: url(../../assets/images/banner-mobile.jpg);
   background-size: cover;
   z-index: -1;
+}
+
+.hero_section::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .hero_video {
@@ -45,13 +57,14 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  z-index: 2;
 }
 
 .hero_body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   gap: 32px;
 }
@@ -66,16 +79,17 @@
 .hero_heading {
   color: #fff;
   font-family: M PLUS 1;
-  font-size: 36px;
+  font-size: 32px;
   font-style: normal;
   font-weight: 700;
   line-height: 120%; /* 38.4px */
   letter-spacing: -0.64px;
   margin: 0;
+  text-align: center;
 }
 
 .hero_heading_rider {
-  color: var(--Neutral-N10, #fafbfb);
+  color: #fff;
   margin: 0;
   font-family: Inter;
   font-size: 20px;
@@ -140,19 +154,18 @@
 }
 
 .hero_popular_search_wrap {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  display: none;
 }
 
 .hero_popular_search_btn {
-  padding: 10px 20px;
+  padding: 10px 8px;
   border-radius: 50px;
-  border: 1px solid var(--White, #fff);
-  color: var(--White, #fff);
+  border: 1px solid #e1e1e1;
+  color: #000;
   background-color: transparent;
-  font-family: Roboto;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -723,8 +736,36 @@
 }
 
 @media only screen and (min-width: 640px) {
+  .hero_section::before {
+    background-image: url(../../assets/images/hero-placeholder.jpg);
+    padding: 32px;
+  }
+
   .hero_video {
     display: block;
+  }
+
+  .hero_heading {
+    font-size: 36px;
+    padding-top: 0;
+  }
+
+  .hero_heading_rider {
+    color: var(--Neutral-N10, #fafbfb);
+    display: block;
+  }
+
+  .hero_popular_search_wrap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .hero_popular_search_btn {
+    padding: 10px 20px;
+    border: 1px solid #fff;
+    color: #fff;
   }
 }
 
@@ -737,7 +778,6 @@
 
   .hero_section {
     height: 80vh;
-    padding: 32px;
   }
 
   .hero_section::before {
@@ -746,6 +786,7 @@
 
   .hero_body {
     padding-bottom: 64px;
+    justify-content: flex-end;
   }
 
   .section_row.footer {

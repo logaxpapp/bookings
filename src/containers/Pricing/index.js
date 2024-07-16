@@ -78,7 +78,7 @@ const SubscriptionsTable = () => {
     }
 
     return { features, plans };
-  }, [subscriptions]);
+  }, [subscriptions, subscriptionFeatures]);
   const dispatch = useDispatch();
 
   const reloadSubscriptions = useCallback(() => {
@@ -94,7 +94,7 @@ const SubscriptionsTable = () => {
       reloadSubscriptions();
     }
 
-    if (!subscriptionFeatures && !loadingFeatures && !featuresError) {
+    if (!(subscriptionFeatures || loadingFeatures || featuresError)) {
       reloadFeatures();
     }
   }, []);

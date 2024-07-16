@@ -403,40 +403,70 @@ const HeroSection = () => {
   };
 
   return (
-    <div
-      className={css.hero_section}
-    >
-      {/* eslint-disable jsx-a11y/media-has-caption */}
-      <video className={css.hero_video} autoPlay loop muted>
-        <source src={heroVideo} />
-      </video>
-      {/* eslint-enable jsx-a11y/media-has-caption */}
-      <div className={css.hero_inner}>
-        <Header transparent />
-        <section className={css.hero_body}>
-          <header className={css.hero_body_header}>
-            <h1 className={css.hero_heading}>Find Your Perfect Services Today</h1>
-            <p className={css.hero_heading_rider}>
-              Discover top-notch service providers near you.
-            </p>
-          </header>
-          <SearchBar city={city} mode={mode} setCity={setCity} setMode={setMode} />
-          <div className={css.hero_popular_search_wrap}>
-            {popularSearches.map((term) => (
-              <button
-                key={term}
-                type="button"
-                name={term}
-                className={css.hero_popular_search_btn}
-                onClick={handlePopularSearchClick}
-              >
-                {term}
-              </button>
-            ))}
-          </div>
-        </section>
+    <>
+      <div
+        className={css.hero_section}
+      >
+        {/* eslint-disable jsx-a11y/media-has-caption */}
+        <video className={css.hero_video} autoPlay loop muted>
+          <source src={heroVideo} />
+        </video>
+        {/* eslint-enable jsx-a11y/media-has-caption */}
+        <div className={css.hero_inner}>
+          <Header transparent />
+          <section className={css.hero_body}>
+            <header className={css.hero_body_header}>
+              <h1 className={`${css.hero_heading} sm:!hidden`}>
+                <span>Find Your Perfect</span>
+                <br />
+                <span>Services Today</span>
+              </h1>
+              <h1 className={`${css.hero_heading} hidden sm:block`}>Find Your Perfect Services Today</h1>
+              <p className={css.hero_heading_rider}>
+                Discover top-notch service providers near you.
+              </p>
+            </header>
+            <SearchBar city={city} mode={mode} setCity={setCity} setMode={setMode} />
+            <div className={css.hero_popular_search_wrap}>
+              {popularSearches.map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  name={term}
+                  className={css.hero_popular_search_btn}
+                  onClick={handlePopularSearchClick}
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
       </div>
-    </div>
+      <div className="py-6 px-3 grid grid-cols-3 gap-3 sm:hidden">
+        {popularSearches.map((term) => (
+          <button
+            key={term}
+            type="button"
+            name={term}
+            className={css.hero_popular_search_btn}
+            onClick={handlePopularSearchClick}
+          >
+            {term}
+          </button>
+        ))}
+        <button
+          type="button"
+          aria-label="more"
+          name="more"
+          className={`${css.hero_popular_search_btn} flex items-center justify-center gap-2 !rounded-full`}
+          onClick={handlePopularSearchClick}
+        >
+          <span>More</span>
+          <ArrowRightIcon aria-hidden="true" className="w-4.5" />
+        </button>
+      </div>
+    </>
   );
 };
 
