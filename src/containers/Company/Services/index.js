@@ -691,7 +691,7 @@ export const ServicesDashboard = () => {
   const [company] = useOutletContext();
 
   return (
-    <div className="flex flex-col overflow-hidden w-full h-full p-8 relative">
+    <div className="flex flex-col overflow-hidden w-full h-full p-4 sm:p-8 relative">
       <ServiceComponent company={company} />
     </div>
   );
@@ -709,7 +709,7 @@ const Services = () => {
 
     return categories.reduce((memo, current) => memo + current.services.length, 0);
   }, [categories]);
-  const [company] = useOutletContext();
+  const [company, isSidebarOpen, setShowHamburger] = useOutletContext();
   const categoryLinkRef = useRef(null);
   const categoryHovered = useHover(categoryLinkRef);
   const [modals, setModals] = useState({
@@ -717,6 +717,8 @@ const Services = () => {
     service: { busy: false, isOpen: false },
   });
   const dispatch = useDispatch();
+
+  useEffect(() => setShowHamburger(true), []);
 
   const handleClick = ({ target: { name } }) => {
     if (name === CATEGORY) {
@@ -731,7 +733,7 @@ const Services = () => {
 
   return (
     <div className="flex-1 h-full flex" id="service-container-id">
-      <Aside>
+      <Aside isSidebarOpen={isSidebarOpen}>
         <Heading>Services & Categories</Heading>
         <div className="flex flex-col py-5 gap-4">
           <div className="flex flex-col gap-3">
@@ -857,7 +859,7 @@ const Services = () => {
           </Link>
         </div>
       </Aside>
-      <main className="flex-1 h-full bg-[#fafafa] px-7 py-10">
+      <main className="flex-1 h-full bg-[#fafafa] p-4 sm:px-7 sm:py-10">
         <div className="bg-white w-full h-full rounded-lg">
           <Outlet context={[company]} />
         </div>

@@ -276,10 +276,12 @@ export const CompanySettings2 = () => {
 };
 
 const CompanySettings = () => {
-  const [company] = useOutletContext();
+  const [company, isSidebarOpen, setShowHamburger] = useOutletContext();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => setShowHamburger(true), []);
 
   const signout = () => {
     dispatch(logout());
@@ -288,7 +290,7 @@ const CompanySettings = () => {
 
   return (
     <div className="flex-1 h-full flex" id="service-container-id">
-      <Aside>
+      <Aside isSidebarOpen={isSidebarOpen}>
         <div className="flex flex-col gap-5">
           {linkGroups.map((group) => (
             <div key={group}>
@@ -309,7 +311,7 @@ const CompanySettings = () => {
           ))}
         </div>
       </Aside>
-      <main className="flex-1 h-full bg-[#fafafa] px-7 py-10">
+      <main className="flex-1 h-full bg-[#fafafa] p-4 sm:px-7 sm:py-10">
         <div className="bg-white w-full h-full rounded-lg p-6">
           <Outlet context={[company]} />
         </div>

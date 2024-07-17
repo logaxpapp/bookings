@@ -31,7 +31,7 @@ const UserMenuComponent = ({
           >
             <div className="flex items-center gap-1 min-w-fit">
               <img src={av} alt="user" className="w-6 h-6 rounded-full" />
-              <span className="max-w-30 text-ellipsis overflow-hidden whitespace-nowrap">
+              <span className="max-w-30 text-ellipsis overflow-hidden whitespace-nowrap hidden sm:block">
                 {name}
               </span>
             </div>

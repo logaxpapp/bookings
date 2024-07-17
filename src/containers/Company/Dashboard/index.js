@@ -5,6 +5,7 @@ import {
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useOutletContext } from 'react-router';
 import PropTypes from 'prop-types';
 import css from './styles.module.css';
 import {
@@ -322,6 +323,9 @@ const Dashboard = () => {
   });
   const [linkModal, setLinkModal] = useState({ appointment: null, busy: false, onCreated: null });
   const dispatch = useDispatch();
+  const [, isSidebarOpen, setShowHamburger] = useOutletContext();
+
+  useEffect(() => setShowHamburger(true), []);
 
   useEffect(() => {
     const sunday = dateUtils.getWeekStartDate(date);
@@ -400,7 +404,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex-1 h-full w-full flex overflow-hidden">
-      <Aside>
+      <Aside isSidebarOpen={isSidebarOpen}>
         <Heading>My calendars</Heading>
       </Aside>
       <div className="overflow-hidden flex-1 h-full flex flex-col">

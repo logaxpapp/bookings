@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useOutletContext } from 'react-router';
 import PropTypes from 'prop-types';
 import { Menu, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
@@ -642,6 +643,9 @@ const Customers = () => {
   });
   const customers = useSelector(selectCustomers);
   const dispatch = useDispatch();
+  const [, isSidebarOpen, setShowHamburger] = useOutletContext();
+
+  useEffect(() => setShowHamburger(true), []);
 
   const handleDelete = () => {
     const id = deleteModal.customer?.id;
@@ -664,24 +668,26 @@ const Customers = () => {
       className="h-full w-full overflow-y-auto flex-1 flex"
       id="company-settings-customer-panel"
     >
-      <Aside>
+      <Aside isSidebarOpen={isSidebarOpen}>
         <Heading>Customers</Heading>
         {customers?.length ? (
           <ModalControls setEditorModal={setEditorModal} setImportModal={setImportModal} vertical />
         ) : null}
       </Aside>
       {customers.length ? (
-        <GridPanel minimumChildWidth={280}>
-          {customers.map((customer) => (
-            <div key={customer.email} className="p-3">
-              <CustomerCard
-                customer={customer}
-                setEditModal={setEditorModal}
-                setDeleteModal={setDeleteModal}
-              />
-            </div>
-          ))}
-        </GridPanel>
+        <div>
+          <GridPanel minimumChildWidth={280}>
+            {customers.map((customer) => (
+              <div key={customer.email} className="p-3">
+                <CustomerCard
+                  customer={customer}
+                  setEditModal={setEditorModal}
+                  setDeleteModal={setDeleteModal}
+                />
+              </div>
+            ))}
+          </GridPanel>
+        </div>
       ) : (
         <div className="w-full flex justify-center">
           <EmptyListPanel text="No customers to display">

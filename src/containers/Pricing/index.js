@@ -164,7 +164,7 @@ const Pricing = () => (
               <span className={css.accented}>XP</span>
               <span>&nbsp;Appointments</span>
             </h1>
-            <p className={css.header_text}>Let 10+ million of our users discover your business.</p>
+            <p className="text-center">Let 10+ million of our users discover your business.</p>
           </header>
           <Subscriptions />
           <SubscriptionsTable />
