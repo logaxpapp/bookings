@@ -879,8 +879,8 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
               </Modal>
             </div>
           </section>
-          <div className="relative w-full max-w-[1300px] mx-auto flex gap-6 p-6">
-            <aside className="w-80 sticky top-0 flex flex-col gap-6 bg-[#e8eaed] dark:bg-[#1a222c] dark:text-slate-100">
+          <div className="relative w-full max-w-[1300px] mx-auto flex flex-col sm:flex-row gap-6 p-6">
+            <aside className="w-full sm:w-80 sm:sticky sm:top-0 flex flex-col gap-6 bg-[#e8eaed] dark:bg-[#1a222c] dark:text-slate-100">
               {provider.location ? (
                 <GoogleMap
                   latitude={provider.location.latitude}
@@ -908,7 +908,7 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
                 </section>
               </div>
             </aside>
-            <section className="flex-1 flex flex-col gap-6 max-h-[800px] overflow-hidden dark:text-white">
+            <section className="flex-1 flex flex-col gap-6 sm:max-h-[800px] sm:overflow-hidden dark:text-white">
               <section>
                 <h1 className="text-base mb-2">Service Categories</h1>
                 {provider.serviceCategories.length ? (
@@ -934,10 +934,10 @@ const ProviderPage = ({ provider, includeHeader, includeFooter }) => {
                   </div>
                 )}
               </section>
-              <header className="flex items-center justify-between gap-6 pb-4 mb-2 border-b border-dotted border-[#ededed] dark:border-slate-600">
+              <header className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-6 pb-4 mb-2 border-b border-dotted border-[#ededed] dark:border-slate-600">
                 <h1 className={css.services_heading}>Services</h1>
                 {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
-                <div className="relative">
+                <div className="relative w-full sm:w-auto">
                   <Input
                     type="search"
                     name={SEARCH}
