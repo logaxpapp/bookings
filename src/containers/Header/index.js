@@ -82,10 +82,26 @@ export const DrawerNavBar = ({
               <Link to={routes.contact}>Contact Us</Link>
             </li>
             {isLoggedIn ? null : (
-              <li><Link to={routes.login}>Login</Link></li>
+              <>
+                <li>
+                  <Link to={routes.company.absolute.login}>
+                    Login as Service Provider
+                  </Link>
+                </li>
+                <li>
+                  <Link to={routes.user.login}>
+                    Login as User
+                  </Link>
+                </li>
+              </>
             )}
             <li>
-              <Link to={routes.register}>Sign Up</Link>
+              <Link to={routes.company.absolute.registration}>
+                Sign Up as Service Provider
+              </Link>
+              <Link to={routes.user.registeration}>
+                Sign Up as User
+              </Link>
             </li>
             {isLoggedIn ? (
               <>
