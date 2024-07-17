@@ -1231,7 +1231,7 @@ const TimeSlots = () => {
   }, [checkedSlots, date, confirmDialog]);
 
   return (
-    <section className="flex-1 overflow-hidden py-5 px-8 h-full">
+    <section className="flex-1 overflow-hidden p-2 sm:py-5 sm:px-8 h-full">
       <Heading1>Timeslots</Heading1>
       <div className="flex-1 h-full flex flex-col overflow-hidden pt-4">
         {!categories.length ? (
@@ -1271,6 +1271,7 @@ const TimeSlots = () => {
                   initialDate={new Date(date)}
                   dateFormatter={formatter}
                   onChange={setDate}
+                  right
                 />
               </div>
             </div>

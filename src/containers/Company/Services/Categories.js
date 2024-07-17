@@ -29,7 +29,7 @@ const CategoryCard = ({ category, onDelete, onEdit }) => {
 
   return (
     <div className="p-3 w-full flex justify-center items-center">
-      <section className="py-3 rounded border border-slate-200 min-w-48">
+      <section className="py-3 rounded border border-slate-200 w-full sm:min-w-48">
         <h1 className="pb-2 pl-6 font-medium text-lg text-[#5c5c5c]">
           {category.name}
         </h1>
@@ -96,7 +96,7 @@ const Categories = () => {
   };
 
   return (
-    <section className="flex-1 overflow-auto py-5 px-8 h-full" id="company-service-categories-panel">
+    <section className="flex-1 overflow-auto py-2 sm:py-5 px-3 sm:px-8 h-full" id="company-service-categories-panel">
       <Heading1>Categories</Heading1>
       <div className="pt-4">
         {!categories.length ? (

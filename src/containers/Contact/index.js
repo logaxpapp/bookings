@@ -106,7 +106,7 @@ const Contact = () => {
                       hideOnNull
                     />
                   </div>
-                  <div className={`${css.formGroup} ${css.ml10px}`}>
+                  <div className={css.formGroup}>
                     <TextBox
                       type="email"
                       name={EMAIL}

@@ -51,12 +51,13 @@
 }
 
 .formRow {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
   width: 100%;
 }
 
 .formRow > div {
-  flex: 0 0 50%;
+  width: 100%;
 }
 
 .formGroup {
@@ -120,6 +121,7 @@
   padding: 15px;
   resize: none;
   border: 1px solid #eee;
+  background-color: #f2eff5;
 }
 
 .controls {
@@ -211,6 +213,13 @@
 .contact_link.email,
 .contact_link.phone {
   padding-left: 25px;
+}
+
+@media only screen and (min-width: 640px) {
+  .formRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
 }
 
 @media only screen and (max-width: 992px) {

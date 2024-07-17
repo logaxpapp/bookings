@@ -101,10 +101,12 @@ const Profile = () => {
     <div className="flex flex-col gap-8">
       <BrandHeader company={company} />
       <div role="tabpanel" className="flex flex-col gap-10">
-        <div className="flex items-center gap-6">
-          {headers.map((header) => (
-            <TabHeader key={header} header={header} tab={tab} setTab={setTab} />
-          ))}
+        <div className="w-full overflow-auto">
+          <div className="flex items-center gap-6">
+            {headers.map((header) => (
+              <TabHeader key={header} header={header} tab={tab} setTab={setTab} />
+            ))}
+          </div>
         </div>
         <TabBody tab={tab} header={tabs.about}>
           <BrandDetails company={company} />

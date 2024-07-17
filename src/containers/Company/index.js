@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Outlet, useLocation } from 'react-router';
 import { Link, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Bars4Icon } from '@heroicons/react/24/outline';
 import oldCss from './oldStyles.module.css';
 import css from './styles.module.css';
 import routes from '../../routing/routes';
@@ -373,6 +374,8 @@ RestrictedCompany2.propTypes = {
 };
 
 const RestrictedCompany = ({ company, pathname }) => {
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [showHamburger, setShowHamburger] = useState(true);
   const openMessages = useSelector(selectOpenMessages);
   const { width: screenWidth } = useWindowSize();
   const dispatch = useDispatch();
@@ -387,8 +390,16 @@ const RestrictedCompany = ({ company, pathname }) => {
 
   return (
     <div className="flex flex-col w-full h-screen overflow-hidden relative" id="company-panel">
-      <header className="flex justify-between items-center h-16 px-8 border-b border-slate-200">
-        <div className="w-[326px] h-16 flex items-center border-e border-slate-200">
+      <header className="flex justify-between items-center h-16 px-2 sm:px-8 border-b border-slate-200">
+        <div className="w-[240px] sm:w-[326px] h-16 flex items-center gap-2 border-e border-slate-200">
+          <button
+            type="button"
+            aria-label="Toggle Sidebar"
+            onClick={() => setSidebarOpen((open) => !open)}
+            className={`bg-transparent p-0 border-none outline-none ${showHamburger ? 'block sm:hidden' : 'hidden'}`}
+          >
+            <Bars4Icon className="w-6 h-6" />
+          </button>
           <LogoLink />
         </div>
         <div className="flex gap-2 items-center">
@@ -398,7 +409,7 @@ const RestrictedCompany = ({ company, pathname }) => {
       </header>
       <div className="flex flex-col-reverse md:flex-row flex-1 overflow-hidden">
         <MainLinks path={pathname} />
-        <Outlet context={[company]} />
+        <Outlet context={[company, isSidebarOpen, setShowHamburger]} />
       </div>
       {openMessages.length ? (
         <div style={styles.messagePanel}>
