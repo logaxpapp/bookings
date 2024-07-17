@@ -483,6 +483,7 @@ export const Input = ({
   error,
   style,
   className,
+  placeholder,
   onChange,
 }) => {
   const inputStyle = useMemo(() => {
@@ -502,6 +503,7 @@ export const Input = ({
         name={name}
         id={id || name}
         value={value}
+        placeholder={placeholder}
         onChange={onChange}
         className={`text-input bg-white dark:bg-meta-4 dark:border dark:border-[#334255] dark:text-white ${className || ''}`}
         style={inputStyle}
@@ -522,6 +524,7 @@ Input.propTypes = {
   containerStyle: PropTypes.shape({}),
   className: PropTypes.string,
   onChange: PropTypes.func,
+  placeholder: PropTypes.string,
 };
 
 Input.defaultProps = {
@@ -530,6 +533,7 @@ Input.defaultProps = {
   value: '',
   label: '',
   type: 'text',
+  placeholder: '',
   error: '',
   style: {},
   containerStyle: {},
