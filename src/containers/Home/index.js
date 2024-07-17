@@ -416,12 +416,11 @@ const HeroSection = () => {
           <Header transparent />
           <section className={css.hero_body}>
             <header className={css.hero_body_header}>
-              <h1 className={`${css.hero_heading} sm:!hidden`}>
-                <span>Find Your Perfect</span>
-                <br />
+              <h1 className={css.hero_heading}>
+                <span>Find Your Perfect&nbsp;</span>
+                <div aria-hidden="true" className="block sm:hidden" />
                 <span>Services Today</span>
               </h1>
-              <h1 className={`${css.hero_heading} hidden sm:block`}>Find Your Perfect Services Today</h1>
               <p className={css.hero_heading_rider}>
                 Discover top-notch service providers near you.
               </p>
