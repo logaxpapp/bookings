@@ -1231,14 +1231,14 @@ const SearchItemPanel = ({ item }) => {
   ], []);
 
   return (
-    <div className="w-full flex gap-4 h-75 overflow-hidden">
+    <div className="w-full flex flex-col sm:flex-row gap-4 sm:h-75 sm:overflow-hidden">
       <Link
         className="flex-1 max-h-full"
         to={url}
       >
-        <img className="rounded w-full max-h-full" src={picture} alt={item.company.name} />
+        <img className="rounded w-full max-h-40 sm:max-h-full" src={picture} alt={item.company.name} />
       </Link>
-      <section className="px-5 pb-2 dark:bg-boxdark flex-1 flex flex-col gap-6 h-full overflow-hidden">
+      <section className="px-0 sm:px-5 pb-2 dark:bg-boxdark flex-1 flex flex-col gap-6 h-full overflow-hidden">
         <header className="flex flex-col gap-4">
           <div className="w-full max-w-125 flex items-center justify-between">
             <h1
@@ -1253,7 +1253,7 @@ const SearchItemPanel = ({ item }) => {
             {address}
           </p>
         </header>
-        <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col gap-6">
+        <div className="flex-1 sm:overflow-y-auto overflow-x-hidden flex flex-col gap-6">
           {item.services.map((service) => (
             <ServicePanel key={service.id} service={service} />
           ))}
@@ -1310,9 +1310,9 @@ const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
 
   /* eslint-disable no-nested-ternary */
   return (
-    <section className="relative flex-1 p-8 w-full max-w-[1300px] mx-auto">
+    <section className="relative flex-1 p-4 sm:p-8 w-full max-w-[1300px] mx-auto">
       {loading ? (
-        <Loader type="double_ring">
+        <Loader type="double_ring" className="fixed left-0 top-0 w-screen h-screen">
           <span style={{ color: '#354764' }}>
             {`Searching for ${term} ...`}
           </span>
@@ -1320,7 +1320,7 @@ const SearchPanel = ({ term, cityId, forceCurrentLocation }) => {
       ) : error || !searchTerm ? (
         <PlaceHolder initialTerm={term} error={error} onSearch={handleSearch} />
       ) : services.length ? (
-        <div className="w-full flex flex-col gap-6 p-6 bg-white dark:bg-[#24303f]">
+        <div className="w-full flex flex-col gap-6 p-0 sm:p-6 bg-white dark:bg-[#24303f]">
           {services.map((service) => (
             <SearchItemPanel key={service.company.id} item={service} />
           ))}
