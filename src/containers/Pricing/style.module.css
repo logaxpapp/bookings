@@ -62,12 +62,12 @@
 .table th {
   color: #fff;
   background-color: var(--primary-color-dark);
-  font-size: 0.875rem;
   text-transform: inherit;
   text-align: center;
   font-weight: 600;
   white-space: nowrap;
   position: relative;
+  font-size: 0.875rem;
 }
 
 .table td {
@@ -79,7 +79,7 @@
 
 .table th,
 .table td {
-  padding: 16px 24px;
+  padding: 8px 12px;
 }
 
 .table th.features_heading {
@@ -99,4 +99,11 @@
   color: #00bda5;
   width: 24px;
   height: 24px;
+}
+
+@media only screen and (min-width: 640px) {
+  .table th,
+  .table td {
+    padding: 16px 24px;
+  }
 }
