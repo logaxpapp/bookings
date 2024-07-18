@@ -36,7 +36,7 @@ const Reviews = () => {
           </p>
         </div>
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between border border-[#cbd5e1] rounded-lg px-5 py-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border border-[#cbd5e1] rounded-lg px-5 py-3">
             <div className="flex flex-col gap-1">
               <span className="font-medium text-base text-[#8e98a8]">
                 Enable Reviews
@@ -74,8 +74,8 @@ const Reviews = () => {
               plain
             />
           </div>
-          <section className="w-[600px] flex-1 flex flex-col justify-center items-center gap-7 rounded-lg border border-[#cbd5e1] py-10">
-            <div className="w-max flex flex-col items-center gap-7">
+          <section className="w-full max-w-[600px] flex-1 flex flex-col justify-center items-center gap-7 rounded-lg border border-[#cbd5e1] py-10">
+            <div className="flex flex-col items-center gap-7">
               <header className="flex flex-col items-center gap-3">
                 <Heading>{`No${filter === filters[1] ? ' pending' : ''} reviews`}</Heading>
                 <p className="m-0 w-[359px] text-center">
