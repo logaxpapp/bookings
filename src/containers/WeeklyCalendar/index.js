@@ -570,8 +570,8 @@ const WeeklyCalendar = ({
   const clearEventWrapper = useCallback(() => setEventWrapper(null));
 
   useEffect(() => {
-    setMini(panel.current.clientWidth < 420);
-  }, [width, setMini]);
+    setMini(panel.current.clientWidth < 520);
+  }, [width]);
 
   useEffect(() => {
     let currentWeekEvents;
