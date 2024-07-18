@@ -289,7 +289,7 @@ const CompanySettings = () => {
   };
 
   return (
-    <div className="flex-1 h-full flex" id="service-container-id">
+    <div className="flex-1 h-full flex overflow-hidden" id="service-container-id">
       <Aside isSidebarOpen={isSidebarOpen}>
         <div className="flex flex-col gap-5">
           {linkGroups.map((group) => (
@@ -311,8 +311,8 @@ const CompanySettings = () => {
           ))}
         </div>
       </Aside>
-      <main className="flex-1 h-full bg-[#fafafa] p-4 sm:px-7 sm:py-10">
-        <div className="bg-white w-full h-full rounded-lg p-6">
+      <main className="flex-1 h-full bg-[#fafafa] p-4 sm:px-7 sm:py-10 overflow-hidden">
+        <div className="bg-white w-full h-full rounded-lg p-3 sm:p-6">
           <Outlet context={[company]} />
         </div>
       </main>
