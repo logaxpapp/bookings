@@ -418,12 +418,12 @@ const ImportCustomer = () => {
   };
 
   return (
-    <section className="flex flex-col items-center p-12">
+    <section className="flex flex-col w-full items-center p-4 sm:p-12">
       <Heading1>Import Customer</Heading1>
       <p className="m-0 pt-3 pb-5">
         Choose how you want to import your contact
       </p>
-      <div className="flex flex-col gap-[10px] w-96 pb-16 relative">
+      <div className="flex flex-col gap-6 w-full sm:w-96 pb-16 relative">
         <input type="file" ref={fileInputRef} className="clip" onChange={handleFileChange} />
         <button
           type="button"
@@ -753,7 +753,6 @@ const Customers = () => {
             setImportModal((modal) => ({ ...modal, isOpen: false }));
           }
         }}
-        style={{ content: { width: 'max-content' } }}
         shouldCloseOnEsc
         shouldCloseOnOverlayClick
       >
