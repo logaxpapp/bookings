@@ -10,7 +10,6 @@ import { useOutletContext } from 'react-router';
 import PropTypes from 'prop-types';
 import { Menu, Transition } from '@headlessui/react';
 import { EllipsisVerticalIcon, PlusIcon } from '@heroicons/react/24/outline';
-import css from '../Employees/style.module.css';
 import {
   createEmployeeAsync,
   removeEmployeeAsync,
@@ -228,7 +227,7 @@ const EmployeeCard = ({
   };
 
   return (
-    <section className={`card ${css.card}`} style={{ maxWidth: 300 }}>
+    <section className="card">
       <div className="flex flex-col gap-4">
         <div className="flex items-center flex-nowrap gap-2">
           <span className="font-semibold text-base text-[#001c39] w-20">Firstname</span>
@@ -456,7 +455,7 @@ const Employees = () => {
   /* eslint-disable no-nested-ternary */
   return (
     <div className="h-full overflow-y-auto" id="company-employees-panel">
-      <section className={css.main}>
+      <section className="w-full h-full flex-1 flex flex-col overflow-hidden">
         <header className="page-header">
           <h1 className="page-heading">Employees</h1>
           {canAddEmployee ? (
@@ -477,7 +476,7 @@ const Employees = () => {
           <div className="card-wrap">
             <GridPanel minimumChildWidth={300}>
               {employees.map((emp) => (
-                <div key={emp.id} className="card-center">
+                <div key={emp.id} className="w-full p-2">
                   <EmployeeCard
                     employee={emp}
                     isAdmin={employeePermissions.isAdmin}

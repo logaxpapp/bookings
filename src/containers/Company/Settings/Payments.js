@@ -208,7 +208,7 @@ const PaymentPreferences = () => {
 
   return (
     <section className="p-4 border border-[#cbd5e1] rounded mt-5">
-      <div className="flex items-center justify-between border border-[#cbd5e1] rounded-lg px-5 py-4 mb-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border border-[#cbd5e1] rounded-lg px-5 py-4 mb-5">
         <div className="flex flex-col gap-1">
           <span className="font-medium text-base text-[#8e98a8]">
             Accept Booking Payments
@@ -219,7 +219,7 @@ const PaymentPreferences = () => {
         </div>
         <Switch name={ACCEPT_PAYMENTS} checked={fields[ACCEPT_PAYMENTS]} onChange={handleChange} />
       </div>
-      <div className="flex items-center justify-between border border-[#cbd5e1] rounded-lg py-4 px-5">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border border-[#cbd5e1] rounded-lg py-4 px-5">
         <div className="flex flex-col gap-1">
           <span className="font-medium text-base text-[#8e98a8]">
             Require payment upfront
@@ -534,7 +534,7 @@ const Settings = ({ company }) => {
   const requestEdit = (charge) => setEditModal({ charge, isOpen: true, busy: false });
 
   return (
-    <section className="w-[600px]" id="company-payments-settings-panel">
+    <section className="w-full max-w-[600px]" id="company-payments-settings-panel">
       <Heading2>Booking Payment Preferences</Heading2>
       <p className="m-0 text-sm text-[#5c5c5c]">
         Manage how customers pay for your services
@@ -681,7 +681,7 @@ const History = () => {
           Generate
         </button>
       </div>
-      <section className="w-[600px] flex-1 flex flex-col justify-center items-center gap-7">
+      <section className="w-full max-w-[600px] flex-1 flex flex-col justify-center items-center gap-7">
         <div className="w-max flex flex-col items-center gap-7">
           <header className="flex flex-col items-center gap-3">
             <Heading>No Payments To Display</Heading>

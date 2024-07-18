@@ -51,7 +51,7 @@ const Reports = () => {
       <Heading>Reports</Heading>
       <div className="flex flex-col gap-16">
         <div className="w-full flex flex-wrap items-center gap-4">
-          <label htmlFor={SERVICES} className="bold-select-wrap max-w-lg">
+          <label htmlFor={SERVICES} className="bold-select-wrap min-w-40 max-w-lg">
             <div className="bold-select caret bg-[#f8fafc] border border-[#cbd5e1]">
               <select
                 name={SERVICES}
@@ -89,7 +89,7 @@ const Reports = () => {
             )}
           </>
         ) : (
-          <section className="w-[600px] flex-1 flex flex-col justify-center items-center gap-7">
+          <section className="w-full max-w-[600px] flex-1 flex flex-col justify-center items-center gap-7">
             <div className="w-max flex flex-col items-center gap-7">
               <header className="flex flex-col items-center gap-3">
                 <Heading>No Report genrated</Heading>
