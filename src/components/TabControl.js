@@ -15,7 +15,7 @@ export const TabHeader = ({ header, tab, setTab }) => {
       aria-current={isActive}
       type="button"
       onClick={handleClick}
-      className={`py-0 border-none outline-none bg-transparent cursor-pointer font-medium ${isActive ? 'underline font-bold text-[#011c39]' : 'text-[#8e98ab]'}`}
+      className={`py-0 border-none outline-none bg-transparent cursor-pointer text-nowrap ${isActive ? 'underline font-bold text-[#011c39]' : 'text-[#8e98ab] font-medium'}`}
     >
       {header}
     </button>
@@ -61,8 +61,12 @@ TabBody.defaultProps = {
 };
 
 export const TabHeaders = ({ headers, tab, setTab }) => (
-  <div className="flex items-center gap-6">
-    {headers.map((header) => <TabHeader key={header} header={header} tab={tab} setTab={setTab} />)}
+  <div className="w-full overflow-x-auto flex-[0_0_36px]">
+    <div className="flex items-center gap-6">
+      {headers.map((header) => (
+        <TabHeader key={header} header={header} tab={tab} setTab={setTab} />
+      ))}
+    </div>
   </div>
 );
 

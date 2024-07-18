@@ -347,7 +347,7 @@ const BookingPreferences = () => {
 
   return (
     <div className="w-[600px] flex flex-col gap-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
           <span className="font-medium text-base text-[#8e98a8]">
             Leading Time
@@ -358,7 +358,7 @@ const BookingPreferences = () => {
         </div>
         <TimeAmount name={LEAD_TIME} initialValue={fields[LEAD_TIME]} onChange={handleChange} />
       </div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-[6px]">
           <span className="font-medium text-base text-[#8e98a8]">
             Scheduling window
@@ -373,7 +373,7 @@ const BookingPreferences = () => {
           onChange={handleChange}
         />
       </div>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-[6px]">
           <span className="font-medium text-base text-[#8e98a8]">
             Booking  slot size
@@ -434,7 +434,7 @@ const ReturnPolicy = ({ company }) => {
       <TabHeaders tab={tab} headers={['Edit', 'Preview']} setTab={setTab} />
       <TabBody tab={tab} header="Edit">
         <div className="w-[600px] flex flex-col gap-5 pt-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-1">
               <span className="font-medium text-base text-[#8e98a8]">
                 Cancelation Window
@@ -449,7 +449,7 @@ const ReturnPolicy = ({ company }) => {
               onChange={handleChange}
             />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-[6px]">
               <span className="font-medium text-base text-[#8e98a8]">
                 Refund Processing
@@ -464,7 +464,7 @@ const ReturnPolicy = ({ company }) => {
               onChange={handleChange}
             />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-[6px]">
               <span className="font-medium text-base text-[#8e98a8]">
                 Percentage Refund
@@ -543,7 +543,7 @@ const Customization = () => {
           Select standard display preference for your booking page
         </p>
         <div className="flex flex-col gap-5 pt-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-1">
               <span className="font-medium text-base text-[#8e98a8]">
                 Preferred language
@@ -553,14 +553,14 @@ const Customization = () => {
               </span>
             </div>
             <MenuSelect
-              className="!rounded-3xl !text-[#5c5c5c] !font-medium !text-base"
+              className="!rounded-3xl !text-[#5c5c5c] !font-medium !text-base !w-fit"
               options={languages}
               name={LANGUAGE}
               value={fields[LANGUAGE]}
               onChange={handleChange}
             />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-1">
               <span className="font-medium text-base text-[#8e98a8]">
                 Time Format
@@ -570,14 +570,14 @@ const Customization = () => {
               </span>
             </div>
             <MenuSelect
-              className="!rounded-3xl !text-[#5c5c5c] !font-medium !text-base"
+              className="!rounded-3xl !text-[#5c5c5c] !font-medium !text-base !w-fit"
               options={timeFormats}
               name={TIME_FORMAT}
               value={fields[TIME_FORMAT]}
               onChange={handleChange}
             />
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col gap-1">
               <span className="font-medium text-base text-[#8e98a8]">
                 Week Starts On
@@ -587,7 +587,7 @@ const Customization = () => {
               </span>
             </div>
             <MenuSelect
-              className="!rounded-3xl !text-[#5c5c5c] !font-medium !text-base"
+              className="!rounded-3xl !text-[#5c5c5c] !font-medium !text-base !w-fit"
               options={weekdays}
               name={WEEK_START}
               value={weekdays[fields[WEEK_START] || 0]}
