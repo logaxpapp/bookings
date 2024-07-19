@@ -37,6 +37,7 @@ import {
   appointmentStatusesValues,
   statusColors,
 } from '../../../utils/constants';
+import ClassNames from '../../../utils/classNames';
 
 const APPOINTMENT_STATUS = 'appointment_status';
 const EMPLOYEE = 'employee';
@@ -521,7 +522,7 @@ const AppointmentRow = ({
 
   return (
     <tr>
-      <td aria-label={appointment.status} className="w-8">
+      <td aria-label={appointment.status} className={`${ClassNames.th} control`}>
         <span
           aria-hidden="true"
           title={appointment.status}
@@ -529,13 +530,13 @@ const AppointmentRow = ({
           style={{ backgroundColor: statusColors[appointment.status] }}
         />
       </td>
-      <td title={details.customerFullname}>{details.customer}</td>
-      <td>{details.serviceName}</td>
-      <td>{details.time}</td>
-      <td>{details.price}</td>
-      <td>{details.deposit}</td>
-      <td>{details.balance}</td>
-      <td aria-label="actions">
+      <td title={details.customerFullname} className={ClassNames.th}>{details.customer}</td>
+      <td className={ClassNames.th}>{details.serviceName}</td>
+      <td className={ClassNames.th}>{details.time}</td>
+      <td className={ClassNames.th}>{details.price}</td>
+      <td className={ClassNames.th}>{details.deposit}</td>
+      <td className={ClassNames.th}>{details.balance}</td>
+      <td className={`${ClassNames.th} control`} aria-label="actions">
         <ContextMenu
           options={actions}
           onClick={handleActionClick}
@@ -614,7 +615,7 @@ const CompanyAppointments = () => {
   const handleCloseRequests = () => setSelectedAppointmentId(0);
 
   return (
-    <div className="h-full w-full overflow-hidden flex flex-col gap-6 px-8 py-6 relative">
+    <div className="h-full w-full overflow-hidden flex flex-col gap-6 p-3 sm:px-8 sm:py-6 relative">
       {loadCount ? (
         <LoadingBar />
       ) : null}
@@ -632,19 +633,19 @@ const CompanyAppointments = () => {
         </div>
         <DatePicker2 initialDate={date} onChange={setDate} />
       </div>
-      <div className="flex-1 overflow-x-auto">
+      <div className="flex-1 w-full overflow-x-auto">
         {displayedAppointments.length ? (
-          <table className="w-full">
+          <table className={ClassNames.table}>
             <thead>
               <tr>
-                <th className="text-left pb-6" aria-label="status" />
-                <th className="text-left pb-6">Client</th>
-                <th className="text-left pb-6">Service</th>
-                <th className="text-left pb-6">Time</th>
-                <th className="text-left pb-6">Price</th>
-                <th className="text-left pb-6">Deposit</th>
-                <th className="text-left pb-6">Balance</th>
-                <th className="text-left pb-6" aria-label="actions" />
+                <th className={`${ClassNames.th} control`} aria-label="status" />
+                <th className={ClassNames.th}>Client</th>
+                <th className={ClassNames.th}>Service</th>
+                <th className={ClassNames.th}>Time</th>
+                <th className={ClassNames.th}>Price</th>
+                <th className={ClassNames.th}>Deposit</th>
+                <th className={ClassNames.th}>Balance</th>
+                <th className={`${ClassNames.th} control`} aria-label="actions" />
               </tr>
             </thead>
             <tbody>

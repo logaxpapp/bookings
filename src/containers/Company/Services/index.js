@@ -732,7 +732,7 @@ const Services = () => {
   };
 
   return (
-    <div className="flex-1 h-full flex" id="service-container-id">
+    <div className="flex-1 h-full flex overflow-hidden" id="service-container-id">
       <Aside isSidebarOpen={isSidebarOpen}>
         <Heading>Services & Categories</Heading>
         <div className="flex flex-col py-5 gap-4">
@@ -859,7 +859,7 @@ const Services = () => {
           </Link>
         </div>
       </Aside>
-      <main className="flex-1 h-full bg-[#fafafa] p-4 sm:px-7 sm:py-10">
+      <main className="flex-1 h-full bg-[#fafafa] p-4 sm:px-7 sm:py-10 overflow-hidden">
         <div className="bg-white w-full h-full rounded-lg">
           <Outlet context={[company]} />
         </div>
