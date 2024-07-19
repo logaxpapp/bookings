@@ -15,6 +15,7 @@ import {
 } from '../../utils';
 // import GridPanel from '../../components/GridPanel';
 import { appointmentProps } from '../../utils/propTypes';
+import ClassNames from '../../utils/classNames';
 import { SvgButton, paths } from '../../components/svg';
 import {
   deleteAppointmentUpdateRequestAsync,
@@ -606,20 +607,20 @@ const AppointmentRow = ({
 
   return (
     <tr>
-      <td aria-label={appointment.status} className="w-8">
+      <td aria-label={appointment.status} className={`${ClassNames.td} w-8`}>
         <span
           aria-hidden="true"
           className="block w-3 h-3 rounded-full"
           style={{ backgroundColor: statusColors[appointment.status] }}
         />
       </td>
-      <td>{details.companyName}</td>
-      <td>{details.serviceName}</td>
-      <td>{details.time}</td>
-      <td>{details.price}</td>
-      <td>{details.deposit}</td>
-      <td>{details.balance}</td>
-      <td aria-label="actions">
+      <td className={ClassNames.td}>{details.companyName}</td>
+      <td className={ClassNames.td}>{details.serviceName}</td>
+      <td className={ClassNames.td}>{details.time}</td>
+      <td className={ClassNames.td}>{details.price}</td>
+      <td className={ClassNames.td}>{details.deposit}</td>
+      <td className={ClassNames.td}>{details.balance}</td>
+      <td className={`${ClassNames.td} w-8`} aria-label="actions">
         <ContextMenu
           options={appointmentOptions}
           onClick={handleActionClick}
@@ -736,7 +737,7 @@ const UserAppointments = () => {
 
   return (
     <UserSearchbarContainer>
-      <div className="h-full w-full overflow-hidden flex flex-col gap-6 px-8 py-6 relative">
+      <div className="h-full w-full overflow-hidden flex flex-col gap-6 px-3 sm:px-8 py-3 sm:py-6 relative">
         {loadCount ? (
           <LoadingBar />
         ) : null}
@@ -759,14 +760,14 @@ const UserAppointments = () => {
             <table className="w-full">
               <thead>
                 <tr>
-                  <th className="text-left pb-6" aria-label="serial number" />
-                  <th className="text-left pb-6">Company</th>
-                  <th className="text-left pb-6">Service</th>
-                  <th className="text-left pb-6">Time</th>
-                  <th className="text-left pb-6">Price</th>
-                  <th className="text-left pb-6">Deposit</th>
-                  <th className="text-left pb-6">Balance</th>
-                  <th className="text-left pb-6" aria-label="actions" />
+                  <th className={ClassNames.th} aria-label="serial number" />
+                  <th className={ClassNames.th}>Company</th>
+                  <th className={ClassNames.th}>Service</th>
+                  <th className={ClassNames.th}>Time</th>
+                  <th className={ClassNames.th}>Price</th>
+                  <th className={ClassNames.th}>Deposit</th>
+                  <th className={ClassNames.th}>Balance</th>
+                  <th className={`${ClassNames.th} control`} aria-label="actions" />
                 </tr>
               </thead>
               <tbody>

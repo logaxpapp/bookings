@@ -47,6 +47,7 @@ import { TabBody, TabHeaders } from '../../../components/TabControl';
 import gearIcon from '../../../assets/images/gear.svg';
 import Modal from '../../../components/Modal';
 import { useWindowSize } from '../../../lib/hooks';
+import ClassNames from '../../../utils/classNames';
 
 const CATEGORY = 'category';
 const CHECK_ALL_SLOTS = 'check_all_slots';
@@ -105,22 +106,24 @@ const TimeSlotRow = ({
 
   return (
     <>
-      <td className="flex items-center gap-2 h-[39px]">
-        {onCheckedChanged ? (
-          <input
-            type="checkbox"
-            name={CHECK_SLOT}
-            value={slot.id}
-            checked={checked}
-            onChange={onCheckedChanged}
-          />
-        ) : null}
-        <span>{datetime.date}</span>
+      <td className={ClassNames.td}>
+        <div className="flex items-center gap-2">
+          {onCheckedChanged ? (
+            <input
+              type="checkbox"
+              name={CHECK_SLOT}
+              value={slot.id}
+              checked={checked}
+              onChange={onCheckedChanged}
+            />
+          ) : null}
+          <span>{datetime.date}</span>
+        </div>
       </td>
-      <td>{datetime.time}</td>
+      <td className={ClassNames.td}>{datetime.time}</td>
       {excludeActions ? null : (
         <>
-          <td aria-label="edit" className="control">
+          <td aria-label="edit" className={`${ClassNames.td} control`}>
             <SvgButton
               type="button"
               name={EDIT}
@@ -130,7 +133,7 @@ const TimeSlotRow = ({
               sm
             />
           </td>
-          <td aria-label="delete" className="control">
+          <td aria-label="delete" className={`${ClassNames.td} control`}>
             <SvgButton
               type="button"
               name={DELETE}
@@ -1280,7 +1283,7 @@ const TimeSlots = () => {
                 No services found!
               </div>
             ) : (
-              <div className="table-wrap">
+              <div className="flex-1 w-full h-full overflow-hidden">
                 {!filteredSlots.length ? (
                   <div className="font-bold text-xl text-[#858b9c] p-12 text-center">
                     No time slots found!
@@ -1308,12 +1311,12 @@ const TimeSlots = () => {
                       ) : null}
                     </div>
                     <div className="table-card">
-                      <table className="table">
+                      <table className={ClassNames.table}>
                         <thead>
                           <tr>
-                            <th className="pl-9">Date</th>
-                            <th>Time</th>
-                            <th colSpan={2}>Actions</th>
+                            <th className={`pl-9 ${ClassNames.th}`}>Date</th>
+                            <th className={ClassNames.th}>Time</th>
+                            <th className={ClassNames.th} colSpan={2}>Actions</th>
                           </tr>
                         </thead>
                         <tbody>

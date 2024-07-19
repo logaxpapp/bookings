@@ -26,13 +26,13 @@ const CompanyRow = ({ company, onToggleSelected, selections }) => {
   }));
 
   return (
-    <section className="w-full flex items-end text-[#011c39] dark:text-white gap-6 px-1">
-      <header className="flex items-center gap-4">
+    <section className="w-full flex flex-col gap-4 sm:flex-row sm:gap-6 sm:items-end text-[#011c39] dark:text-white px-1 pb-4 border-slate-200 border-b sm:border-none">
+      <header className="flex items-center gap-2 sm:gap-4">
         <button
           type="button"
           aria-label="toggle selected"
           onClick={() => onToggleSelected(company.id, !checked)}
-          className="w-6 h-6 rounded-sm bg-transparent border border-[#d0d2d5] dark:border-[#ddd] flex items-center justify-center"
+          className="w-6 h-6 min-w-6 rounded-sm bg-transparent border border-[#d0d2d5] dark:border-[#ddd] flex items-center justify-center"
         >
           {checked ? (
             <CheckIcon className="w-4 h-4 text-[#89e101]" />
@@ -49,7 +49,7 @@ const CompanyRow = ({ company, onToggleSelected, selections }) => {
           </h1>
           <Link
             to={page}
-            className="text-blue-600 flex-1 text-ellipsis whitespace-nowrap"
+            className="text-blue-600 flex-1 text-ellipsis text-sm sm:text-base whitespace-nowrap"
             title={`${window.location.protocol}://${window.location.host}${page}`}
           >
             {`${window.location.protocol}://${window.location.host}${page}`}
@@ -100,7 +100,7 @@ const UserBookmarks = () => {
 
   return (
     <UserSearchbarContainer>
-      <section className="fllex flex-col overflow-hidden p-6">
+      <section className="fllex flex-col overflow-hidden p-2 sm:p-6">
         <header
           className="mb-6 mx-1 py-3 text-center text-sm flex items-center justify-between border-b border-slate-200 dark:border-slate-600"
         >

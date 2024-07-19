@@ -26,7 +26,7 @@ const UserAddress = () => {
         <h1 className="font-semmibold text-2xl text-[#393939] dark:text-white">My Address</h1>
         <p className="text-sm text-[#8E98A8] dark:text-[#dfe2e6]">Update your address</p>
       </header>
-      <div className="flex flex-col gap-8 w-6/12 pb-8">
+      <div className="flex flex-col gap-8 w-full sm:w-6/12 pb-8 pr-2">
         <AddressFields
           address={user.address}
           countries={countries || []}

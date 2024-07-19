@@ -148,7 +148,7 @@ const Searchbar = ({ user }) => {
   };
 
   return (
-    <div className="flex items-center gap-17">
+    <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-17">
       <div className="flex flex-col gap-3">
         <span className="font-semibold text-[28px] text-[#393939] dark:text-white">
           {greetings}
@@ -157,7 +157,7 @@ const Searchbar = ({ user }) => {
           {timeZone}
         </span>
       </div>
-      <div className="flex-1 flex items-center gap-3">
+      <div className="w-full sm:flex-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
         <form onSubmit={handleSubmit} className="flex-1">
           <label
             aria-label="search"
@@ -176,7 +176,9 @@ const Searchbar = ({ user }) => {
             />
           </label>
         </form>
-        <FilterMenu user={user} />
+        <div className="w-full sm:w-auto flex sm:block justify-end">
+          <FilterMenu user={user} />
+        </div>
       </div>
     </div>
   );

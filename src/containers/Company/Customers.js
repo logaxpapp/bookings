@@ -675,7 +675,7 @@ const Customers = () => {
         ) : null}
       </Aside>
       {customers.length ? (
-        <div>
+        <div className="flex-1">
           <GridPanel minimumChildWidth={280}>
             {customers.map((customer) => (
               <div key={customer.email} className="p-3">
