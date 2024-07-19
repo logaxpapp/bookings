@@ -84,7 +84,7 @@ const FieldRow = ({
 
   return (
     <div className="flex items-center">
-      <span className="min-w-60 font-semibold text-[#011c39] dark:text-gray">
+      <span className="min-w-40 sm:min-w-60 font-semibold text-[#011c39] dark:text-gray">
         {label}
       </span>
       <div

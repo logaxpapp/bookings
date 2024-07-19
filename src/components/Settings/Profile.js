@@ -35,7 +35,7 @@ const Profile = () => {
       </header>
       <div className="flex flex-col gap-8 w-6/12 pb-8">
         <div className="flex items-center">
-          <span className="min-w-60 font-semibold text-[#011c39] dark:text-gray">
+          <span className="min-w-40 sm:min-w-60 font-semibold text-[#011c39] dark:text-gray">
             Profile Picture
           </span>
           <div className="flex items-center gap-6">

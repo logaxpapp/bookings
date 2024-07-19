@@ -5,7 +5,7 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import FieldRow from './FieldRow';
 import UserLocation from '../../utils/userLocation';
-import { capitalize, classNames, notification } from '../../utils';
+import { classNames, notification } from '../../utils';
 import Modal, { useBusyModal } from '../Modal';
 import { Input, isNumber } from '../TextBox';
 import { Button } from '../Buttons';
@@ -38,40 +38,6 @@ const HomeLocation = () => {
   const [manualEditor, setManualEditor] = useState({ isOpen: false, busy: false });
   const busyModal = useBusyModal();
   const dispatch = useDispatch();
-
-  const handleEditField = (name, value, callback) => {
-    if (value) {
-      const floatValue = Number.parseFloat(value);
-
-      if (`${floatValue}` === value) {
-        let { latitude, longitude } = location;
-
-        if (name === LATITUDE) {
-          latitude = floatValue;
-        } else if (name === LONGITUDE) {
-          longitude = floatValue;
-        }
-
-        UserLocation.getLocation().save(latitude, longitude);
-        setLocation({ latitude, longitude });
-
-        let notice = `${capitalize(name)} successfully updated.`;
-        const otherProp = name === LATITUDE ? LONGITUDE : LATITUDE;
-
-        if (!location[otherProp]) {
-          notice = `${notice} Please update ${capitalize(otherProp)} to make your home location valid`;
-        }
-
-        notification.showSuccess(notice);
-        callback();
-        return;
-      }
-    }
-
-    const msg = `Invalid value for ${name}`;
-    notification.showError(msg);
-    callback(msg);
-  };
 
   const handleEditLocation = ({ target: { name } }) => {
     if (name === MANUAL) {
@@ -159,13 +125,11 @@ const HomeLocation = () => {
           name={LONGITUDE}
           label="Longitude"
           value={location.longitude || 'Set Longitude'}
-          onEdit={handleEditField}
         />
         <FieldRow
           name={LATITUDE}
           label="Latitude"
           value={location.latitude || 'Set Latitude'}
-          onEdit={handleEditField}
         />
         <div className="pt-6">
           <Menu as="div" className="relative inline-block text-left">

@@ -37,7 +37,7 @@ const BookmarkButton = ({ company }) => {
         address: company.address ? addressText(company.address) : '',
         url: typeof company.profilePicture === 'string'
           ? company.profilePicture
-          : company.profilePicture.url,
+          : company.profilePicture?.url || '',
       }));
     }
   };

@@ -23,7 +23,7 @@ const TabHeader = ({ header, tab, setTab }) => {
     <button
       type="button"
       onClick={() => setTab(header)}
-      className={`bg-transparent py-2 px-0 border-b-2 text-[#393939] dark:text-white ${isActive ? 'border-[#011c39] dark:border-white font-semibold' : 'border-[#DDE2E4] dark:border-[#5f6568]'}`}
+      className={`bg-transparent py-2 px-0 border-b-2 text-nowrap text-[#393939] dark:text-white ${isActive ? 'border-[#011c39] dark:border-white font-semibold' : 'border-[#DDE2E4] dark:border-[#5f6568]'}`}
     >
       {header}
     </button>
@@ -47,16 +47,18 @@ const Settings = () => {
     <div className="flex-1 h-full flex flex-col overflow-hidden">
       <div className="px-8 pt-8 bg-white dark:bg-[#24303f]">
         <Heading1>Settings</Heading1>
-        <ul className="pt-10 flex items-center gap-8 m-0 p-0 list-none">
-          {headers.map((header) => (
-            <li key={header}>
-              <TabHeader header={header} tab={activeTab} setTab={setActiveTab} />
-            </li>
-          ))}
-        </ul>
+        <div className="w-full overflow-x-auto pb-1">
+          <ul className="pt-10 flex items-center gap-8 m-0 p-0 list-none">
+            {headers.map((header) => (
+              <li key={header}>
+                <TabHeader header={header} tab={activeTab} setTab={setActiveTab} />
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
-      <div className="bg-[#fafafa] dark:bg-[#1a222c] p-5 flex-1 overflow-hidden">
-        <div className="h-full overflow-hidden bg-white dark:bg-[#24303f] rounded-lg p-7">
+      <div className="bg-[#fafafa] dark:bg-[#1a222c] p-3 sm:py-5 sm:px-5 flex-1 overflow-hidden">
+        <div className="h-full overflow-hidden bg-white dark:bg-[#24303f] rounded-lg p-3 sm:p-7">
           <TabBody header={tabs.profile} tab={activeTab} className="h-full overflow-hidden">
             <Profile />
           </TabBody>
