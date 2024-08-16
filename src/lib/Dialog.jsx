@@ -17,10 +17,14 @@ const useHover = (elementRef) => {
 };
 
 export const useWindowSize = () => {
-  const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  const [size, setSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   useEffect(() => {
-    const handleResize = () => setSize({ width: window.innerWidth, height: window.innerHeight });
+    const handleResize = () =>
+      setSize({ width: window.innerWidth, height: window.innerHeight });
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -54,10 +58,7 @@ const manager = (() => {
     add: (element) => {
       const newId = id + 1;
       id = newId;
-      all = [
-        ...all,
-        { id: newId, element },
-      ];
+      all = [...all, { id: newId, element }];
       if (callback) callback(all);
       return {
         close: () => {
@@ -70,9 +71,7 @@ const manager = (() => {
 })();
 
 export const dialog = {
-  show: (element) => (
-    manager.add(element)
-  ),
+  show: (element) => manager.add(element),
 };
 
 const styles = {
@@ -177,7 +176,9 @@ const styles = {
     background: isDanger
       ? 'linear-gradient(180deg, #9e0606, #5e0505)'
       : 'linear-gradient(180deg, #135cbb, #0e2f5a)',
-    boxShadow: isHovered ? '0 2px 4px 0 rgb(0 0 0 / 50%)' : '0 0 0 0 transparent',
+    boxShadow: isHovered
+      ? '0 2px 4px 0 rgb(0 0 0 / 50%)'
+      : '0 0 0 0 transparent',
   }),
 };
 
@@ -202,12 +203,7 @@ const ModalScreen = ({ children }) => {
   );
 };
 
-export const ConfirmDialog = ({
-  prompt1,
-  prompt2,
-  onConfirm,
-  onCancel,
-}) => (
+export const ConfirmDialog = ({ prompt1, prompt2, onConfirm, onCancel }) => (
   <ModalScreen>
     <div style={styles.dialog}>
       <h2 style={styles.dialogPrompt}>
@@ -216,17 +212,13 @@ export const ConfirmDialog = ({
       </h2>
       <div style={styles.dialogControls}>
         <button
-          type="button"
-          className="control-btn cancel"
+          type='button'
+          className='control-btn cancel'
           onClick={onConfirm}
         >
           Confirm
         </button>
-        <button
-          type="button"
-          className="control-btn"
-          onClick={onCancel}
-        >
+        <button type='button' className='control-btn' onClick={onCancel}>
           Cancel
         </button>
       </div>
@@ -234,12 +226,7 @@ export const ConfirmDialog = ({
   </ModalScreen>
 );
 
-export const YesNoDialog = ({
-  prompt1,
-  prompt2,
-  onConfirm,
-  onCancel,
-}) => (
+export const YesNoDialog = ({ prompt1, prompt2, onConfirm, onCancel }) => (
   <ModalScreen>
     <div style={styles.dialog}>
       <h2 style={styles.dialogPrompt}>
@@ -248,16 +235,16 @@ export const YesNoDialog = ({
       </h2>
       <div style={styles.dialogControls}>
         <button
-          type="button"
-          className="control-btn"
+          type='button'
+          className='control-btn'
           onClick={onConfirm}
           style={{ paddingLeft: 25, paddingRight: 25 }}
         >
           Yes
         </button>
         <button
-          type="button"
-          className="control-btn cancel"
+          type='button'
+          className='control-btn cancel'
           onClick={onCancel}
           style={{ paddingLeft: 25, paddingRight: 25 }}
         >
@@ -279,7 +266,7 @@ export const MessageDialog = ({ message, onOK }) => {
         <div style={styles.dialogControls}>
           <button
             ref={okBtn}
-            type="button"
+            type='button'
             style={styles.btn(true, isOkHovered, true)}
             onClick={onOK}
           >
@@ -321,29 +308,22 @@ export const TextInputDialog = ({
   return (
     <ModalScreen>
       <form style={styles.dialog} onSubmit={handleSubmit}>
-        {prompt ? (
-          <h2 style={styles.dialogTitle}>{prompt}</h2>
-        ) : null}
-        {error ? (
-          <div style={styles.error}>{error}</div>
-        ) : null}
+        {prompt ? <h2 style={styles.dialogTitle}>{prompt}</h2> : null}
+        {error ? <div style={styles.error}>{error}</div> : null}
         <input
           ref={textInput}
-          type="text"
+          type='text'
           value={text}
           onChange={handleTextChange}
           style={styles.blockTextInput}
         />
         <div style={styles.dialogControls}>
-          <button
-            type="submit"
-            className="control-btn"
-          >
+          <button type='submit' className='control-btn'>
             Confirm
           </button>
           <button
-            type="button"
-            className="control-btn cancel"
+            type='button'
+            className='control-btn cancel'
             onClick={onCancel}
           >
             Cancel
@@ -369,11 +349,9 @@ const Dialog = () => {
   if (dialogs.length <= 0) return null;
 
   return (
-    <div style={styles.container} role="alertdialog">
+    <div style={styles.container} role='alertdialog'>
       {dialogs.map((dialog) => (
-        <React.Fragment key={dialog.id}>
-          {dialog.element}
-        </React.Fragment>
+        <React.Fragment key={dialog.id}>{dialog.element}</React.Fragment>
       ))}
     </div>
   );
@@ -437,9 +415,7 @@ export const useMessageDialog = () => ({
 
     const handleClose = () => popup.close();
 
-    popup = dialog.show(
-      <MessageDialog message={message} onOK={handleClose} />,
-    );
+    popup = dialog.show(<MessageDialog message={message} onOK={handleClose} />);
   },
 });
 

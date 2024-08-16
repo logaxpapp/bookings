@@ -1,6 +1,9 @@
 {
   "name": "appointments",
   "version": "0.1.0",
+  "description": "A React app for managing appointments",
+  "main": "index.js",
+  "type": "module",
   "private": true,
   "dependencies": {
     "@fullcalendar/core": "^6.1.11",
@@ -31,15 +34,12 @@
     "react-redux": "^8.1.1",
     "react-router": "^6.14.1",
     "react-router-dom": "^6.14.1",
-    "react-scripts": "5.0.1",
-    "react-toastify": "^9.1.3",
-    "web-vitals": "^2.1.4"
+    "react-toastify": "^9.1.3"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "eslintConfig": {
     "extends": [
@@ -60,11 +60,9 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.22.9",
-    "@babel/eslint-parser": "^7.22.9",
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@babel/plugin-syntax-jsx": "^7.22.5",
-    "@babel/preset-react": "^7.22.5",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+    "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-import": "^2.27.5",
@@ -75,6 +73,7 @@
     "stylelint-config-standard": "^21.0.0",
     "stylelint-csstree-validator": "^1.9.0",
     "stylelint-scss": "^3.21.0",
-    "tailwindcss": "^3.4.1"
+    "tailwindcss": "^3.4.1",
+    "vite": "^5.4.0"
   }
 }

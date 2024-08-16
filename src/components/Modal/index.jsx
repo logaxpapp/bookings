@@ -47,9 +47,9 @@ export const BusyModal = () => {
         content: {},
         overlay: styles.overlay,
       }}
-      className="bg-transparent border-[transparent] border-none"
+      className='bg-transparent border-[transparent] border-none'
     >
-      <div className="lds_spinner">
+      <div className='lds_spinner'>
         <div />
         <div />
         <div />
@@ -98,14 +98,14 @@ const Modal = ({
       content: { ...styles.content, ...(style?.content || {}) },
       overlay: { ...styles.overlay, zIndex: 1020, ...(style?.overlay || {}) },
     }}
-    className="bg-white dark:bg-[#24303f] border border-[#ccc] dark:border-[#43464b] max-h-[90vh] overflow-y-auto"
+    className='bg-white dark:bg-[#24303f] border border-[#ccc] dark:border-[#43464b] max-h-[90vh] overflow-y-auto'
   >
     {children}
     {onRequestClose ? (
       <SvgButton
         path={paths.close}
-        title="Close"
-        color="#ee4f4f"
+        title='Close'
+        color='#ee4f4f'
         style={{
           width: 36,
           height: 36,
@@ -116,7 +116,7 @@ const Modal = ({
           right: -16,
           padding: 4,
         }}
-        className="!bg-white border dark:!bg-[#24303f] dark:border-[#334255]"
+        className='!bg-white border dark:!bg-[#24303f] dark:border-[#334255]'
         onClick={onRequestClose}
       />
     ) : null}
